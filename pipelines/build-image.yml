@@ -20,16 +20,25 @@ variables:
   scriptDirectory: '$(Build.SourcesDirectory)/scripts'
 
 steps:
-# - pwsh: |
-#     ./build_image.ps1
-#   displayName: Build image
-#   workingDirectory: '$(scriptDirectory)'
+- pwsh: |
+    ./build_image.ps1
+  displayName: Build image
+  workingDirectory: '$(scriptDirectory)'
+# - task: Docker@2
+#   displayName: Build & push image
+#   inputs:
+#     command: buildAndPush
+#     containerRegistry: '$(containerRegistry)'
+#     Dockerfile: images/ubuntu/Dockerfile
+#     repository: $(imageName)
+#     tags: |
+#       $(Build.BuildId)
+#       latest    
 - task: Docker@2
   displayName: Push image
   inputs:
-    command: buildAndPush
+    command: push
     containerRegistry: '$(containerRegistry)'
-    Dockerfile: images/ubuntu/Dockerfile
     repository: $(imageName)
     tags: |
       $(Build.BuildId)
