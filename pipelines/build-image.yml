@@ -43,7 +43,6 @@ steps:
     command: push
     containerRegistry: '$(containerRegistry)'
     repository: $(imageName)
-    tags: latest    
-    # tags: |
-    #   $(Build.BuildId)
-    #   latest    
+    tags: |
+      $(Build.BuildId)
+      latest    
