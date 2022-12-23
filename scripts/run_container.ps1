@@ -38,4 +38,4 @@ docker run --platform linux/amd64 `
            -e AZP_POOL=$PoolName `
            -e AZP_TOKEN=$Token `
            -e AZP_URL=$OrganizationUrl `
-           dockeragent:latest # --once
+           dockeragent:latest --once

@@ -2,7 +2,7 @@ function Start-Docker () {
     Get-Process docker -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id | Set-Variable dockerProcessId
 
     if ($dockerProcessId) {
-        Write-Host "Docker already running (pid: ${dockerProcessId}"
+        Write-Host "Docker already running (pid: ${dockerProcessId})"
         return
     }
     

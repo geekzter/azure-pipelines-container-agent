@@ -13,11 +13,17 @@ jobs:
   - bash: |
       echo Hello from Ubuntu
       lsb_release -d
-    displayName: 'lsb_release'
+    displayName: 'Ubuntu info'
+  - pwsh: |
+      az -v
+    displayName: 'Azure CLI info'
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
       $PSVersionTable.OS
-    displayName: 'PSVersionTable'
+    displayName: 'PowerShell info'
+  - pwsh: |
+      terraform -v
+    displayName: 'Terraform info'
   - pwsh: |
       terraform -v
     displayName: 'Terraform info'
