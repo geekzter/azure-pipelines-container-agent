@@ -13,6 +13,12 @@ jobs:
   - bash: |
       echo Hello from Ubuntu
       lsb_release -d
+    displayName: 'lsb_release'
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
       $PSVersionTable.OS
+    displayName: 'PSVersionTable'
+  - pwsh: |
+      terraform -v
+    displayName: 'Terraform info'
+      
