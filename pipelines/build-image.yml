@@ -14,7 +14,7 @@ pool:
   vmImage: 'ubuntu-latest' 
 
 variables:
-  containerRegistry: 'ericvanacr'
+  containerRegistry: 'agent-registry'
   imageName: 'dockeragent'
   tags: 'latest'
   scriptDirectory: '$(Build.SourcesDirectory)/scripts'
