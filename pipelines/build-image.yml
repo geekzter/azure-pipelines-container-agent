@@ -1,0 +1,16 @@
+trigger:
+ - main
+
+pool:
+  vmImage: 'ubuntu-latest' 
+
+variables:
+  imageName: 'dockeragent:latest'
+
+steps:
+- task: Docker@2
+  displayName: Build image
+  inputs:
+    repository: $(imageName)
+    command: build
+    Dockerfile: images/ubuntu/Dockerfile
