@@ -5,8 +5,13 @@ param (
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [string]
-    $ImageName="dockeragent:latest",
-    
+    $ImageName="ubuntu",
+
+    [parameter(Mandatory=$false)]
+    [ValidateNotNull()]
+    [string]
+    $Repository="dockeragent",
+
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [string]
@@ -41,5 +46,5 @@ docker run --platform linux/amd64 `
            -e AZP_POOL=$PoolName `
            -e AZP_TOKEN=$Token `
            -e AZP_URL=$OrganizationUrl `
-           $ImageName `
+           ${Repository}/${ImageName} `
            ($RunOnce ? "--once" : "")

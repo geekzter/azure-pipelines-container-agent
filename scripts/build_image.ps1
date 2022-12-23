@@ -5,7 +5,20 @@ param (
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [string]
-    $ImageName="dockeragent:latest",
+    $ImageName="ubuntu",
+
+    [parameter(Mandatory=$false)]
+    [ValidateNotNull()]
+    [string]
+    $Repository="dockeragent",
+
+    [parameter(Mandatory=$false)]
+    [string]
+    $Registry,
+
+    [parameter(Mandatory=$false)]
+    [string[]]
+    $Tag=@("latest"),
 
     [parameter(Mandatory=$false)]
     [switch]
@@ -18,7 +31,11 @@ try {
     Join-Path (Split-Path $(pwd)) images ubuntu | Push-Location
 
     Start-Docker
-    docker build --platform linux/amd64 -t $ImageName .  
+    docker build --platform linux/amd64 -t ${Repository}/${ImageName} .  
+    if ($Registry) {
+        docker tag ${Repository}/${ImageName} "${Registry}/${Repository}/${ImageName}"
+        # docker tag ${Repository}/${ImageName} "${Registry}/${ImageName}"
+    }
     if ($Scan) {
         docker scan $ImageName --accept-license
     }
