@@ -1,0 +1,18 @@
+trigger: none
+
+variables:
+  pool: 'Container Agents'
+
+jobs:
+- job: ubuntu
+  pool:
+    name: $(pool)
+    demands:
+    - agent.os -equals Linux
+  steps:
+  - bash: |
+      echo Hello from Ubuntu
+      lsb_release -d
+  - pwsh: |
+      Write-Host "`$PSVersionTable.OS"
+      $PSVersionTable.OS
