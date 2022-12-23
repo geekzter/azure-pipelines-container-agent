@@ -39,6 +39,7 @@ try {
     if ($Scan) {
         docker scan $ImageName --accept-license
     }
+    docker images --filter=reference="${Repository}/$ImageName" --filter=reference="${Registry}/${Repository}/$ImageName"
 } finally {
     Pop-Location
 }

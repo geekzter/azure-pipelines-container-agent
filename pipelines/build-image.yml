@@ -18,7 +18,7 @@ variables:
 - name: 'tags'
   value: 'latest'
 - name: 'imageName'
-  value: 'dockeragent'
+  value: 'dockeragent/ubuntu'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 
