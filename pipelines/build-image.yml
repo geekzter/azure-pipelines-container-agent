@@ -5,12 +5,14 @@ pool:
   vmImage: 'ubuntu-latest' 
 
 variables:
-  imageName: 'dockeragent:latest'
+  imageName: 'dockeragent'
+  tags: 'latest'
 
 steps:
 - task: Docker@2
   displayName: Build image
   inputs:
     repository: $(imageName)
+    tags: '$(tags)'
     command: build
     Dockerfile: images/ubuntu/Dockerfile
