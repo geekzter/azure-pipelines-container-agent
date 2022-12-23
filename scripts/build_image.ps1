@@ -18,7 +18,7 @@ param (
 
     [parameter(Mandatory=$false)]
     [string[]]
-    $Tag=@("latest"),
+    $Tags=@("latest"),
 
     [parameter(Mandatory=$false)]
     [switch]
@@ -31,15 +31,17 @@ try {
     Join-Path (Split-Path $(pwd)) images ubuntu | Push-Location
 
     Start-Docker
-    docker build --platform linux/amd64 -t ${Repository}/${ImageName} .  
-    if ($Registry) {
-        docker tag ${Repository}/${ImageName} "${Registry}/${Repository}/${ImageName}"
-        # docker tag ${Repository}/${ImageName} "${Registry}/${ImageName}"
+    docker build --platform linux/amd64 -t ${Repository}/${ImageName}:${ImageName} .  
+    foreach ($tag in $Tags) {
+        docker tag ${Repository}/${ImageName}:${ImageName} "${Repository}/${ImageName}:${tag}"
+        if ($Registry) {
+            docker tag ${Repository}/${ImageName}:${ImageName} ${Registry}/${Repository}/${ImageName}:${tag}
+        }
     }
     if ($Scan) {
         docker scan $ImageName --accept-license
     }
-    docker images --filter=reference="${Repository}/$ImageName" --filter=reference="${Registry}/${Repository}/$ImageName"
+    docker images --filter=reference="${Repository}/${ImageName}:*" --filter=reference="${Registry}/${Repository}/${ImageName}:*"
 } finally {
     Pop-Location
 }
