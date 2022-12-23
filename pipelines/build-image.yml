@@ -14,19 +14,23 @@ pool:
   vmImage: 'ubuntu-latest' 
 
 variables:
+  containerRegistry: 'ericvanacr'
   imageName: 'dockeragent'
   tags: 'latest'
   scriptDirectory: '$(Build.SourcesDirectory)/scripts'
 
 steps:
-# - task: Docker@2
+# - pwsh: |
+#     ./build_image.ps1
 #   displayName: Build image
-#   inputs:
-#     repository: $(imageName)
-#     tags: '$(tags)'
-#     command: build
-#     Dockerfile: images/ubuntu/Dockerfile
-- pwsh: |
-    ./build_image.ps1
-  displayName: Build image
-  workingDirectory: '$(scriptDirectory)'
+#   workingDirectory: '$(scriptDirectory)'
+- task: Docker@2
+  displayName: Push image
+  inputs:
+    command: buildAndPush
+    containerRegistry: '$(containerRegistry)'
+    Dockerfile: images/ubuntu/Dockerfile
+    repository: $(imageName)
+    tags: |
+      $(Build.BuildId)
+      latest    
