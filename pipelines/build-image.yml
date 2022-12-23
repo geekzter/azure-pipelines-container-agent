@@ -14,14 +14,17 @@ pool:
   vmImage: 'ubuntu-latest' 
 
 variables:
-  containerRegistry: 'agent-registry'
-  imageName: 'dockeragent'
-  tags: 'latest'
-  scriptDirectory: '$(Build.SourcesDirectory)/scripts'
+- group: 'build-container-agent-image'
+- name: 'tags'
+  value: 'latest'
+- name: 'imageName'
+  value: 'dockeragent'
+- name: 'scriptDirectory'
+  value: '$(Build.SourcesDirectory)/scripts'
 
 steps:
 - pwsh: |
-    ./build_image.ps1
+    ./build_image.ps1 -Registry $(containerRegistryFQDN)
   displayName: Build image
   workingDirectory: '$(scriptDirectory)'
 # - task: Docker@2
