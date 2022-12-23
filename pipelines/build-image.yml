@@ -29,16 +29,6 @@ steps:
     ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tags latest, $(Build.BuildId), $(date)
   displayName: Build image
   workingDirectory: '$(scriptDirectory)'
-# - task: Docker@2
-#   displayName: Build & push image
-#   inputs:
-#     command: buildAndPush
-#     containerRegistry: '$(containerRegistry)'
-#     Dockerfile: images/ubuntu/Dockerfile
-#     repository: $(imageName)
-#     tags: |
-#       $(Build.BuildId)
-#       latest    
 - task: Docker@2
   displayName: Push image
   inputs:
@@ -46,5 +36,6 @@ steps:
     containerRegistry: '$(containerRegistry)'
     repository: $(imageName)
     tags: |
+      latest
       $(Build.BuildId)
-      latest    
+      $(date)
