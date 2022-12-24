@@ -53,8 +53,6 @@ resource azapi_resource container_app {
     properties: {
       managedEnvironmentId     = azapi_resource.managed_environment.id
       configuration            = {
-        # ingress                = try(each.value.configuration.ingress, null)
-        # dapr                   = try(each.value.configuration.dapr, null)
         registries             = [
           {
             identity           = var.user_assigned_identity_id
