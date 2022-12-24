@@ -1,6 +1,5 @@
-variable container_image {
-  default                      = null
-}
+variable container_image {}
+variable container_registry_id {}
 variable devops_org {}
 variable devops_pat {}
 variable location {}

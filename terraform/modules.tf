@@ -1,6 +1,8 @@
 module container_agents {
   source                       = "./modules/container-app"
 
+  container_image              = var.container_image
+  container_registry_id        = var.container_registry_id
   devops_org                   = var.devops_org
   devops_pat                   = var.devops_pat
   location                     = var.location
