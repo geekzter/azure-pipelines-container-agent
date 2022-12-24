@@ -41,6 +41,11 @@ variable location {
   default                      = "centralus"
 }
 
+variable log_analytics_workspace_resource_id {
+  description                  = "Specify a pre-existing Log Analytics workspace. The workspace needs to have the Security, SecurityCenterFree, ServiceMap, Updates, VMInsights solutions provisioned"
+  default                      = ""
+}
+
 variable pipeline_agent_diagnostics {
   description                  = "Turn on diagnostics for the pipeline agent (Agent.Diagnostic)"
   type                         = bool
@@ -94,5 +99,5 @@ variable tags {
 
 variable user_assigned_identity_id {
   description                  = "User-assigned Managed Identity resource id"
-  default                      = null
+  default                      = ""
 }
