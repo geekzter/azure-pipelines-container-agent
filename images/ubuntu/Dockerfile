@@ -34,9 +34,6 @@ RUN echo "deb [arch=`dpkg --print-architecture`] https://packages.microsoft.com/
 
 RUN apt-get update
 
-# Azure CLI
-# RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-
 # Microsoft packages
 RUN apt-get install -y azure-cli powershell
 

@@ -372,9 +372,6 @@ jobs:
             } else {
               Write-Host "No resources to remove"
             }
-
-            # Remove policy definition
-            ./delete_policy.ps1 -Workspace $(TF_WORKSPACE)
           addSpnToEnvironment: true
           useGlobalConfig: true
           failOnStandardError: true
