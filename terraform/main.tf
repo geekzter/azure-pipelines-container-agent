@@ -36,15 +36,6 @@ resource azurerm_resource_group rg {
   tags                         = local.tags
 }
 
-resource azurerm_ssh_public_key ssh_key {
-  name                         = azurerm_resource_group.rg.name
-  location                     = azurerm_resource_group.rg.location
-  resource_group_name          = azurerm_resource_group.rg.name
-  public_key                   = file(var.ssh_public_key)
-
-  tags                         = azurerm_resource_group.rg.tags
-}
-
 resource azurerm_user_assigned_identity agents {
   name                         = "${azurerm_resource_group.rg.name}-agent-identity"
   resource_group_name          = azurerm_resource_group.rg.name
