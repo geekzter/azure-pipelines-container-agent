@@ -12,5 +12,4 @@ variable suffix {}
 variable tags {
     type = map
 }
-variable ssh_public_key {}
 variable user_assigned_identity_id {}
