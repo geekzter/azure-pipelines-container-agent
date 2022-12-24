@@ -10,7 +10,7 @@ param (
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [string]
-    $Repository="dockeragent",
+    $Repository="pipelineagent",
 
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
