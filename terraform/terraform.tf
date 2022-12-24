@@ -4,6 +4,10 @@ terraform {
       source                   = "azure/azapi"
       version                  = "~> 1.1"
     }    
+    # azuredevops = {
+    #   source                   = "microsoft/azuredevops"
+    #   version                  = "~> 0.3"
+    # }
     azurerm                    = "~> 3.37"
     # http                       = "~> 2.2"
     # local                      = "~> 2.1"
@@ -14,6 +18,12 @@ terraform {
   required_version             = "~> 1.3"
 }
 
+# provider azuredevops {
+#   features {
+#     org_service_url            = "https://dev.azure.com/${var.devops_org}"
+#     personal_access_token      = var.devops_provisioning_pat
+#   }
+# }
 provider azurerm {
   features {
     resource_group {

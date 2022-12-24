@@ -18,7 +18,7 @@ variable container_image {
   default                      = null
 }
 variable container_registry_id {
-  description                  = "Container Registry"
+  description                  = "Container Registry resource id"
   default                      = null
 }
 
@@ -45,6 +45,10 @@ variable pipeline_agent_diagnostics {
   description                  = "Turn on diagnostics for the pipeline agent (Agent.Diagnostic)"
   type                         = bool
   default                      = false
+}
+
+variable pipeline_agent_pool {
+  default                      = "Default"
 }
 
 variable pipeline_agent_version_id {
@@ -87,3 +91,8 @@ variable tags {
   default                      = {
   }  
 } 
+
+variable user_assigned_identity_id {
+  description                  = "User-assigned Managed Identity resource id"
+  default                      = null
+}
