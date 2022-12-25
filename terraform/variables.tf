@@ -52,7 +52,11 @@ variable pipeline_agent_diagnostics {
   default                      = false
 }
 
-variable pipeline_agent_pool {
+variable pipeline_agent_pool_id {
+  type                         = number
+}
+
+variable pipeline_agent_pool_name {
   default                      = "Default"
 }
 

@@ -1,3 +1,10 @@
+parameters:
+# Test auto-scaling by setting sleep time
+- name: sleepTimeMinutes
+  displayName: Sleep time in minutes
+  type: int
+  default: 0
+  
 trigger: none
 
 variables:
@@ -24,4 +31,7 @@ jobs:
   - pwsh: |
       terraform -v
     displayName: 'Terraform info'
-      
+  - ${{ if gt(parameters.sleepTimeMinutes, 0) }}:
+    - pwsh: |
+        Start-Sleep -Seconds (New-TimeSpan -Minutes ${{ parameters.sleepTimeMinutes }})
+      displayName: 'Sleep ${{ parameters.sleepTimeMinutes }} minutes'

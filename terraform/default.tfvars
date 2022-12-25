@@ -2,7 +2,8 @@ configure_access_control       = false
 pipeline_agent_diagnostics     = true
 
 
-pipeline_agent_pool            = "Container Agents"
+pipeline_agent_pool_id         = 324
+pipeline_agent_pool_name       = "Container Agents"
 
 # log_analytics_workspace_id     = "/subscriptions/84c1a2c7-585a-4753-ad28-97f69618cf12/resourcegroups/governance-thfg/providers/microsoft.operationalinsights/workspaces/governance-thfg-loganalytics"
 user_assigned_identity_id        = "/subscriptions/3f56da7f-5953-4018-8ca8-e20dbfa0a7e2/resourcegroups/ericvan-common/providers/Microsoft.ManagedIdentity/userAssignedIdentities/ericvan-acr-client"

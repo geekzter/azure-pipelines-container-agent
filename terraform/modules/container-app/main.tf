@@ -32,7 +32,7 @@ resource azapi_resource managed_environment {
 
   lifecycle {
     ignore_changes             = [
-                                  tags
+      tags
     ]
   }
 }
@@ -61,10 +61,14 @@ resource azapi_resource container_app {
             server             = "${local.container_registry_name}.azurecr.io"
           }
         ]
-        secrets = [
+        secrets                = [
           {
-            name               = "azp-pool"
-            value              = var.pipeline_agent_pool
+            name               = "azp-pool-id"
+            value              = tostring(var.pipeline_agent_pool_id)
+          },
+          {
+            name               = "azp-pool-name"
+            value              = var.pipeline_agent_pool_name
           },
           {
             name               = "azp-url"
@@ -83,7 +87,7 @@ resource azapi_resource container_app {
           env                  = [
             {
               name             = "AZP_POOL"
-              secretRef        = "azp-pool"
+              secretRef        = "azp-pool-name"
             },
             {
               name             = "AZP_URL"
@@ -99,9 +103,31 @@ resource azapi_resource container_app {
             memory             = "1.0Gi"
           }
         }]
-        scale                  = {
+        scale = {
           minReplicas          = 1
-          maxReplicas          = 1
+          maxReplicas          = 5
+          rules                = [
+            {
+              name             = "azdo-agent-scaled"
+              custom           = {
+                type           = "azure-pipelines"
+                metadata       = {
+                  poolID       = tostring(var.pipeline_agent_pool_id)
+                  targetPipelinesQueueLength: "1"
+                },
+                auth           = [
+                  {
+                    secretRef  = "azp-token"
+                    triggerParameter = "personalAccessToken"
+                  },
+                  {
+                    secretRef  = "azp-url"
+                    triggerParameter: "organizationURL"
+                  }
+                ]                
+              }
+            }
+          ]
         }
       }
     }
@@ -109,7 +135,7 @@ resource azapi_resource container_app {
 
   lifecycle {
     ignore_changes             = [
-        tags
+      tags
     ]
   }
 }
