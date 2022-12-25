@@ -108,7 +108,7 @@ resource azapi_resource container_app {
           maxReplicas          = 5
           rules                = [
             {
-              name             = "azdo-agent-scaled"
+              name             = "pipeline-agent-scaler"
               custom           = {
                 type           = "azure-pipelines"
                 metadata       = {
