@@ -2,7 +2,7 @@ parameters:
 # Test auto-scaling by setting sleep time
 - name: sleepTimeMinutes
   displayName: Sleep time in minutes
-  type: int
+  type: number
   default: 0
   
 trigger: none
