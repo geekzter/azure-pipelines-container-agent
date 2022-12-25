@@ -51,6 +51,8 @@ resource azapi_resource agent_container_environment_share {
       }
     }
   })
+
+  count                        = var.deploy_files_share ? 1 : 0
 }
 
 # Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
@@ -146,13 +148,13 @@ resource azapi_resource agent_container_app {
             }
           ]
         }
-        volumes                = [
+        volumes                = var.deploy_files_share ? [
           {
             name               = "diagnostics"
             storageType        = "AzureFile"
-            storageName        = azapi_resource.agent_container_environment_share.name
+            storageName        = azapi_resource.agent_container_environment_share.0.name
           }
-        ]
+        ] : []
       }
     }
   })

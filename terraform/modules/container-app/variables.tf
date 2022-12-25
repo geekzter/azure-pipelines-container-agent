@@ -1,5 +1,8 @@
 variable container_image {}
 variable container_registry_id {}
+variable deploy_files_share {
+  type = bool
+}
 variable devops_org {}
 variable devops_pat {}
 variable diagnostics_storage_share_key {}

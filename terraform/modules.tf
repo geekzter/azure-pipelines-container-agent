@@ -14,6 +14,7 @@ module container_agents {
 
   container_image              = var.container_image
   container_registry_id        = var.container_registry_id
+  deploy_files_share           = var.deploy_files_share
   devops_org                   = var.devops_org
   devops_pat                   = var.devops_pat
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_share_key
