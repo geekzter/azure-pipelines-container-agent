@@ -13,7 +13,7 @@ terraform {
     # local                      = "~> 2.1"
     # null                       = "~> 3.1"
     random                     = "~> 3.4"
-    # time                       = "~> 0.7"
+    time                       = "~> 0.9"
   }
   required_version             = "~> 1.3"
 }

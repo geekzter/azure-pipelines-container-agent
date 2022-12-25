@@ -8,7 +8,7 @@ resource random_string suffix {
 }
 
 locals {
-  log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : azurerm_log_analytics_workspace.monitor.0.id
+  log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
   user_assigned_identity_id    = var.user_assigned_identity_id != "" && var.user_assigned_identity_id != null ? var.user_assigned_identity_id : azurerm_user_assigned_identity.agents.0.id
   owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
   suffix                       = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
@@ -42,16 +42,5 @@ resource azurerm_user_assigned_identity agents {
   location                     = azurerm_resource_group.rg.location
 
   count                        = var.user_assigned_identity_id != "" && var.user_assigned_identity_id != null ? 0 : 1
-  tags                         = local.tags
-}
-
-resource azurerm_log_analytics_workspace monitor {
-  name                         = "${azurerm_resource_group.rg.name}-loganalytics"
-  resource_group_name          = azurerm_resource_group.rg.name
-  location                     = azurerm_resource_group.rg.location
-  sku                          = "PerGB2018"
-  retention_in_days            = 30
-
-  count                        = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? 0 : 1
   tags                         = local.tags
 }

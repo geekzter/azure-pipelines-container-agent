@@ -28,6 +28,12 @@ variable demo_viewers {
   type                         = list
 }
 
+variable deploy_files_share {
+  description                  = "Deploys files share (e.g. for agent diagnostics)"
+  default                      = true
+  type                         = bool
+}
+
 variable devops_org {
   description                  = "The Azure DevOps org to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
   default                      = null

@@ -1,4 +1,5 @@
 configure_access_control       = false
+deploy_files_share             = true
 pipeline_agent_diagnostics     = true
 
 

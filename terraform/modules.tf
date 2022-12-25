@@ -1,3 +1,14 @@
+module diagnostics_storage {
+  source                       = "./modules/diagnostics-storage"
+
+  location                     = var.location
+  create_log_analytics_workspace = (var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null) ? false : true
+  deploy_files_share           = var.deploy_files_share
+  resource_group_name          = azurerm_resource_group.rg.name
+  suffix                       = local.suffix
+  tags                         = local.tags
+}
+
 module container_agents {
   source                       = "./modules/container-app"
 
