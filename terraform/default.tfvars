@@ -2,7 +2,8 @@ configure_access_control       = false
 pipeline_agent_diagnostics     = true
 
 
-pipeline_agent_pool_id         = 324
+# pipeline_agent_pool_id         = 3154
+pipeline_agent_pool_id         = 301
 pipeline_agent_pool_name       = "Container Agents"
 
 # log_analytics_workspace_id     = "/subscriptions/84c1a2c7-585a-4753-ad28-97f69618cf12/resourcegroups/governance-thfg/providers/microsoft.operationalinsights/workspaces/governance-thfg-loganalytics"

@@ -54,6 +54,7 @@ variable pipeline_agent_diagnostics {
 
 variable pipeline_agent_pool_id {
   type                         = number
+  default                      = 1
 }
 
 variable pipeline_agent_pool_name {

@@ -11,7 +11,7 @@ data azurerm_log_analytics_workspace monitor {
 }
 
 # Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
-resource azapi_resource managed_environment {
+resource azapi_resource agent_container_environment {
   name                         = "${var.resource_group_name}-environment"
   location                     = var.location
   parent_id                    = var.resource_group_id
@@ -38,7 +38,7 @@ resource azapi_resource managed_environment {
 }
 
 # Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
-resource azapi_resource container_app {
+resource azapi_resource agent_container_app {
   name                         = "${replace(var.resource_group_name,"-container","")}-app"
   location                     = var.location
   parent_id                    = var.resource_group_id
@@ -51,9 +51,9 @@ resource azapi_resource container_app {
 
   tags                         = var.tags
 
-  body = jsonencode({
+  body                         = jsonencode({
     properties: {
-      managedEnvironmentId     = azapi_resource.managed_environment.id
+      managedEnvironmentId     = azapi_resource.agent_container_environment.id
       configuration            = {
         registries             = [
           {
@@ -108,12 +108,13 @@ resource azapi_resource container_app {
           maxReplicas          = 5
           rules                = [
             {
+              # https://keda.sh/docs/2.9/scalers/azure-pipelines/
               name             = "pipeline-agent-scaler"
               custom           = {
                 type           = "azure-pipelines"
                 metadata       = {
                   poolID       = tostring(var.pipeline_agent_pool_id)
-                  targetPipelinesQueueLength: "1"
+                  targetPipelinesQueueLength = "1"
                 },
                 auth           = [
                   {
