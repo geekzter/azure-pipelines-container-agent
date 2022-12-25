@@ -33,5 +33,5 @@ jobs:
     displayName: 'Terraform info'
   - ${{ if gt(parameters.sleepTimeMinutes, 0) }}:
     - pwsh: |
-        Start-Sleep -Seconds (New-TimeSpan -Minutes ${{ parameters.sleepTimeMinutes }})
+        Start-Sleep -Duration (New-TimeSpan -Minutes ${{ parameters.sleepTimeMinutes }})
       displayName: 'Sleep ${{ parameters.sleepTimeMinutes }} minutes'
