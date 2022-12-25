@@ -1,1 +1,6 @@
-# azure-pipelines-agent-container
+# Azure Pipeline Agent Container App
+This repo contains an experiment to run [Azure Pipeline Agents](https://learn.microsoft.com/azure/devops/pipelines/agents/docker?view=azure-devops) in [Azure Container Apps](https://azure.microsoft.com/products/container-apps). For production use, consider [Scale set agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/scale-set-agents?view=azure-devops) ([sample repo](https://github.com/geekzter/azure-pipeline-agents)). Scaling is done using the [KEDA Azure Pipelines scaler](https://keda.sh/docs/scalers/azure-pipelines/).
+
+## Limitations
+- `ScaledJob` is [not supported](https://learn.microsoft.com/en-us/azure/container-apps/scale-app#keda-scalers-conversion) in Azure Container Apps. The KEDA Pipelines scaler requires this to indicate a long-running process needs to finish before a pod instance is terminated. This means pipeline jobs can get terminated pre-maturely.
+- Azure Container Apps have a [maximum replica limit of 30](https://learn.microsoft.com/en-us/azure/container-apps/scale-app). Hence a Container App pool can at most have 30 agents.
