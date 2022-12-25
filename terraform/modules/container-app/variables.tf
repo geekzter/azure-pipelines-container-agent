@@ -2,6 +2,9 @@ variable container_image {}
 variable container_registry_id {}
 variable devops_org {}
 variable devops_pat {}
+variable diagnostics_storage_share_key {}
+variable diagnostics_storage_share_name {}
+variable diagnostics_share_name {}
 variable location {}
 variable log_analytics_workspace_resource_id {}
 variable pipeline_agent_pool_id {}

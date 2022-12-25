@@ -75,16 +75,15 @@ resource azurerm_storage_account share {
   count                        = var.deploy_files_share ? 1 : 0
 }
 
-resource azurerm_storage_share diagnostics_smb_share {
+resource azurerm_storage_share diagnostics {
   name                         = "diagnostics"
   storage_account_name         = azurerm_storage_account.share.0.name
-  enabled_protocol             = "SMB"
   quota                        = 128
 
   count                        = var.deploy_files_share ? 1 : 0
 }
 
 locals {
-  diagnostics_smb_share        = var.deploy_files_share ? replace(azurerm_storage_share.diagnostics_smb_share.0.url,"https:","") : null
-  diagnostics_smb_share_mount_point= var.deploy_files_share ? "/mount/${azurerm_storage_account.share.0.name}/${azurerm_storage_share.diagnostics_smb_share.0.name}" : null
+  diagnostics_share        = var.deploy_files_share ? replace(azurerm_storage_share.diagnostics.0.url,"https:","") : null
+  diagnostics_share_mount_point= var.deploy_files_share ? "/mount/${azurerm_storage_account.share.0.name}/${azurerm_storage_share.diagnostics.0.name}" : null
 }

@@ -37,6 +37,22 @@ resource azapi_resource agent_container_environment {
   }
 }
 
+resource azapi_resource agent_container_environment_share {
+  type                         = "Microsoft.App/managedEnvironments/storages@2022-01-01-preview"
+  name                         = "diagnostics"
+  parent_id                    = azapi_resource.agent_container_environment.id
+  body                         = jsonencode({
+    properties                 = {
+      azureFile                = {
+        accessMode             = "ReadWrite"
+        accountKey             = var.diagnostics_storage_share_key
+        accountName            = var.diagnostics_storage_share_name
+        shareName              = var.diagnostics_share_name
+      }
+    }
+  })
+}
+
 # Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
 resource azapi_resource agent_container_app {
   name                         = "${replace(var.resource_group_name,"-container","")}-app"
