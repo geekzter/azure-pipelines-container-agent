@@ -10,6 +10,7 @@ data azurerm_log_analytics_workspace monitor {
   resource_group_name          = local.log_analytics_workspace_rg
 }
 
+# Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
 resource azapi_resource managed_environment {
   name                         = "${var.resource_group_name}-environment"
   location                     = var.location
@@ -36,6 +37,7 @@ resource azapi_resource managed_environment {
   }
 }
 
+# Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
 resource azapi_resource container_app {
   name                         = "${replace(var.resource_group_name,"-container","")}-app"
   location                     = var.location
@@ -59,6 +61,20 @@ resource azapi_resource container_app {
             server             = "${local.container_registry_name}.azurecr.io"
           }
         ]
+        secrets = [
+          {
+            name               = "azp-pool"
+            value              = var.pipeline_agent_pool
+          },
+          {
+            name               = "azp-url"
+            value              = local.devops_url
+          },
+          {
+            name               = "azp-token"
+            value              = var.devops_pat
+          }
+        ]
       }
       template                 = {
         containers             = [{
@@ -67,15 +83,15 @@ resource azapi_resource container_app {
           env                  = [
             {
               name             = "AZP_POOL"
-              value            = var.pipeline_agent_pool
+              secretRef        = "azp-pool"
             },
             {
               name             = "AZP_URL"
-              value            = local.devops_url
+              secretRef        = "azp-url"
             },
             {
               name             = "AZP_TOKEN"
-              value            = var.devops_pat
+              secretRef        = "azp-token"
             }
           ]
           resources            = {
