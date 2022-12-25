@@ -146,6 +146,13 @@ resource azapi_resource agent_container_app {
             }
           ]
         }
+        volumes                = [
+          {
+            name               = "diagnostics"
+            storageType        = "AzureFile"
+            storageName        = azapi_resource.agent_container_environment_share.name
+          }
+        ]
       }
     }
   })
