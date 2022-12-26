@@ -2,6 +2,7 @@ locals {
   container_registry_name      = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-1)
   create_files_share           = var.diagnostics_share_name != null && var.diagnostics_share_name != ""
   devops_url                   = "https://dev.azure.com/${var.devops_org}"
+  diagnostics_volume_name      = "diagnostics"
   log_analytics_workspace_name = element(split("/",var.log_analytics_workspace_resource_id),length(split("/",var.log_analytics_workspace_resource_id))-1)
   log_analytics_workspace_rg   = element(split("/",var.log_analytics_workspace_resource_id),length(split("/",var.log_analytics_workspace_resource_id))-5)
 }
@@ -21,14 +22,14 @@ resource azapi_resource agent_container_environment {
   
   body                         = jsonencode({
     properties                 = {
-    appLogsConfiguration       = {
-      destination              = "log-analytics"
-      logAnalyticsConfiguration = {
-        customerId             = data.azurerm_log_analytics_workspace.monitor.workspace_id
-        sharedKey              = data.azurerm_log_analytics_workspace.monitor.primary_shared_key
+      appLogsConfiguration     = {
+        destination            = "log-analytics"
+        logAnalyticsConfiguration= {
+          customerId           = data.azurerm_log_analytics_workspace.monitor.workspace_id
+          sharedKey            = data.azurerm_log_analytics_workspace.monitor.primary_shared_key
+        }
       }
     }
-                                 }
   })
 
   lifecycle {
@@ -136,7 +137,7 @@ resource azapi_resource agent_container_app {
           volumeMounts         = local.create_files_share ? [
             {
               mountPath        = "/mnt/diag"
-              volumeName       = "diagnostics"
+              volumeName       = local.diagnostics_volume_name
             }
           ] : []
         }]
@@ -169,7 +170,7 @@ resource azapi_resource agent_container_app {
         }
         volumes                = local.create_files_share ? [
           {
-            name               = "diagnostics"
+            name               = local.diagnostics_volume_name
             storageType        = "AzureFile"
             storageName        = azapi_resource.agent_container_environment_share.0.name
           }
