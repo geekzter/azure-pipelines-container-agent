@@ -1,9 +1,10 @@
 # https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops
 FROM ubuntu:20.04
-RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update
+RUN apt-get upgrade -y
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+RUN apt-get install -y -qq --no-install-recommends \
     apt-transport-https \
     apt-utils \
     ca-certificates \
@@ -47,7 +48,7 @@ RUN echo "deb [arch=`dpkg --print-architecture`] https://packages.microsoft.com/
 RUN apt-get update
 
 # Tools as packages
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+RUN apt-get install -y -qq --no-install-recommends \
     ansible \
     helm \
     kubectl \
@@ -64,6 +65,9 @@ RUN apt-get install -y azure-cli \
                        dotnet-sdk-6.0 \
                        dotnet-sdk-7.0 \
                        powershell
+# RUN apk add --update qemu-x86_64
+# RUN apt-get install -y qemu-user-static
+# BUG: qemu: uncaught target signal 11 (Segmentation fault) - core dumped
 # RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,AzureAD,SqlServer -Scope AllUsers -Repository PSGallery -Force'
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
