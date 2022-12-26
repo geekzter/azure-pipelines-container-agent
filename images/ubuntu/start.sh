@@ -67,6 +67,18 @@ print_header "2. Downloading and extracting Azure Pipelines agent..."
 
 curl -LsS $AZP_AGENT_PACKAGE_LATEST_URL | tar -xz & wait $!
 
+print_header "2a. Configuring diagnostics directory..."
+
+if [ -d "/diagnostics" ] 
+then
+  PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY=/diagnostics/$(date '+%Y/%m/%d')/$(hostname)
+  mkdir -p $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY 2>/dev/null
+  ln -s $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY ./_diag
+  echo linked $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY to $(readlink -f ./_diag)
+else
+  echo /diagnostics not found, nothing to configure
+fi
+
 source ./env.sh
 
 print_header "3. Configuring Azure Pipelines agent..."
