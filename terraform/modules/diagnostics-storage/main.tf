@@ -61,29 +61,25 @@ data azurerm_storage_account_sas diagnostics {
   }
 }
 
-resource azurerm_storage_account share {
-  name                         = "${substr(lower(replace(var.resource_group_name,"/a|e|i|o|u|y|-/","")),0,14)}${substr(var.suffix,-6,-1)}shar"
-  location                     = var.location
-  resource_group_name          = var.resource_group_name
-  account_kind                 = "FileStorage"
-  account_tier                 = "Premium"
-  account_replication_type     = "LRS"
-  enable_https_traffic_only    = false # Needs to be off for NFS
+# resource azurerm_storage_account share {
+#   name                         = "${substr(lower(replace(var.resource_group_name,"/a|e|i|o|u|y|-/","")),0,14)}${substr(var.suffix,-6,-1)}shar"
+#   location                     = var.location
+#   resource_group_name          = var.resource_group_name
+#   account_kind                 = "FileStorage"
+#   account_tier                 = "Premium"
+#   account_replication_type     = "LRS"
+#   enable_https_traffic_only    = false # Needs to be off for NFS
 
-  tags                         = var.tags
+#   tags                         = var.tags
 
-  count                        = var.create_files_share ? 1 : 0
-}
+#   count                        = var.create_files_share ? 1 : 0
+# }
 
 resource azurerm_storage_share diagnostics {
   name                         = "diagnostics"
-  storage_account_name         = azurerm_storage_account.share.0.name
+  # storage_account_name         = azurerm_storage_account.share.0.name
+  storage_account_name         = azurerm_storage_account.diagnostics.name
   quota                        = 128
 
   count                        = var.create_files_share ? 1 : 0
-}
-
-locals {
-  diagnostics_share            = var.create_files_share ? replace(azurerm_storage_share.diagnostics.0.url,"https:","") : null
-  diagnostics_share_mount_point= var.create_files_share ? "/mount/${azurerm_storage_account.share.0.name}/${azurerm_storage_share.diagnostics.0.name}" : null
 }

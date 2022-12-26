@@ -44,3 +44,10 @@ resource azurerm_user_assigned_identity agents {
   count                        = var.user_assigned_identity_id != "" && var.user_assigned_identity_id != null ? 0 : 1
   tags                         = local.tags
 }
+resource azurerm_role_assignment agent_storage_contributors {
+  scope                        = var.container_registry_id
+  role_definition_name         = "AcrPull"
+  principal_id                 = azurerm_user_assigned_identity.agents.0.principal_id
+
+  count                        = var.user_assigned_identity_id != "" && var.user_assigned_identity_id != null && var.configure_access_control ? 1 : 0
+}
