@@ -28,9 +28,8 @@ steps:
 - pwsh: |
     ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tags latest, $(Build.BuildId), $(date)
   displayName: Build image
+  failOnStderr: true
   workingDirectory: '$(scriptDirectory)'
-  inputs:
-    failOnStderr: true
 - task: Docker@2
   displayName: Push image
   inputs:
