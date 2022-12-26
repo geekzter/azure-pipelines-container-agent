@@ -67,6 +67,11 @@ variable pipeline_agent_pool_name {
   default                      = "Default"
 }
 
+variable pipeline_agent_run_once {
+  type                         = bool
+  default                      = true
+}
+
 variable pipeline_agent_version_id {
   # https://api.github.com/repos/microsoft/azure-pipelines-agent/releases
   default                      = "latest"

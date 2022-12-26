@@ -111,7 +111,7 @@ resource azapi_resource agent_container_app {
             },
             {
               name             = "AZP_RUN_ARGS"
-              secretRef        = "--once"
+              value            = var.pipeline_agent_run_once ? "--once" : ""
             },
             {
               name             = "AZP_TOKEN"

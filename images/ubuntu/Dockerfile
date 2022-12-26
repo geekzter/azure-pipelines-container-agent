@@ -15,6 +15,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     software-properties-common \
     wget
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+    ansible \
+    helm \
+    kubectl \
+    python2-minimal \
+    unzip \
+    ansible \
+
 # Hashicorp repo
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | \
     gpg --dearmor | \
@@ -35,7 +43,13 @@ RUN echo "deb [arch=`dpkg --print-architecture`] https://packages.microsoft.com/
 RUN apt-get update
 
 # Microsoft packages
-RUN apt-get install -y azure-cli powershell
+RUN apt-get install -y azure-cli \
+                       azure-functions-core-tools \
+                       dotnet-sdk-3.1 \
+                       dotnet-sdk-6.0 \
+                       dotnet-sdk-7.0 \
+                       powershell
+RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,AzureAD,SqlServer -Scope AllUsers -Repository PSGallery -Force'
 
 # Hashicorp packages
 RUN apt-get install -y packer terraform

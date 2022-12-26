@@ -12,6 +12,9 @@ variable pipeline_agent_diagnostics {
 }
 variable pipeline_agent_pool_id {}
 variable pipeline_agent_pool_name {}
+variable pipeline_agent_run_once {
+  type = bool
+}
 variable pipeline_agent_version_id {}
 variable resource_group_id {}
 variable resource_group_name {}

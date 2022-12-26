@@ -24,6 +24,7 @@ module container_agents {
   pipeline_agent_diagnostics   = var.pipeline_agent_diagnostics
   pipeline_agent_pool_id       = var.pipeline_agent_pool_id
   pipeline_agent_pool_name     = var.pipeline_agent_pool_name
+  pipeline_agent_run_once      = var.pipeline_agent_run_once
   pipeline_agent_version_id    = var.pipeline_agent_version_id
   resource_group_id            = azurerm_resource_group.rg.id
   resource_group_name          = azurerm_resource_group.rg.name
