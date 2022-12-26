@@ -110,12 +110,16 @@ resource azapi_resource agent_container_app {
               secretRef        = "azp-pool-name"
             },
             {
-              name             = "AZP_URL"
-              secretRef        = "azp-url"
+              name             = "AZP_RUN_ARGS"
+              secretRef        = "--once"
             },
             {
               name             = "AZP_TOKEN"
               secretRef        = "azp-token"
+            },
+            {
+              name             = "AZP_URL"
+              secretRef        = "azp-url"
             },
             {
               name             = "AGENT_DIAGNOSTIC"

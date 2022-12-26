@@ -71,12 +71,12 @@ print_header "2a. Configuring diagnostics directory..."
 
 if [ -d "/mnt/diag" ] 
 then
-  PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY=/mnt/diag/$(date '+%Y/%m/%d')/$(hostname)
-  mkdir -p $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY
-  ln -s $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY ./_diag
-  echo linked $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY to $(readlink -f ./_diag)
+  DIAGNOSTICS_DIRECTORY=/mnt/diag/$(date '+%Y/%m/%d')/$(hostname)
+  mkdir -p $DIAGNOSTICS_DIRECTORY
+  ln -s $DIAGNOSTICS_DIRECTORY ./_diag
+  echo linked $DIAGNOSTICS_DIRECTORY to $(readlink -f ./_diag)
 else
-  echo /diagnostics not found, nothing to configure
+  echo /mnt/diag not found, nothing to configure
 fi
 
 source ./env.sh
@@ -103,4 +103,4 @@ chmod +x ./run-docker.sh
 
 # To be aware of TERM and INT signals call run.sh
 # Running it with the --once flag at the end will shut down the agent after the build is executed
-./run-docker.sh "$@" & wait $!
+./run-docker.sh $AZP_RUN_ARGS & wait $!
