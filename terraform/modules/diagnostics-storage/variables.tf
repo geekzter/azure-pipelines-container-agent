@@ -1,7 +1,7 @@
 variable create_log_analytics_workspace {
   type = bool
 }
-variable deploy_files_share {
+variable create_files_share {
   type = bool
 }
 variable location {}

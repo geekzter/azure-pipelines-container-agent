@@ -22,16 +22,16 @@ variable container_registry_id {
   default                      = null
 }
 
+variable create_files_share {
+  description                  = "Deploys files share (e.g. for agent diagnostics)"
+  default                      = true
+  type                         = bool
+}
+
 variable demo_viewers {
   description                  = "Object ID's of AAD groups/users to be granted reader access"
   default                      = []
   type                         = list
-}
-
-variable deploy_files_share {
-  description                  = "Deploys files share (e.g. for agent diagnostics)"
-  default                      = true
-  type                         = bool
 }
 
 variable devops_org {

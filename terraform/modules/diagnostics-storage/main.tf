@@ -72,7 +72,7 @@ resource azurerm_storage_account share {
 
   tags                         = var.tags
 
-  count                        = var.deploy_files_share ? 1 : 0
+  count                        = var.create_files_share ? 1 : 0
 }
 
 resource azurerm_storage_share diagnostics {
@@ -80,10 +80,10 @@ resource azurerm_storage_share diagnostics {
   storage_account_name         = azurerm_storage_account.share.0.name
   quota                        = 128
 
-  count                        = var.deploy_files_share ? 1 : 0
+  count                        = var.create_files_share ? 1 : 0
 }
 
 locals {
-  diagnostics_share        = var.deploy_files_share ? replace(azurerm_storage_share.diagnostics.0.url,"https:","") : null
-  diagnostics_share_mount_point= var.deploy_files_share ? "/mount/${azurerm_storage_account.share.0.name}/${azurerm_storage_share.diagnostics.0.name}" : null
+  diagnostics_share            = var.create_files_share ? replace(azurerm_storage_share.diagnostics.0.url,"https:","") : null
+  diagnostics_share_mount_point= var.create_files_share ? "/mount/${azurerm_storage_account.share.0.name}/${azurerm_storage_share.diagnostics.0.name}" : null
 }

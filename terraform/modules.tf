@@ -3,7 +3,7 @@ module diagnostics_storage {
 
   location                     = var.location
   create_log_analytics_workspace = (var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null) ? false : true
-  deploy_files_share           = var.deploy_files_share
+  create_files_share           = var.create_files_share
   resource_group_name          = azurerm_resource_group.rg.name
   suffix                       = local.suffix
   tags                         = local.tags
@@ -14,7 +14,6 @@ module container_agents {
 
   container_image              = var.container_image
   container_registry_id        = var.container_registry_id
-  deploy_files_share           = var.deploy_files_share
   devops_org                   = var.devops_org
   devops_pat                   = var.devops_pat
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_share_key
@@ -22,6 +21,7 @@ module container_agents {
   diagnostics_share_name       = module.diagnostics_storage.diagnostics_share_name
   location                     = var.location
   log_analytics_workspace_resource_id   = local.log_analytics_workspace_resource_id
+  pipeline_agent_diagnostics   = var.pipeline_agent_diagnostics
   pipeline_agent_pool_id       = var.pipeline_agent_pool_id
   pipeline_agent_pool_name     = var.pipeline_agent_pool_name
   pipeline_agent_version_id    = var.pipeline_agent_version_id

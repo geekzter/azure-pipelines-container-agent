@@ -1,5 +1,6 @@
 locals {
   container_registry_name      = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-1)
+  create_files_share           = var.diagnostics_share_name != null && var.diagnostics_share_name != ""
   devops_url                   = "https://dev.azure.com/${var.devops_org}"
   log_analytics_workspace_name = element(split("/",var.log_analytics_workspace_resource_id),length(split("/",var.log_analytics_workspace_resource_id))-1)
   log_analytics_workspace_rg   = element(split("/",var.log_analytics_workspace_resource_id),length(split("/",var.log_analytics_workspace_resource_id))-5)
@@ -52,7 +53,7 @@ resource azapi_resource agent_container_environment_share {
     }
   })
 
-  count                        = var.deploy_files_share ? 1 : 0
+  count                        = local.create_files_share ? 1 : 0
 }
 
 # Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
@@ -114,18 +115,30 @@ resource azapi_resource agent_container_app {
             {
               name             = "AZP_TOKEN"
               secretRef        = "azp-token"
+            },
+            {
+              name             = "AGENT_DIAGNOSTIC"
+              value            = tostring(var.pipeline_agent_diagnostics)
+            },
+            {
+              name             = "VSTSAGENT_TRACE"
+              value            = tostring(var.pipeline_agent_diagnostics)
+            },
+            {
+              name             = "VSTS_AGENT_HTTPTRACE"
+              value            = tostring(var.pipeline_agent_diagnostics)
             }
           ]
           resources            = {
             cpu                = 0.5
             memory             = "1.0Gi"
           }
-          volumeMounts         = [
+          volumeMounts         = local.create_files_share ? [
             {
               mountPath        = "/mnt/diag"
               volumeName       = "diagnostics"
             }
-          ]
+          ] : []
         }]
         scale = {
           minReplicas          = 1
@@ -154,7 +167,7 @@ resource azapi_resource agent_container_app {
             }
           ]
         }
-        volumes                = var.deploy_files_share ? [
+        volumes                = local.create_files_share ? [
           {
             name               = "diagnostics"
             storageType        = "AzureFile"

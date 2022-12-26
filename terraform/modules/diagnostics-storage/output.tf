@@ -12,20 +12,20 @@ output diagnostics_storage_name {
 }
 
 output diagnostics_storage_share_id {
-  value       = var.deploy_files_share ? azurerm_storage_account.share.0.id : null
+  value       = var.create_files_share ? azurerm_storage_account.share.0.id : null
 }
 
 output diagnostics_storage_share_key {
   sensitive   = true
-  value       = var.deploy_files_share ? azurerm_storage_account.share.0.primary_access_key : null
+  value       = var.create_files_share ? azurerm_storage_account.share.0.primary_access_key : null
 }
 
 output diagnostics_storage_share_name {
-  value       = var.deploy_files_share ? azurerm_storage_account.share.0.name : null
+  value       = var.create_files_share ? azurerm_storage_account.share.0.name : null
 }
 
 output diagnostics_share_name {
-  value       = var.deploy_files_share ? azurerm_storage_share.diagnostics.0.name : null
+  value       = var.create_files_share ? azurerm_storage_share.diagnostics.0.name : null
 }
 
 

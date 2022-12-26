@@ -1,7 +1,6 @@
 configure_access_control       = false
-deploy_files_share             = true
+create_files_share             = true
 pipeline_agent_diagnostics     = true
-
 
 # pipeline_agent_pool_id         = 3154
 pipeline_agent_pool_id         = 301
