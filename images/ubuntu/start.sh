@@ -69,10 +69,10 @@ curl -LsS $AZP_AGENT_PACKAGE_LATEST_URL | tar -xz & wait $!
 
 print_header "2a. Configuring diagnostics directory..."
 
-if [ -d "/mnt/diagnostics" ] 
+if [ -d "/mnt/diag" ] 
 then
-  PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY=/mnt/diagnostics/$(date '+%Y/%m/%d')/$(hostname)
-  mkdir -p $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY 2>/dev/null
+  PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY=/mnt/diag/$(date '+%Y/%m/%d')/$(hostname)
+  mkdir -p $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY
   ln -s $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY ./_diag
   echo linked $PIPELINE_DEMO_DIAGNOSTICS_DIRECTORY to $(readlink -f ./_diag)
 else

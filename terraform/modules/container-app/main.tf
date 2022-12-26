@@ -122,7 +122,7 @@ resource azapi_resource agent_container_app {
           }
           volumeMounts         = [
             {
-              mountPath        = "/mnt/diagnostics"
+              mountPath        = "/mnt/diag"
               volumeName       = "diagnostics"
             }
           ]
