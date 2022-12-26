@@ -120,6 +120,12 @@ resource azapi_resource agent_container_app {
             cpu                = 0.5
             memory             = "1.0Gi"
           }
+          volumeMounts         = [
+            {
+              mountPath        = "/mnt/diagnostics"
+              volumeName       = "diagnostics"
+            }
+          ]
         }]
         scale = {
           minReplicas          = 1
