@@ -15,13 +15,17 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommend
     software-properties-common \
     wget
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
-    ansible \
-    helm \
-    kubectl \
-    python2-minimal \
-    unzip \
-    ansible \
+# Google repo
+RUN curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+RUN echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | \
+    tee /etc/apt/sources.list.d/kubernetes.list
+
+# Helm repo
+RUN curl https://baltocdn.com/helm/signing.asc | \
+    gpg --dearmor | \
+    tee /usr/share/keyrings/helm.gpg > /dev/null
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | \
+    tee /etc/apt/sources.list.d/helm-stable-debian.list
 
 # Hashicorp repo
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | \
@@ -42,6 +46,17 @@ RUN echo "deb [arch=`dpkg --print-architecture`] https://packages.microsoft.com/
 
 RUN apt-get update
 
+# Tools as packages
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+    ansible \
+    helm \
+    kubectl \
+    python2-minimal \
+    unzip
+
+# Hashicorp packages
+RUN apt-get install -y packer terraform
+
 # Microsoft packages
 RUN apt-get install -y azure-cli \
                        azure-functions-core-tools \
@@ -49,10 +64,7 @@ RUN apt-get install -y azure-cli \
                        dotnet-sdk-6.0 \
                        dotnet-sdk-7.0 \
                        powershell
-RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,AzureAD,SqlServer -Scope AllUsers -Repository PSGallery -Force'
-
-# Hashicorp packages
-RUN apt-get install -y packer terraform
+# RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,AzureAD,SqlServer -Scope AllUsers -Repository PSGallery -Force'
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64
