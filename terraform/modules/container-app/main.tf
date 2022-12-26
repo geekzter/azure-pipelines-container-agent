@@ -145,7 +145,7 @@ resource azapi_resource agent_container_app {
             }
           ] : []
         }]
-        scale = {
+        scale                  = {
           minReplicas          = 1
           maxReplicas          = 5
           rules                = [

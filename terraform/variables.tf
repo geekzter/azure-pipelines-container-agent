@@ -69,7 +69,7 @@ variable pipeline_agent_pool_name {
 
 variable pipeline_agent_run_once {
   type                         = bool
-  default                      = true
+  default                      = false
 }
 
 variable pipeline_agent_version_id {
