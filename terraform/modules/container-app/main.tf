@@ -38,6 +38,28 @@ resource azapi_resource agent_container_environment {
     ]
   }
 }
+resource azurerm_monitor_diagnostic_setting agent_container_environment {
+  name                         = "${azapi_resource.agent_container_environment.name}-diagnostics"
+  log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
+  target_resource_id           = azapi_resource.agent_container_environment.id
+
+  log {
+    category_group             = "audit"
+    enabled                    = true
+
+    retention_policy {
+      enabled                  = false
+    }
+  }
+  log {
+    category_group             = "allLogs"
+    enabled                    = true
+
+    retention_policy {
+      enabled                  = false
+    }
+  }
+}
 
 resource azapi_resource agent_container_environment_share {
   type                         = "Microsoft.App/managedEnvironments/storages@2022-01-01-preview"
