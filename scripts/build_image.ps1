@@ -21,6 +21,11 @@ param (
     $Tags=@("latest"),
 
     [parameter(Mandatory=$false)]
+    [ValidateNotNull()]
+    [string]
+    $Platform="linux/amd64",
+
+    [parameter(Mandatory=$false)]
     [switch]
     $Scan=$false
 ) 
@@ -31,7 +36,10 @@ try {
     Join-Path (Split-Path $(pwd)) images ubuntu | Push-Location
 
     Start-Docker
-    docker build --platform linux/amd64 -t ${Repository}/${ImageName}:${ImageName} .  
+    docker build --platform $Platform -t ${Repository}/${ImageName}:${ImageName} .  
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
     foreach ($tag in $Tags) {
         docker tag ${Repository}/${ImageName}:${ImageName} "${Repository}/${ImageName}:${tag}"
         if ($Registry) {

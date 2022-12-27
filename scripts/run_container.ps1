@@ -15,6 +15,11 @@ param (
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [string]
+    $Platform="linux/amd64",
+
+    [parameter(Mandatory=$false)]
+    [ValidateNotNull()]
+    [string]
     $AgentName=($env:AZP_AGENT_NAME ?? "Ubuntu-$((Get-Date).ToString("yyyyMMddhhmmss"))"),
     
     [parameter(Mandatory=$false)]
@@ -41,7 +46,7 @@ param (
 
 Start-Docker
 
-docker run --platform linux/amd64 `
+docker run --platform $Platform `
            -e AZP_AGENT_NAME=$AgentName `
            -e AZP_POOL=$PoolName `
            -e AZP_TOKEN=$Token `

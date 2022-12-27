@@ -1,5 +1,4 @@
-# https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 RUN apt-get upgrade -y
@@ -61,12 +60,10 @@ RUN apt-get install -y packer terraform
 # Microsoft packages
 RUN apt-get install -y azure-cli \
                        azure-functions-core-tools \
-                       dotnet-sdk-3.1 \
                        dotnet-sdk-6.0 \
                        dotnet-sdk-7.0 \
                        powershell
-# RUN apk add --update qemu-x86_64
-# RUN apt-get install -y qemu-user-static
+
 # BUG: qemu: uncaught target signal 11 (Segmentation fault) - core dumped
 # RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,AzureAD,SqlServer -Scope AllUsers -Repository PSGallery -Force'
 
@@ -78,4 +75,4 @@ WORKDIR /azp
 COPY ./start.sh .
 RUN chmod +x start.sh
 
-ENTRYPOINT [ "./start.sh", "--once" ]
+ENTRYPOINT [ "./start.sh" ]
