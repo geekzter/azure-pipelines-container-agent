@@ -43,6 +43,7 @@ jobs:
     name: $(pool)
     demands:
     - agent.os -equals Linux
+    - PIPELINE_DEMO_APPLICATION_NAME 
   steps:
   - bash: |
       echo Hello from Ubuntu
