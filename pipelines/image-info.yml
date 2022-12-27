@@ -30,7 +30,7 @@ jobs:
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]${strategyJson}"
     name: pwsh
     displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
-- job: ubuntu
+- job: ubuntuContainer
   dependsOn: createStrategy
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
