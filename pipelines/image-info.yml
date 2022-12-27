@@ -12,9 +12,9 @@ parameters:
 trigger: none
 
 variables:
-  # group: container-image-info # Should include 'pool' variable
-  - name: pool
-    value: 'Container Agents'
+  - group: 'container-image-info' # Should include 'pool' variable
+  # - name: pool
+  #   value: 'Container Agents'
 
 jobs:
 - job: createStrategy
@@ -33,6 +33,7 @@ jobs:
     name: pwsh
     displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
 - job: ubuntuContainer
+
   dependsOn: createStrategy
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
@@ -42,7 +43,6 @@ jobs:
   ${{ else }}:
     displayName: Parallel job
   pool:
-    # name: $(pool)
     name: $[coalesce(variables.pool,'Default')]
     demands:
     - agent.os -equals Linux
