@@ -1,7 +1,7 @@
 parameters:
 # Test auto-scaling by setting sleep time
 - name: numberOfJobs
-  displayName: Number of parallel jobs
+  displayName: Number of parallel jobs to create
   type: number
   default: 1
 - name: sleepTimeMinutes
@@ -19,13 +19,13 @@ jobs:
   displayName: Create Strategy
   steps:
   - pwsh: |
-      $hash = @{}
+      $strategyHash = @{}
       for ($i=1; $i -le ${{ parameters.numberOfJobs }}; $i++) {
-        $hash.Add("job${i}",@{"index"=$i})
+        $strategyHash.Add("job${i}",@{"index"=$i})
       }
-      $hash | ConvertTo-Json -Compress | Set-Variable strategy
+      $strategyHash | ConvertTo-Json -Compress | Set-Variable strategyJson
       Write-Host $strategy
-      Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]$strategy"
+      Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]${strategyJson}"
     name: pwsh
     displayName: 'Create srategy JSON (${{ parameters.numberOfJobs }} jobs)'
 - job: ubuntu
