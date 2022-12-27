@@ -32,6 +32,7 @@ jobs:
   dependsOn: createStrategy
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
+    maxParallel: ${{ parameters.numberOfJobs }}
   displayName: Parallel Job
   pool:
     name: $(pool)
