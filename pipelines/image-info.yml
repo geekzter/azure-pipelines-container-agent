@@ -17,6 +17,8 @@ variables:
 jobs:
 - job: createStrategy
   displayName: Create Strategy
+  pool:
+    name: Azure Pipelines
   steps:
   - pwsh: |
       $strategyHash = @{}
