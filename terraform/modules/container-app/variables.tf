@@ -5,11 +5,11 @@ variable devops_pat {}
 variable diagnostics_storage_share_key {}
 variable diagnostics_storage_share_name {}
 variable diagnostics_share_name {}
+variable environment_variables {
+    type = map
+}
 variable location {}
 variable log_analytics_workspace_resource_id {}
-variable pipeline_agent_diagnostics {
-  type = bool
-}
 variable pipeline_agent_pool_id {}
 variable pipeline_agent_pool_name {}
 variable pipeline_agent_run_once {

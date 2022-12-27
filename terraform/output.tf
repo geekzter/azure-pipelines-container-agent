@@ -27,9 +27,9 @@ output diagnostics_storage_sas {
   value                        = module.diagnostics_storage.diagnostics_storage_sas
 }
 
-# output environment_variables {
-#   value                        = local.environment_variables
-# }
+output environment_variables {
+  value                        = local.environment_variables
+}
 
 output log_analytics_workspace_resource_id {
   value                        = local.log_analytics_workspace_resource_id

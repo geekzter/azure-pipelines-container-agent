@@ -19,9 +19,9 @@ module container_agents {
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
   diagnostics_storage_share_name= module.diagnostics_storage.diagnostics_storage_name
   diagnostics_share_name       = module.diagnostics_storage.diagnostics_share_name
+  environment_variables        = var.environment_variables
   location                     = var.location
   log_analytics_workspace_resource_id   = local.log_analytics_workspace_resource_id
-  pipeline_agent_diagnostics   = var.pipeline_agent_diagnostics
   pipeline_agent_pool_id       = var.pipeline_agent_pool_id
   pipeline_agent_pool_name     = var.pipeline_agent_pool_name
   pipeline_agent_run_once      = var.pipeline_agent_run_once

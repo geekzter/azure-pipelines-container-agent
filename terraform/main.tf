@@ -11,6 +11,23 @@ locals {
   agent_identity_client_id     = var.user_assigned_identity_id != "" && var.user_assigned_identity_id != null ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.client_id : azurerm_user_assigned_identity.agent_identity.0.client_id
   agent_identity_name          = var.user_assigned_identity_id != "" && var.user_assigned_identity_id != null ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.name : azurerm_user_assigned_identity.agent_identity.0.name
   agent_identity_principal_id  = var.user_assigned_identity_id != "" && var.user_assigned_identity_id != null ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.principal_id : azurerm_user_assigned_identity.agent_identity.0.principal_id
+  environment_variables        = merge(
+    {
+      AGENT_DIAGNOSTIC                                          = tostring(var.pipeline_agent_diagnostics)
+      PIPELINE_DEMO_AGENT_LOCATION                              = var.location
+      PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_CLIENT_ID      = local.agent_identity_client_id
+      PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_NAME           = local.agent_identity_name
+      PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID   = local.agent_identity_principal_id
+      PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_RESOURCE_ID    = local.user_assigned_identity_id
+      PIPELINE_DEMO_APPLICATION_NAME                            = var.application_name
+      PIPELINE_DEMO_APPLICATION_OWNER                           = local.owner
+      PIPELINE_DEMO_RESOURCE_PREFIX                             = var.resource_prefix
+      SYSTEM_DEBUG                                              = tostring(var.pipeline_agent_diagnostics)
+      VSTSAGENT_TRACE                                           = tostring(var.pipeline_agent_diagnostics)
+      VSTS_AGENT_HTTPTRACE                                      = tostring(var.pipeline_agent_diagnostics)
+    },
+    var.environment_variables
+  )
   log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
   owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
   suffix                       = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result

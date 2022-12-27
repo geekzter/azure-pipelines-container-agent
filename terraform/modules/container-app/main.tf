@@ -3,6 +3,31 @@ locals {
   create_files_share           = var.diagnostics_share_name != null && var.diagnostics_share_name != ""
   devops_url                   = "https://dev.azure.com/${var.devops_org}"
   diagnostics_volume_name      = "diagnostics"
+  environment_variables_template= concat(
+    [for key,value in var.environment_variables : {
+        name                   = key
+        value                  = value
+      }
+    ],
+    [
+      {
+        name                   = "AZP_POOL"
+        secretRef              = "azp-pool-name"
+      },
+      {
+        name                   = "AZP_RUN_ARGS"
+        value                  = var.pipeline_agent_run_once ? "--once" : ""
+      },
+      {
+        name                   = "AZP_TOKEN"
+        secretRef              = "azp-token"
+      },
+      {
+        name                   = "AZP_URL"
+        secretRef              = "azp-url"
+      }
+    ]
+  )
   log_analytics_workspace_name = element(split("/",var.log_analytics_workspace_resource_id),length(split("/",var.log_analytics_workspace_resource_id))-1)
   log_analytics_workspace_rg   = element(split("/",var.log_analytics_workspace_resource_id),length(split("/",var.log_analytics_workspace_resource_id))-5)
 }
@@ -126,36 +151,7 @@ resource azapi_resource agent_container_app {
         containers             = [{
           image                = var.container_image
           name                 = "pipeline-agent"
-          env                  = [
-            {
-              name             = "AZP_POOL"
-              secretRef        = "azp-pool-name"
-            },
-            {
-              name             = "AZP_RUN_ARGS"
-              value            = var.pipeline_agent_run_once ? "--once" : ""
-            },
-            {
-              name             = "AZP_TOKEN"
-              secretRef        = "azp-token"
-            },
-            {
-              name             = "AZP_URL"
-              secretRef        = "azp-url"
-            },
-            {
-              name             = "AGENT_DIAGNOSTIC"
-              value            = tostring(var.pipeline_agent_diagnostics)
-            },
-            {
-              name             = "VSTSAGENT_TRACE"
-              value            = tostring(var.pipeline_agent_diagnostics)
-            },
-            {
-              name             = "VSTS_AGENT_HTTPTRACE"
-              value            = tostring(var.pipeline_agent_diagnostics)
-            }
-          ]
+          env                  = local.environment_variables_template
           resources            = {
             cpu                = 0.5
             memory             = "1.0Gi"

@@ -43,6 +43,11 @@ variable devops_pat {
   default                      = null
 }
 
+variable environment_variables {
+  type                         = map
+  default                      = {}  
+} 
+
 variable location {
   default                      = "centralus"
 }
