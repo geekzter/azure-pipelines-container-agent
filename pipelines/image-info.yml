@@ -20,7 +20,7 @@ jobs:
   steps:
   - pwsh: |
       $hash = @{}
-      for ($i=0; $i -lt ${{ parameters.numberOfJobs }}; $i++) {
+      for ($i=1; $i -le ${{ parameters.numberOfJobs }}; $i++) {
         $hash.Add("job${i}",@{"index"=$i})
       }
       $hash | ConvertTo-Json -Compress | Set-Variable strategy
@@ -33,7 +33,7 @@ jobs:
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
     maxParallel: ${{ parameters.numberOfJobs }}
-  ${{ if le(parameters.numberOfJobs, 0) }}:
+  ${{ if le(parameters.numberOfJobs, 1) }}:
     displayName: Job
   ${{ else }}:
     displayName: Parallel
