@@ -24,9 +24,10 @@ jobs:
         $hash.Add("job${i}",@{"index"=$i})
       }
       $hash | ConvertTo-Json | Set-Variable strategy
+      Write-Host $strategy
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]$strategy"
     name: pwsh
-    displayName: 'Create srategy JSON'
+    displayName: 'Create srategy JSON (${{ parameters.numberOfJobs }} jobs)'
 - job: ubuntu
   dependsOn: createStrategy
   strategy:
