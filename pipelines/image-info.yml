@@ -36,7 +36,7 @@ jobs:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
     maxParallel: ${{ parameters.numberOfJobs }}
   ${{ if le(parameters.numberOfJobs, 1) }}:
-    displayName: Job
+    displayName: Single
   ${{ else }}:
     displayName: Parallel
   pool:
