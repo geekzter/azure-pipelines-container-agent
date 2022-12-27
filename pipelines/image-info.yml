@@ -23,22 +23,22 @@ jobs:
   - pwsh: |
       $strategyHash = @{}
       for ($i=1; $i -le ${{ parameters.numberOfJobs }}; $i++) {
-        $strategyHash.Add("job${i}",@{"index"=$i})
+        $strategyHash.Add("${i}",@{"index"=$i})
       }
       $strategyHash | ConvertTo-Json -Compress | Set-Variable strategyJson
       Write-Host $strategy
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]${strategyJson}"
     name: pwsh
-    displayName: 'Create srategy JSON (${{ parameters.numberOfJobs }} jobs)'
+    displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
 - job: ubuntu
   dependsOn: createStrategy
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
     maxParallel: ${{ parameters.numberOfJobs }}
   ${{ if le(parameters.numberOfJobs, 1) }}:
-    displayName: Single
+    displayName: Single job
   ${{ else }}:
-    displayName: Parallel
+    displayName: Parallel job
   pool:
     name: $(pool)
     demands:
@@ -54,6 +54,7 @@ jobs:
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
       $PSVersionTable.OS
+      Get-InstalledModule | Sort-Object -Property Name
     displayName: 'PowerShell info'
   - pwsh: |
       terraform -v
