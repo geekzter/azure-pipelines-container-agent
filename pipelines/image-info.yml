@@ -15,8 +15,7 @@ variables:
   pool: 'Container Agents'
 
 jobs:
-- job:
-  name: createStrategy
+- job: createStrategy
   displayName: Create Strategy
   steps:
   - pwsh: |
