@@ -44,7 +44,7 @@ jobs:
     name: $[coalesce(variables.pool,'Default')]
     demands:
     - agent.os -equals Linux
-    - PIPELINE_DEMO_APPLICATION_NAME # Matches a Terraform generated pool
+    - CONTAINER_APP_NAME
   steps:
   - bash: |
       echo Hello from Ubuntu
