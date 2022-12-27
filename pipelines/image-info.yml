@@ -24,7 +24,7 @@ jobs:
       for ($i=0; $i -lt 3 ; $i++) {
         $hash.Add("job${i}",@{"index"=$i})
       }
-      $hash | ConvertTo-Json | Set-Variable strategy
+      $hash | ConvertTo-Json -Compress | Set-Variable strategy
       Write-Host $strategy
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]$strategy"
     name: pwsh
