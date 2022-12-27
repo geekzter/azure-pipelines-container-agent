@@ -28,12 +28,6 @@ variable create_files_share {
   type                         = bool
 }
 
-variable demo_viewers {
-  description                  = "Object ID's of AAD groups/users to be granted reader access"
-  default                      = []
-  type                         = list
-}
-
 variable devops_org {
   description                  = "The Azure DevOps org to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
   default                      = null
