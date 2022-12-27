@@ -12,7 +12,8 @@ parameters:
 trigger: none
 
 variables:
-  group: container-image-info # Should include 'pool' variable
+  # group: container-image-info # Should include 'pool' variable
+  pool: 'Container Agents'
 
 jobs:
 - job: createStrategy
