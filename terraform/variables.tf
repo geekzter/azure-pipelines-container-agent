@@ -57,6 +57,24 @@ variable pipeline_agent_diagnostics {
   default                      = false
 }
 
+variable pipeline_agent_cpu {
+  type                         = number
+  default                      = 0.5
+}
+variable pipeline_agent_memory {
+  type                         = number
+  default                      = 1.0
+}
+
+variable pipeline_agent_number_max {
+  type                         = number
+  default                      = 10
+}
+variable pipeline_agent_number_min {
+  type                         = number
+  default                      = 1
+}
+
 variable pipeline_agent_pool_id {
   type                         = number
   default                      = 1

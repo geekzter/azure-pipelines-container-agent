@@ -153,8 +153,8 @@ resource azapi_resource agent_container_app {
           name                 = "pipeline-agent"
           env                  = local.environment_variables_template
           resources            = {
-            cpu                = 0.5
-            memory             = "1.0Gi"
+            cpu                = var.pipeline_agent_cpu
+            memory             = "${var.pipeline_agent_memory}Gi"
           }
           volumeMounts         = local.create_files_share ? [
             {
@@ -164,8 +164,8 @@ resource azapi_resource agent_container_app {
           ] : []
         }]
         scale                  = {
-          minReplicas          = 1
-          maxReplicas          = 5
+          minReplicas          = var.pipeline_agent_number_min
+          maxReplicas          = var.pipeline_agent_number_max
           rules                = [
             {
               # https://keda.sh/docs/2.9/scalers/azure-pipelines/

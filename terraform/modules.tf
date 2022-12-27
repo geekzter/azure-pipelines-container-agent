@@ -22,6 +22,10 @@ module container_agents {
   environment_variables        = local.environment_variables
   location                     = var.location
   log_analytics_workspace_resource_id   = local.log_analytics_workspace_resource_id
+  pipeline_agent_cpu           = var.pipeline_agent_cpu
+  pipeline_agent_memory        = var.pipeline_agent_memory
+  pipeline_agent_number_max    = var.pipeline_agent_number_max
+  pipeline_agent_number_min    = var.pipeline_agent_number_min
   pipeline_agent_pool_id       = var.pipeline_agent_pool_id
   pipeline_agent_pool_name     = var.pipeline_agent_pool_name
   pipeline_agent_run_once      = var.pipeline_agent_run_once

@@ -10,6 +10,18 @@ variable environment_variables {
 }
 variable location {}
 variable log_analytics_workspace_resource_id {}
+variable pipeline_agent_cpu {
+    type = number
+}
+variable pipeline_agent_memory {
+    type = number
+}
+variable pipeline_agent_number_max {
+    type = number
+}
+variable pipeline_agent_number_min {
+    type = number
+}
 variable pipeline_agent_pool_id {}
 variable pipeline_agent_pool_name {}
 variable pipeline_agent_run_once {
