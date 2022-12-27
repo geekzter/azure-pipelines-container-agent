@@ -13,8 +13,6 @@ trigger: none
 
 variables:
   - group: 'container-image-info' # Should include 'pool' variable
-  # - name: pool
-  #   value: 'Container Agents'
 
 jobs:
 - job: createStrategy
@@ -46,7 +44,7 @@ jobs:
     name: $[coalesce(variables.pool,'Default')]
     demands:
     - agent.os -equals Linux
-    - PIPELINE_DEMO_APPLICATION_NAME 
+    - PIPELINE_DEMO_APPLICATION_NAME # Matches a Terraform generated pool
   steps:
   - bash: |
       echo Hello from Ubuntu
