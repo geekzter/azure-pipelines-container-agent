@@ -20,7 +20,8 @@ jobs:
   steps:
   - pwsh: |
       $hash = @{}
-      for ($i=0; $i -lt ${{ parameters.numberOfJobs }}; $i++) {
+      # for ($i=0; $i -lt ${{ parameters.numberOfJobs }}; $i++) {
+      for ($i=0; $i -lt 3 ; $i++) {
         $hash.Add("job${i}",@{"index"=$i})
       }
       $hash | ConvertTo-Json | Set-Variable strategy
