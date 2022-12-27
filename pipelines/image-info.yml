@@ -16,7 +16,7 @@ variables:
 
 jobs:
 - job: createStrategy
-  displayName: Create Strategy
+  displayName: Create strategy
   pool:
     name: Azure Pipelines
   steps:
