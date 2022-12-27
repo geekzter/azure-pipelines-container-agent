@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 RUN apt-get upgrade -y
@@ -63,7 +63,7 @@ RUN apt-get install -y azure-cli \
                        dotnet-sdk-6.0 \
                        dotnet-sdk-7.0 \
                        powershell
-
+# RUN apt-get install -y qemu-user-static
 # BUG: qemu: uncaught target signal 11 (Segmentation fault) - core dumped
 # RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,AzureAD,SqlServer -Scope AllUsers -Repository PSGallery -Force'
 

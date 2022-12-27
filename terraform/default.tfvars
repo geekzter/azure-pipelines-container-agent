@@ -1,7 +1,7 @@
 configure_access_control       = false
 create_files_share             = true
 pipeline_agent_diagnostics     = true
-pipeline_agent_run_once        = true
+# pipeline_agent_run_once        = true
 
 # demo_viewers                   = ["a1f39e8a-9c5d-472f-8f48-d72871e38166"]
 
