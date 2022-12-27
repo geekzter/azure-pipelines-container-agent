@@ -40,7 +40,7 @@ jobs:
   ${{ else }}:
     displayName: Parallel job
   pool:
-    name: coalesce(variables.pool,'Default')
+    name: coalesce(variables['pool'],'Default')
     demands:
     - agent.os -equals Linux
     - PIPELINE_DEMO_APPLICATION_NAME 
