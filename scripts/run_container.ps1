@@ -20,7 +20,7 @@ param (
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [string]
-    $AgentName=($env:AZP_AGENT_NAME ?? "Ubuntu-$((Get-Date).ToString("yyyyMMddhhmmss"))"),
+    $AgentName=($env:AZP_AGENT_NAME ?? "$([Environment]::MachineName)-Ubuntu-$((Get-Date).ToString("yyyyMMddhhmmss"))"),
     
     [parameter(Mandatory=$false)]
     [string]
@@ -45,7 +45,7 @@ param (
 
 
 Start-Docker
-
+Write-Host "Starting container agent with name '${AgentName}'..."
 docker run --platform $Platform `
            -e AZP_AGENT_NAME=$AgentName `
            -e AZP_POOL=$PoolName `
