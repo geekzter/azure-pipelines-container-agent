@@ -1,5 +1,9 @@
 parameters:
 # Test auto-scaling by setting sleep time
+- name: numberOfJobs
+  displayName: Number of parallel jobs
+  type: number
+  default: 1
 - name: sleepTimeMinutes
   displayName: Sleep time in minutes
   type: number
@@ -11,7 +15,24 @@ variables:
   pool: 'Container Agents'
 
 jobs:
+- job:
+  name: createStrategy
+  displayName: Create Strategy
+  steps:
+  - pwsh: |
+      $hash = @{}
+      for ($i=0; $i -lt ${{ parameters.numberOfJobs }}; $i++) {
+        $hash.Add("job${i}",@{"index"=$i})
+      }
+      $hash | ConvertTo-Json | Set-Variable strategy
+      Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]$strategy"
+    name: pwsh
+    displayName: 'Create srategy JSON'
 - job: ubuntu
+  dependsOn: createStrategy
+  strategy:
+  matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
+  displayName: Create Strategy
   pool:
     name: $(pool)
     demands:
