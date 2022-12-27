@@ -30,7 +30,7 @@ jobs:
 - job: ubuntu
   dependsOn: createStrategy
   strategy:
-  matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
+    matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
   displayName: Create Strategy
   pool:
     name: $(pool)
