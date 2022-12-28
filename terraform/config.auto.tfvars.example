@@ -1,17 +1,11 @@
 container_image                = "<acr_name>.azurecr.io/pipelineagent/ubuntu"
 container_registry_id          = "<acr_resource_id>"
 
-# log_analytics_workspace_id     = "/subscriptions/84c1a2c7-585a-4753-ad28-97f69618cf12/resourcegroups/governance-thfg/providers/microsoft.operationalinsights/workspaces/governance-thfg-loganalytics"
-user_assigned_identity_id        = "/subscriptions/3f56da7f-5953-4018-8ca8-e20dbfa0a7e2/resourcegroups/ericvan-common/providers/Microsoft.ManagedIdentity/userAssignedIdentities/ericvan-acr-client"
+# log_analytics_workspace_id     = "<log_analytics_resource_id>"
+# user_assigned_identity_id      = "<identity_resource_id>"
 
-# pipeline_agent_pool_id         = 3154
-pipeline_agent_pool_id         = 301
-pipeline_agent_pool_name       = "Container Agents"
+# pipeline_agent_pool_id         = <poolid>
+# pipeline_agent_pool_name       = "Container Agents"
 
-
-devops_org                     = "ericvan"
-devops_pat                     = "dndspdevmrixmnugzbvx6xkhn77jvdgxyywanemwiorod6qltuoq" # Self-Hosted Agent Build
-
-application_name               = "Pipeline Container Agents (ericvan)"
-application_owner              = "ericvan@microsoft.com"
-resource_prefix                = "ericvan"
+devops_org                     = "<myorg>"
+devops_pat                     = "<pat>"
