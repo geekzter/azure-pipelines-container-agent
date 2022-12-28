@@ -178,7 +178,7 @@ jobs:
       #   unpinTerraformProviders: ${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
     maxParallel: 1
 
-  variables:
+  # variables:
   # - group: '$(variableGroup)'
     # ${{ if not(or(eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}:
     #   # Not running as strategy
