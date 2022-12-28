@@ -9,11 +9,27 @@ module diagnostics_storage {
   tags                         = local.tags
 }
 
+module container_image {
+  source                       = "./modules/container-image"
+
+  agent_identity_id            = local.user_assigned_identity_id
+  configure_access_control     = var.configure_access_control
+  # container_image              = var.container_image
+  container_image              = "pipelineagent/ubuntu"
+  container_registry_id        = var.container_registry_id
+  github_repo_access_token     = var.github_repo_access_token
+  location                     = var.location
+  log_analytics_workspace_resource_id   = local.log_analytics_workspace_resource_id
+  resource_group_name          = azurerm_resource_group.rg.name
+  suffix                       = local.suffix
+  tags                         = local.tags
+}
+
 module container_agents {
-  source                       = "./modules/container-app"
+  source                       = "./modules/container-agents"
 
   container_image              = var.container_image
-  container_registry_id        = var.container_registry_id
+  container_registry_id        = module.container_image.container_registry_id
   devops_org                   = var.devops_org
   devops_pat                   = var.devops_pat
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
@@ -37,6 +53,6 @@ module container_agents {
   user_assigned_identity_id    = local.user_assigned_identity_id
 
   depends_on                   = [
-    azurerm_role_assignment.agent_registry_access
+    module.container_image
   ]
 }

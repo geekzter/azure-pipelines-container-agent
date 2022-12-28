@@ -10,7 +10,7 @@ variable application_owner {
 
 variable configure_access_control {
   description                  = "Assumes the Terraform user is an owner of the subscription."
-  default                      = false
+  default                      = true
   type                         = bool
 }
 
@@ -41,6 +41,11 @@ variable environment_variables {
   type                         = map
   default                      = {}  
 } 
+
+variable github_repo_access_token {
+  description                  = "A GitHib Personal Access Token to access the Dockerfile"
+  default                      = null
+}
 
 variable location {
   default                      = "centralus"

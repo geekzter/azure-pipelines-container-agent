@@ -13,10 +13,10 @@ output agent_identity_principal_id {
 }
 
 output container_app_id {
-  value       = module.container_agents.container_app_id
+  value                        = module.container_agents.container_app_id
 }
 output container_environment_id {
-  value       = module.container_agents.container_environment_id
+  value                        = module.container_agents.container_environment_id
 }
 
 output diagnostics_storage_account_name {
