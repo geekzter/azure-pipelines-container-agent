@@ -11,9 +11,10 @@ Features (see limitations below):
 - You need to either pre-create an User-assigned Managed Identity with `AcrPull` role on the Azure Container Registry, or;   
 Set `configure_access_control = true` in `config.auto.tfvars` ([example](./terraform/config.auto.tfvars.example), requires `Owner` role for Terraform)
 - Provision infrastructure by running `terraform apply` or [`deploy.ps1`](./scripts/deploy.ps1) `-apply`
-- Use to the [`image-info`](./pipelines/image-info.yml) pipeline with `numberOfJobs` set to test elasticiy of the pool
+- Use to the [`image-info.yml`](./pipelines/image-info.yml) pipeline with `numberOfJobs` set to test elasticiy of the pool
 
 ## Limitations
 - `ScaledJob` is [not supported](https://github.com/microsoft/azure-container-apps/issues/24) in Azure Container Apps. The KEDA Pipelines scaler requires this to indicate a long-running process needs to finish before a pod instance is terminated. This means pipeline jobs can get terminated prematurely.
 - Azure Container Apps have a [maximum replica limit of 30](https://learn.microsoft.com/en-us/azure/container-apps/scale-app). Hence a Container App pool can at most have 30 agents.
 - Azure Container Apps do not yet support [volume mount options](https://github.com/microsoft/azure-container-apps/issues/520). Option `nobrl` is required to persist logs. Hence agents that are configured to terminate after a job run may not have logs fully captured.
+- The [`Dockerfile`](./images/ubuntu/Dockerfile) includes only a limited set of tools

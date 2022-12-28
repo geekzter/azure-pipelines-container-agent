@@ -1,5 +1,13 @@
 #!/usr/bin/env pwsh
+<# 
+.SYNOPSIS 
+    Builds the container agent image
 
+.EXAMPLE
+    ./build_image.ps1
+.EXAMPLE
+    ./build_image.ps1 -Push
+#> 
 #Requires -Version 7.2
 param ( 
     [parameter(Mandatory=$false)]
@@ -13,13 +21,13 @@ param (
     $Repository="pipelineagent",
 
     [parameter(Mandatory=$true,ParameterSetName='AcrBuild')]
-    [parameter(Mandatory=$false,ParameterSetName='DockerBuild')]
+    [parameter(Mandatory=$false)]
     [string]
     $Registry,
 
     [parameter(Mandatory=$false)]
-    [string[]]
-    $Tags=@("latest"),
+    [string]
+    $Tag="ubuntu",
 
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
@@ -47,10 +55,12 @@ try {
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
-        foreach ($tag in $Tags) {
-            docker tag ${Repository}/${ImageName}:${ImageName} "${Repository}/${ImageName}:${tag}"
+
+        $Tags = @('docker','latest',$Tag,(Get-Date).ToString("yyyyMMdd"))
+        foreach ($individualTag in $Tags) {
+            docker tag ${Repository}/${ImageName}:${ImageName} "${Repository}/${ImageName}:${individualTag}"
             if ($Registry) {
-                docker tag ${Repository}/${ImageName}:${ImageName} ${Registry}/${Repository}/${ImageName}:${tag}
+                docker tag ${Repository}/${ImageName}:${ImageName} ${Registry}/${Repository}/${ImageName}:${individualTag}
             }
         }
         if ($Scan) {
@@ -60,8 +70,11 @@ try {
     } else {
         # ACR build
         Login-Az -DisplayMessages
+        # tags: ubuntu, latest, date, run-id, acr
         az acr build -t ${Repository}/${ImageName}:acr `
-                     -t ${Repository}/${ImageName}:${ImageName} `
+                     -t ${Repository}/${ImageName}:latest `
+                     -t ${Repository}/${ImageName}:${Tag} `
+                     -t ${Repository}/${ImageName}:$((Get-Date).ToString("yyyyMMdd")) `
                      -r $Registry `
                      . `
                      --platform $Platform

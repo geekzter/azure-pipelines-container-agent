@@ -1,16 +1,11 @@
 #!/usr/bin/env pwsh
 <# 
 .SYNOPSIS 
-    Deploys Azure resources using Terraform
- 
-.DESCRIPTION 
-    This script is a wrapper around Terraform. It is provided for convenience only, as it works around some limitations in the demo. 
-    E.g. terraform might need resources to be started before executing, and resources may not be accessible from the current locastion (IP address).
+    Runs the container agent locally
 
 .EXAMPLE
-    ./deploy.ps1 -apply
+    ./run_container.ps1 -OrganizationUrl https://dev.azure.com/<myorg> -Token <pat>
 #> 
-
 #Requires -Version 7.2
 param ( 
     [parameter(Mandatory=$false)]

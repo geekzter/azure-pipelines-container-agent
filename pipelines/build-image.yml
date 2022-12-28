@@ -26,7 +26,7 @@ variables:
 
 steps:
 - pwsh: |
-    ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tags latest, $(Build.BuildId), $(date)
+    ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tag $(Build.BuildId)
   displayName: Build image
   failOnStderr: true
   workingDirectory: '$(scriptDirectory)'
