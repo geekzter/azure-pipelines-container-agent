@@ -71,10 +71,17 @@ data azurerm_user_assigned_identity pre_created_agent_identity {
   count                        = var.user_assigned_identity_id != "" && var.user_assigned_identity_id != null ? 1 : 0
 }
 
-resource azurerm_role_assignment agent_storage_contributors {
+resource azurerm_role_assignment agent_registry_access {
   scope                        = var.container_registry_id
   role_definition_name         = "AcrPull"
   principal_id                 = azurerm_user_assigned_identity.agent_identity.0.principal_id
+
+  lifecycle {
+    precondition {
+      condition                = var.configure_access_control
+      error_message            = "If user_assigned_identity_id is not set, configure_access_control must be set to true"
+    }
+  }
 
   count                        = var.user_assigned_identity_id != "" && var.user_assigned_identity_id != null && var.configure_access_control ? 1 : 0
 }
