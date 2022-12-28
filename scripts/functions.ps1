@@ -40,6 +40,11 @@ function Invoke (
 function Login-Az (
     [parameter(Mandatory=$false)][switch]$DisplayMessages=$false
 ) {
+    if (!(Get-Command az)) {
+        Write-Warning "Azure CLI is not installed, get it at http://aka.ms/azure-cli"
+        exit
+    }
+
     # Are we logged in? If so, is it the right tenant?
     $azureAccount = $null
     az account show 2>$null | ConvertFrom-Json | Set-Variable azureAccount

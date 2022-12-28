@@ -1,4 +1,15 @@
 #!/usr/bin/env pwsh
+<# 
+.SYNOPSIS 
+    Deploys Azure resources using Terraform
+ 
+.DESCRIPTION 
+    This script is a wrapper around Terraform. It is provided for convenience only, as it works around some limitations in the demo. 
+    E.g. terraform might need resources to be started before executing, and resources may not be accessible from the current locastion (IP address).
+
+.EXAMPLE
+    ./deploy.ps1 -apply
+#> 
 
 #Requires -Version 7.2
 param ( 
@@ -24,7 +35,7 @@ param (
     
     [parameter(Mandatory=$false)]
     [string]
-    $PoolName=$env:AZP_POOL,
+    $PoolName=$env:AZP_POOL ?? "Default",
     
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
