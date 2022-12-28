@@ -106,7 +106,7 @@ jobs:
   steps:
   - pwsh: |
       $strategyHash = @{}
-      if ($${{ if not(or(eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
+      if ($${{ not(or(eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
         $strategyHash.Add("primary",@{
             resourceGroup = '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)'
             terraformArtifactPrefix = 'terraformPrimary'
