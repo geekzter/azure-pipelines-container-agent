@@ -1,0 +1,53 @@
+trigger: none
+
+pr:
+  autoCancel: false
+  branches:
+    include:
+    - '*'
+  drafts: false
+  paths:
+    exclude:
+    - '.devcontainer/**'  
+    - 'visuals/**'  
+    - '*.md'  
+
+schedules:
+- cron: '0 0 * * *'
+  displayName: 'Daily build (0:00 UTC)'
+  # Run if there are no changes
+  always: 'true'
+  branches:
+    include:
+    - main
+
+pool:
+  vmImage: 'ubuntu-latest' 
+
+variables:
+- group: 'build-container-agent-image'
+- name: date
+  value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
+- name: 'tags'
+  value: 'latest'
+- name: 'imageName'
+  value: 'pipelineagent/ubuntu'
+- name: 'scriptDirectory'
+  value: '$(Build.SourcesDirectory)/scripts'
+
+steps:
+- pwsh: |
+    ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tag $(Build.BuildId)
+  displayName: Build image
+  failOnStderr: true
+  workingDirectory: '$(scriptDirectory)'
+- task: Docker@2
+  displayName: Push image
+  inputs:
+    command: push
+    containerRegistry: '$(containerRegistry)'
+    repository: $(imageName)
+    tags: |
+      latest
+      $(Build.BuildId)
+      $(date)

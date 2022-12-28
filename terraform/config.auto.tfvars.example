@@ -1,0 +1,11 @@
+container_image                = "<acr_name>.azurecr.io/pipelineagent/ubuntu"
+container_registry_id          = "<acr_resource_id>"
+
+# log_analytics_workspace_id     = "<log_analytics_resource_id>"
+# user_assigned_identity_id      = "<identity_resource_id>"
+
+# pipeline_agent_pool_id         = <poolid>
+# pipeline_agent_pool_name       = "Container Agents"
+
+devops_org                     = "<myorg>"
+devops_pat                     = "<pat>"

@@ -1,0 +1,25 @@
+#  Terraform
+**/.terraform/*
+*.plan
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.auto.tfvars
+*.tfvars
+terraform.log
+backend.tf
+
+# VSCode
+**/.vscode/*
+*.code-workspace
+
+# macOS
+*.DS_Store
+
+# Ignore temp files
+tmp*.*
+*.tmp
+err.out
+*.~*
+~*.*
+*.log
