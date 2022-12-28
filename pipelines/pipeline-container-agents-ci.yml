@@ -181,8 +181,8 @@ jobs:
 
     - ${{ if parameters.unpinTerraform }}:
       - pwsh: |
-          (Get-Content ./provider.tf) -replace "required_version *= `" *(~>|=) +",'required_version = ">= ' | Out-File provider.tf
-          Get-Content ./provider.tf
+          (Get-Content ./terraform.tf) -replace "required_version *= `" *(~>|=) +",'required_version = ">= ' | Out-File terraform.tf
+          Get-Content ./terraform.tf
           Write-Host "##vso[task.setvariable variable=version;isOutput=true]latest"
           Copy-Item backend.tf.sample backend.tf
         name: terraformConfig
@@ -197,13 +197,12 @@ jobs:
     - ${{ if or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),not(eq(variables['Build.Reason'], 'Manual'))) }}:
       # Unpin version e.g. "= 2.56" -> "~> 2.56"
       - pwsh: |
-          (Get-Content ./provider.tf) -replace " = `" *= +",' = "~> ' | Out-File provider.tf
-          Get-Content ./provider.tf
+          (Get-Content ./terraform.tf) -replace " = `" *= +",' = "~> ' | Out-File terraform.tf
+          Get-Content ./terraform.tf
           if (Test-Path .terraform.lock.hcl) {
             Remove-Item .terraform.lock.hcl -Force
           }
         displayName: 'Unpin Terraform provider versions'
-        # condition required as '- ${{ if ' template expression is not evaluated when using a strategy
         condition: and(succeeded(), eq(variables['unpinTerraformProviders'],'true'))
         workingDirectory: '$(terraformDirectory)'
 
