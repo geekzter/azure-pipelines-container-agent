@@ -102,7 +102,7 @@ variables:
 - name: 'unpinTerraformProviders'
   value: ${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
 
-# jobs:    
+jobs:    
 # - job: 'provision'
 #   ${{ if eq(parameters.destroy, 'Always') }}:
 #     displayName: 'Provision & Destroy'
