@@ -329,7 +329,7 @@ jobs:
     - pwsh: |
         echo $(terraformDirectory)
         ls -al $(terraformDirectory)
-      displayName: 'Wait for agents to come online'
+      displayName: 'Test'
       workingDirectory: '$(scriptDirectory)'
 
     # - bash: |
