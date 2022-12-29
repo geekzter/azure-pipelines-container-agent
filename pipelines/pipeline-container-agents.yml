@@ -319,7 +319,7 @@ jobs:
       vmImage: $(vmImage)
 
     variables:
-      terraformDirectory: $(Pipeline.Workspace)/$(terraformArtifactPrefix)$(System.PlanId)'
+      terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)'
 
     steps:
     - download: current
@@ -327,24 +327,19 @@ jobs:
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
     - pwsh: |
-        echo pwd
-        echo $(pwd)
+        echo pwd: $(pwd)
         ls -LR $(pwd)
 
-        echo Agent.BuildDirectory
-        echo $(Agent.BuildDirectory)
+        echo Agent.BuildDirectory: $(Agent.BuildDirectory)
         ls -LR $(Agent.BuildDirectory)
 
-        echo Build.ArtifactStagingDirectory
-        echo $(Build.ArtifactStagingDirectory)
+        echo Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
         ls -LR $(Build.ArtifactStagingDirectory)
 
-        echo Build.SourcesDirectory
-        echo $(Build.SourcesDirectory)
+        echo Build.SourcesDirectory: $(Build.SourcesDirectory)
         ls -LR $(Build.SourcesDirectory)
 
-        echo terraformDirectory
-        echo $(terraformDirectory)        
+        echo terraformDirectory: $(terraformDirectory)        
         ls -LR $(terraformDirectory)
       displayName: 'Test'
       # workingDirectory: '$(scriptDirectory)'
