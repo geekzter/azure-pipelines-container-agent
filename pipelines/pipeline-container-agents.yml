@@ -263,10 +263,9 @@ jobs:
         workingDirectory: '$(scriptDirectory)'
         
   - pwsh: |
-      Write-Host skip
-      # ./wait_for_agents.ps1 -CapabilityValue $(correlationCapability) `
-      #                       -OrganizationUrl $(System.CollectionUri) `
-      #                       -PoolId $(TF_VAR_pipeline_agent_pool_id)
+      ./wait_for_agents.ps1 -CapabilityValue $(correlationCapability) `
+                            -OrganizationUrl $(System.CollectionUri) `
+                            -PoolId $(TF_VAR_pipeline_agent_pool_id)
     displayName: 'Wait for agents to come online'
     workingDirectory: '$(scriptDirectory)'
     env:
