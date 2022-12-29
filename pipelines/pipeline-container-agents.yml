@@ -383,7 +383,8 @@ jobs:
     - agent.os -equals Linux
     # - CONTAINER_APP_NAME -equals ericvan-agents-gdac-app
     # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['capabilities.containerAppName'] ]
-    - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(resourceGroup)
+    # - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(resourceGroup)
+    - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
   steps:
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
