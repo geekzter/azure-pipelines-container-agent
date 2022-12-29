@@ -40,11 +40,8 @@ parameters:
   default: false
 - name: unpinTerraformProviders
   displayName: Unpin Terraform provider versions
-  type: string
-  default: No
-  values:
-  - No
-  - Yes
+  type: boolean
+  default: false
 
 name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId)
 
@@ -108,7 +105,7 @@ variables:
 - name: 'TF_WORKSPACE'
   value: '${{ parameters.workspace }}'
 - name: 'unpinTerraformProviders'
-  value: ${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
+  value: ${{ parameters.unpinTerraformProviders }}
 - name: 'vmImage'
   value: 'ubuntu-latest'
 
@@ -146,7 +143,7 @@ jobs:
     inputs:
       terraformVersion: '$(terraformConfig.version)'
 
-  - ${{ if or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),not(eq(variables['Build.Reason'], 'Manual'))) }}:
+  - ${{ if or(parameters.unpinTerraformProviders,not(eq(variables['Build.Reason'], 'Manual'))) }}:
     # Unpin version e.g. "= 2.56" -> "~> 2.56"
     - pwsh: |
         (Get-Content ./terraform.tf) -replace " = `" *= +",' = "~> ' | Out-File terraform.tf
