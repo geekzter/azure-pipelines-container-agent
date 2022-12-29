@@ -63,6 +63,7 @@ az devops configure --defaults organization=$OrganizationUrl
 
 $stopWatch = New-Object -TypeName System.Diagnostics.Stopwatch     
 $stopWatch.Start()
+Write-Host "Waiting for agents to come online." -NoNewLine
 Find-Agent | Set-Variable onlineAgentNames
 while (!$onlineAgentNames -and ($stopWatch.Elapsed.TotalSeconds -lt $TimeoutSeconds)) {
     Write-Host "." -NoNewLine
