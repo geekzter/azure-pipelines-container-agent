@@ -73,16 +73,14 @@ schedules:
 
 variables:
 - group: 'pipeline-container-agents-ci'
-- name: 'jobTimeOutMinutes'
-  value: 180
-- name: 'repository'
-  value: 'azure-pipelines-container-agents'
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
   value: 'true'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
   value: 'yes_without_prompt'
-- name: 'resourceGroup'
-  value: '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)'
+- name: 'jobTimeOutMinutes'
+  value: 180
+- name: 'repository'
+  value: 'azure-pipelines-container-agents'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 - name: 'terraformArtifactPrefix'
@@ -93,6 +91,8 @@ variables:
   value: 'true'
 - name: 'TF_INPUT'
   value: 0
+- name: 'TF_VAR_environment_variables'
+  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(System.CollectionUri)-$(System.TeamProject)-$(Build.DefinitionName)-$(TF_WORKSPACE)"}'
 - name: 'TF_VAR_pipeline_agent_pool_id'
   value: 1
 - name: 'TF_VAR_pipeline_agent_pool_name'
@@ -383,7 +383,7 @@ jobs:
     demands:
     - agent.os -equals Linux
     # Repeat resource group expression as there is no nested variable expansion in demands
-    - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
+    - PIPELINE_DEMO_JOB_CAPABILITY -equals $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
   steps:
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
