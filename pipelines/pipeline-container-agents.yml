@@ -382,7 +382,8 @@ jobs:
     demands:
     - agent.os -equals Linux
     # - PWD -equals '/azp'
-    - PIPELINE_DEMO_RESOURCE_GROUP_NAME
+    - CONTAINER_APP_NAME
+    # - PIPELINE_DEMO_RESOURCE_GROUP_NAME
     # - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals 'ericvan-container-agents-gdac'
     # - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals 'ericvan-container-agents-gdac'
     # - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $[ dependencies.provision.outputs['capabilities.resourceGroup'] ]
