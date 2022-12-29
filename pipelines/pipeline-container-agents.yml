@@ -328,7 +328,7 @@ jobs:
       displayName: 'Download Terraform workspace'
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
-    - pwsh: |
+    - bash: |
         # echo pwd: $(pwd)
         # ls -LR $(pwd)
 
@@ -345,6 +345,7 @@ jobs:
         ls -LR $(terraformDirectory)
 
         ls -alR $(terraformDirectory)/.terraform/providers
+      continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       displayName: 'Test'
       # workingDirectory: '$(scriptDirectory)'
 
