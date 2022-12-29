@@ -323,11 +323,8 @@ jobs:
       name: '$(pool)'
       vmImage: $(vmImage)
 
-    variables:
-    - group: 'pipeline-container-agents-ci'
-    - name: terraformDirectory
-      value: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)
-      # terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)
+    # variables:
+    #   terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)
 
     steps:
     - download: current
@@ -338,13 +335,13 @@ jobs:
         ls -alR
       continueOnError: true
       displayName: 'Terraform info'
-      workingDirectory: $(terraformDirectory)
+      workingDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)
 
     - bash: |
         echo Marking Terraform provider binaries as executable...
         find . | xargs chmod +x
       displayName: 'Make Terraform providers executable'
-      workingDirectory: $(terraformDirectory)/.terraform/providers
+      workingDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)/.terraform/providers
 
     # - task: AzureCLI@2
     #   displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
@@ -368,7 +365,7 @@ jobs:
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         command: 'destroy'
-        workingDirectory: '$(terraformDirectory)'
+        workingDirectory: '$(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)'
         environmentServiceName: '$(subscriptionConnection)'
         runAzLogin: true
         allowTelemetryCollection: true
@@ -438,4 +435,4 @@ jobs:
         addSpnToEnvironment: true
         useGlobalConfig: true
         failOnStandardError: true
-        workingDirectory: '$(terraformDirectory)'
+        workingDirectory: '$(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)'
