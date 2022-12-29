@@ -65,6 +65,7 @@ schedules:
     - main
 
 variables:
+- group: 'build-container-agent-image'
 - group: 'pipeline-container-agents-ci'
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
   value: 'true'
@@ -74,12 +75,18 @@ variables:
   value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)'
 - name: 'jobTimeOutMinutes'
   value: 180
+- name: date
+  value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
+- name: 'imageName'
+  value: 'pipelineagent/ubuntu'
 - name: 'pool'
   value: 'Azure Pipelines'
 - name: 'repository'
   value: 'azure-pipelines-container-agent'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
+- name: 'tags'
+  value: 'latest'
 - name: 'terraformArtifactName'
   value: 'terraform$(System.PlanId)'
 - name: 'terraformDirectory'
@@ -106,7 +113,33 @@ variables:
   value: 'ubuntu-latest'
 
 jobs:    
+- job: buildImage
+  displayName: 'Build Container Agent image'
+  timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
+
+  pool:
+    name: '$(pool)'
+    vmImage: $(vmImage)
+
+  steps:
+  - pwsh: |
+      ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tag $(Build.BuildId)
+    displayName: Build image
+    failOnStderr: true
+    workingDirectory: '$(scriptDirectory)'
+  - task: Docker@2
+    displayName: Push image
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: $(imageName)
+      tags: |
+        latest
+        $(Build.BuildId)
+        $(date)
+
 - job: provision
+  dependsOn: buildImage
   displayName: 'Provision Container App infrastructure'
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
