@@ -286,8 +286,8 @@ jobs:
   pool:
     # name: '$(TF_VAR_pipeline_agent_pool_name)'
     name: 'Azure Pipelines'
-    demands:
-    - agent.os -equals Linux
+    # demands:
+    # - agent.os -equals Linux
     # Repeat capability expression as there is no nested variable expansion inside demands
     # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
     # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
