@@ -111,13 +111,13 @@ variables:
 jobs:    
 - job: 'provision'
   ${{ if eq(parameters.destroy, 'Always') }}:
-    displayName: 'Provision & Destroy'
+    displayName: 'Provision & Destroy infrastructure'
   ${{ if eq(parameters.destroy, 'Never') }}:
-    displayName: 'Provision'
+    displayName: 'Provision infrastructure'
   ${{ if eq(parameters.destroy, 'On failure') }}:
-    displayName: 'Provision & Destroy (${{ lower(parameters.destroy) }})'
+    displayName: 'Provision & Destroy (${{ lower(parameters.destroy) }}) infrastructure'
   ${{ if eq(parameters.destroy, 'On success') }}:
-    displayName: 'Provision & Destroy (${{ lower(parameters.destroy) }})'
+    displayName: 'Provision & Destroy (${{ lower(parameters.destroy) }}) infrastructure'
   condition: succeeded()
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
@@ -374,10 +374,13 @@ jobs:
     #       useGlobalConfig: true
     #       failOnStandardError: true
     #       workingDirectory: '$(terraformDirectory)'
+    - pwsh: |
+        Start-Sleep -Duration (New-TimeSpan -Minutes 5)
+      displayName: 'Wait for agents to come online'
 
 - job: ubuntuContainer
   dependsOn: provision
-  displayName: Container App test
+  displayName: Test Container Agent
   pool:
     name: '$(TF_VAR_pipeline_agent_pool_name)'
     demands:
