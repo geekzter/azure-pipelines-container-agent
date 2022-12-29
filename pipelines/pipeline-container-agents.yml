@@ -310,6 +310,7 @@ jobs:
    
 - ${{ if ne(parameters.destroy, 'Never') }}:
   - job: destroy
+    dependsOn: ubuntuContainer
     ${{ if eq(parameters.destroy, 'Always') }}:
       displayName: 'Destroy infrastructure'
     ${{ if eq(parameters.destroy, 'On failure') }}:
