@@ -319,7 +319,7 @@ jobs:
       vmImage: $(vmImage)
 
     variables:
-      terraformDirectory: $(Pipeline.Workspace)/drop/s/terraform'
+      terraformDirectory: $(Pipeline.Workspace)/$(terraformArtifactPrefix)$(System.PlanId)'
 
     steps:
     - download: current
@@ -327,16 +327,16 @@ jobs:
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
     - pwsh: |
-        ls -al $(Pipeline.Workspace)/drop/s/terraform
-        ls -al terraform
+        echo $(terraformDirectory)
+        ls -al $(terraformDirectory)
       displayName: 'Wait for agents to come online'
       workingDirectory: '$(scriptDirectory)'
 
-    - bash: |
-        find . -name *_x?
-        find . -name *_x? | xargs chmod +x
-      displayName: 'Make Terraform providers executable'
-      workingDirectory: $(terraformDirectory)/.terraform/providers/registry.terraform.io/hashicorp 
+    # - bash: |
+    #     find . -name *_x?
+    #     find . -name *_x? | xargs chmod +x
+    #   displayName: 'Make Terraform providers executable'
+    #   workingDirectory: $(terraformDirectory)/.terraform/providers/registry.terraform.io/hashicorp 
 
       # - ${{ if not(eq(parameters.destroy, 'Never')) }}:
       #   - task: TerraformCLI@0
