@@ -270,7 +270,9 @@ jobs:
           workingDirectory: '$(scriptDirectory)'
           
     - pwsh: |
-        ./wait_for_agents.ps1
+        ./wait_for_agents.ps1 -CapabilityValue $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE) `
+                              -OrganizationUrl $(System.CollectionUri) `
+                              -PoolId $(TF_VAR_pipeline_agent_pool_id)
       displayName: 'Wait for agents to come online'
       workingDirectory: '$(scriptDirectory)'
 
