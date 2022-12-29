@@ -332,8 +332,8 @@ jobs:
         # echo pwd: $(pwd)
         # ls -LR $(pwd)
 
-        # echo Agent.BuildDirectory: $(Agent.BuildDirectory)
-        # ls -LR $(Agent.BuildDirectory)
+        echo Agent.BuildDirectory: $(Agent.BuildDirectory)
+        ls -LR $(Agent.BuildDirectory)
 
         # echo Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
         # ls -LR $(Build.ArtifactStagingDirectory)
@@ -341,10 +341,10 @@ jobs:
         # echo Build.SourcesDirectory: $(Build.SourcesDirectory)
         # ls -LR $(Build.SourcesDirectory)
 
-        # echo terraformDirectory: $(terraformDirectory)        
-        # ls -LR $(terraformDirectory)
+        echo terraformDirectory: $(terraformDirectory)        
+        ls -LR $(terraformDirectory)
 
-        ls -alR $(terraformDirectory)
+        # ls -alR $(terraformDirectory)
       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       displayName: 'Test'
       # workingDirectory: '$(scriptDirectory)'
