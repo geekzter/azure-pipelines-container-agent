@@ -333,7 +333,7 @@ jobs:
         # ls -LR $(pwd)
 
         echo Agent.BuildDirectory: $(Agent.BuildDirectory)
-        ls -LR $(Agent.BuildDirectory)
+        ls -aLR $(Agent.BuildDirectory)
 
         # echo Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
         # ls -LR $(Build.ArtifactStagingDirectory)
@@ -342,7 +342,7 @@ jobs:
         # ls -LR $(Build.SourcesDirectory)
 
         echo terraformDirectory: $(terraformDirectory)        
-        ls -LR $(terraformDirectory)
+        ls -aLR $(terraformDirectory)
 
         # ls -alR $(terraformDirectory)
       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
