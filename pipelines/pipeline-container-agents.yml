@@ -375,7 +375,7 @@ jobs:
     #       failOnStandardError: true
     #       workingDirectory: '$(terraformDirectory)'
     - pwsh: |
-        Start-Sleep -Duration (New-TimeSpan -Minutes 5)
+        Start-Sleep -Seconds 300
       displayName: 'Wait for agents to come online'
 
 - job: ubuntuContainer
