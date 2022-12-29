@@ -14,7 +14,7 @@ parameters:
   - cd2
   - cd3
 - name: clear
-  displayName: Clear State
+  displayName: Clear Terraform state
   type: boolean
   default: false
 - name: destroy
@@ -84,8 +84,8 @@ variables:
   value: 'azure-pipelines-container-agent'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
-- name: 'terraformArtifactPrefix'
-  value: 'terraform'
+- name: 'terraformArtifactName'
+  value: 'terraform$(System.PlanId)'
 - name: 'terraformDirectory'
   value: '$(Build.SourcesDirectory)/terraform'
 - name: 'TF_IN_AUTOMATION'
@@ -196,7 +196,7 @@ jobs:
 
   - publish: $(terraformDirectory)
     displayName: 'Publish Terraform workspace'
-    artifact: $(terraformArtifactPrefix)$(System.PlanId)
+    artifact: $(terraformArtifactName)
 
   - ${{ if eq(parameters.clear, true) }}:
     - task: AzureCLI@2
@@ -292,7 +292,7 @@ jobs:
       Get-InstalledModule | Sort-Object -Property Name
 
       # List environment variables
-      Get-ChildItem Env: | Sort-Object -Property Name
+      Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
     displayName: 'Display agent info'
   - ${{ if not(eq(parameters.destroy, 'Never')) }}:
     - pwsh: |
@@ -322,23 +322,12 @@ jobs:
       vmImage: $(vmImage)
 
     variables:
-      terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)
+      terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactName)
 
     steps:
     - download: current
       displayName: 'Download Terraform workspace'
-      artifact: $(terraformArtifactPrefix)$(System.PlanId)
-
-    - pwsh: |
-        # List environment variables
-        Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
-      displayName: 'Display agent info'
-
-    - bash: |
-        ls -alR
-      continueOnError: true
-      displayName: 'Terraform info'
-      workingDirectory: $(terraformDirectory)
+      artifact: $(terraformArtifactName)
 
     - bash: |
         echo Marking Terraform provider binaries as executable...
