@@ -75,6 +75,8 @@ variables:
 - group: 'pipeline-container-agents-ci'
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
   value: 'true'
+- name: 'AZURE_DEVOPS_EXT_PAT'
+  value: '$(System.AccessToken)'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
   value: 'yes_without_prompt'
 - name: 'jobTimeOutMinutes'
@@ -105,8 +107,6 @@ variables:
   value: '${{ parameters.workspace }}'
 - name: 'unpinTerraformProviders'
   value: ${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
-
-  
 
 jobs:    
 - job: 'provision'
@@ -270,8 +270,9 @@ jobs:
           workingDirectory: '$(scriptDirectory)'
           
     - pwsh: |
-        Start-Sleep -Seconds 300
+        ./wait_for_agents.ps1
       displayName: 'Wait for agents to come online'
+      workingDirectory: '$(scriptDirectory)'
 
     - ${{ if not(eq(parameters.destroy, 'Never')) }}:
       - pwsh: |
