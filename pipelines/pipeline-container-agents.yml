@@ -324,7 +324,7 @@ jobs:
       vmImage: $(vmImage)
 
     steps:
-    - restore: $(terraformDirectory)
+    - download: $(terraformDirectory)
       displayName: 'Publish Terraform workspace'
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
       # - ${{ if not(eq(parameters.destroy, 'Never')) }}:
