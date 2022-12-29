@@ -269,6 +269,10 @@ jobs:
           failOnStandardError: true
           workingDirectory: '$(scriptDirectory)'
           
+    - pwsh: |
+        Start-Sleep -Seconds 300
+      displayName: 'Wait for agents to come online'
+
     - ${{ if not(eq(parameters.destroy, 'Never')) }}:
       - pwsh: |
           Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
@@ -374,9 +378,6 @@ jobs:
     #       useGlobalConfig: true
     #       failOnStandardError: true
     #       workingDirectory: '$(terraformDirectory)'
-    - pwsh: |
-        Start-Sleep -Seconds 300
-      displayName: 'Wait for agents to come online'
 
 - job: ubuntuContainer
   dependsOn: provision
@@ -394,5 +395,5 @@ jobs:
       Get-InstalledModule | Sort-Object -Property Name
 
       # List environment variables
-      Get-ChildItem -Path Env: -Recurse -Include AGENT_*,PIPELINE_DEMO_*,SYSTEM_* | Sort-Object -Property Name
+      Get-ChildItem Env: | Sort-Object -Property Name
     displayName: 'Display agent info'
