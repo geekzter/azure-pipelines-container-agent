@@ -291,7 +291,7 @@ jobs:
       workingDirectory: '$(terraformDirectory)'
 
     - task: AzureCLI@2
-      displayName: 'Terraform plan & apply (deploy_firewall:$(TF_VAR_deploy_firewall))'
+      displayName: 'Terraform plan & apply'
       name: apply
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:

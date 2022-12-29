@@ -93,6 +93,10 @@ variables:
   value: 'true'
 - name: 'TF_INPUT'
   value: 0
+- name: 'TF_VAR_pipeline_agent_pool_id'
+  value: 1
+- name: 'TF_VAR_pipeline_agent_pool_name'
+  value: 'Default'
 - name: 'TF_VAR_resource_suffix'
   value: '$(Build.BuildId)'
 - name: 'TF_VAR_run_id'
@@ -101,6 +105,8 @@ variables:
   value: '${{ parameters.workspace }}'
 - name: 'unpinTerraformProviders'
   value: ${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
+
+  
 
 jobs:    
 - job: 'provision'
@@ -231,7 +237,7 @@ jobs:
       workingDirectory: '$(terraformDirectory)'
 
     - task: AzureCLI@2
-      displayName: 'Terraform plan & apply (deploy_firewall:$(TF_VAR_deploy_firewall))'
+      displayName: 'Terraform plan & apply'
       name: apply
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
@@ -376,9 +382,9 @@ jobs:
 
 - job: ubuntuContainer
   dependsOn: provision
-  displayName: Container App
+  displayName: Container App test
   pool:
-    name: 'Container Agents'
+    name: '$(TF_VAR_pipeline_agent_pool_name)'
     demands:
     - agent.os -equals Linux
     # Repeat resource group expression as there is no nested variable expansion in demands
@@ -391,3 +397,4 @@ jobs:
 
       # List environment variables
       Get-ChildItem -Path Env: -Recurse -Include AGENT_*,PIPELINE_DEMO_*,SYSTEM_* | Sort-Object -Property Name
+    displayName: 'Display agent info'
