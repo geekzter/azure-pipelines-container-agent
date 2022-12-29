@@ -321,7 +321,7 @@ jobs:
       vmImage: $(vmImage)
 
     variables:
-      terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)'
+      terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)
 
     steps:
     - download: current
@@ -349,11 +349,12 @@ jobs:
       displayName: 'Test'
       # workingDirectory: '$(scriptDirectory)'
 
-    - bash: |
-        echo Marking Terraform provider binaries as executable...
-        find . | xargs chmod +x
-      displayName: 'Make Terraform providers executable'
-      workingDirectory: $(terraformDirectory)/.terraform/providers
+    # - bash: |
+    #     echo Marking Terraform provider binaries as executable...
+    #     find . | xargs chmod +x
+    #   continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
+    #   displayName: 'Make Terraform providers executable'
+    #   workingDirectory: $(terraformDirectory)/.terraform/providers
 
     - task: TerraformCLI@0
       displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
