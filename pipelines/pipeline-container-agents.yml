@@ -114,15 +114,7 @@ variables:
 
 jobs:    
 - job: provision
-  ${{ if eq(parameters.destroy, 'Always') }}:
-    displayName: 'Provision & Destroy infrastructure'
-  ${{ if eq(parameters.destroy, 'Never') }}:
-    displayName: 'Provision infrastructure'
-  ${{ if eq(parameters.destroy, 'On failure') }}:
-    displayName: 'Provision & Destroy (${{ lower(parameters.destroy) }}) infrastructure'
-  ${{ if eq(parameters.destroy, 'On success') }}:
-    displayName: 'Provision & Destroy (${{ lower(parameters.destroy) }}) infrastructure'
-  condition: succeeded()
+  displayName: 'Provision'
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
   pool:
@@ -288,29 +280,31 @@ jobs:
         displayName: 'Indicate provisioning success'
         condition: succeeded()
 
-- job: ubuntuContainer
-  dependsOn: provision
-  displayName: Test Container App Agent
-  pool:
-    name: '$(TF_VAR_pipeline_agent_pool_name)'
-    demands:
-    - agent.os -equals Linux
-    # Repeat capability expression as there is no nested variable expansion in demands
-    # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
-    - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
-  steps:
-  - pwsh: |
-      Write-Host "`$PSVersionTable.OS"
-      $PSVersionTable.OS
-      Get-InstalledModule | Sort-Object -Property Name
+# - job: ubuntuContainer
+#   dependsOn: provision
+#   displayName: Test Container App Agent
+#   pool:
+#     name: '$(TF_VAR_pipeline_agent_pool_name)'
+#     demands:
+#     - agent.os -equals Linux
+#     # Repeat capability expression as there is no nested variable expansion in demands
+#     # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
+#     - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+#   steps:
+#   - pwsh: |
+#       Write-Host "`$PSVersionTable.OS"
+#       $PSVersionTable.OS
+#       Get-InstalledModule | Sort-Object -Property Name
 
-      # List environment variables
-      Get-ChildItem Env: | Sort-Object -Property Name
-    displayName: 'Display agent info'
+#       # List environment variables
+#       Get-ChildItem Env: | Sort-Object -Property Name
+#     displayName: 'Display agent info'
    
 - ${{ if ne(parameters.destroy, 'Never') }}:
   - job: destroy
-    dependsOn: ubuntuContainer
+    dependsOn: 
+      - provision
+      # - ubuntuContainer
     ${{ if eq(parameters.destroy, 'Always') }}:
       displayName: 'Destroy infrastructure'
     ${{ if eq(parameters.destroy, 'On failure') }}:
