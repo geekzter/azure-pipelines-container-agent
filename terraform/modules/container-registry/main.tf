@@ -14,10 +14,43 @@ resource azurerm_container_registry image_registry {
   count                        = var.container_registry_id != null && var.container_registry_id != "" ? 0 : 1
 }
 
+resource azurerm_monitor_diagnostic_setting image_registry {
+  name                         = "${azurerm_container_registry.image_registry.0.name}-logs"
+  target_resource_id           = azurerm_container_registry.image_registry.0.id
+  log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
+
+  log {
+    category                   = "ContainerRegistryRepositoryEvents"
+    enabled                    = true
+
+    retention_policy {
+      enabled                  = false
+    }
+  }
+  log {
+    category                   = "ContainerRegistryLoginEvents"
+    enabled                    = true
+
+    retention_policy {
+      enabled                  = false
+    }
+  }
+
+  metric {
+    category                   = "AllMetrics"
+
+    retention_policy {
+      enabled                  = false
+    }
+  }
+
+  count                        = var.container_registry_id != null && var.container_registry_id != "" ? 0 : 1
+} 
+
 resource azurerm_role_assignment agent_registry_access {
   scope                        = local.container_registry_id
   role_definition_name         = "AcrPush"
-  principal_id                 = var.agent_identity_id
+  principal_id                 = var.agent_identity_principal_id
 
   count                        = var.configure_access_control ? 1 : 0
 }

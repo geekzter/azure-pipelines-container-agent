@@ -12,7 +12,7 @@ module diagnostics_storage {
 module container_registry {
   source                       = "./modules/container-registry"
 
-  agent_identity_id            = local.user_assigned_identity_id
+  agent_identity_principal_id  = local.agent_identity_principal_id
   configure_access_control     = var.configure_access_control
   # container_image              = var.container_image
   container_image              = "pipelineagent/ubuntu"
@@ -30,7 +30,7 @@ module container_agents {
 
   container_image              = var.container_image
   container_registry_id        = module.container_registry.container_registry_id
-  devops_org                   = var.devops_org
+  devops_url                   = var.devops_url
   devops_pat                   = var.devops_pat
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
   diagnostics_storage_share_name= module.diagnostics_storage.diagnostics_storage_name

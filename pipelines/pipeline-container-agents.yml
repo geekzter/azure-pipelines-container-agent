@@ -94,6 +94,8 @@ variables:
   value: 0
 - name: 'TF_VAR_environment_variables'
   value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapability)"}'
+- name: 'TF_VAR_devops_url'
+  value: '$(System.CollectionUri)'
 - name: 'TF_VAR_pipeline_agent_pool_id'
   value: 1
 - name: 'TF_VAR_pipeline_agent_pool_name'

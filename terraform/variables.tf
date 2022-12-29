@@ -28,13 +28,11 @@ variable create_files_share {
   type                         = bool
 }
 
-variable devops_org {
-  description                  = "The Azure DevOps org to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
-  default                      = null
+variable devops_url {
+  description                  = "The Azure DevOps organization url to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
 }
 variable devops_pat {
   description                  = "A Personal Access Token to access the Azure DevOps organization"
-  default                      = null
 }
 
 variable environment_variables {
