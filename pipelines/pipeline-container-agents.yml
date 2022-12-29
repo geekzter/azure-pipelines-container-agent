@@ -327,11 +327,27 @@ jobs:
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
     - pwsh: |
-        echo $(terraformDirectory)
-        ls -LR $(Pipeline.Workspace)
-        ls -al $(terraformDirectory)
+        echo pwd
+        echo $(pwd)
+        ls -LR $(pwd)
+
+        echo Agent.BuildDirectory
+        echo $(Agent.BuildDirectory)
+        ls -LR $(Agent.BuildDirectory)
+
+        echo Build.ArtifactStagingDirectory
+        echo $(Build.ArtifactStagingDirectory)
+        ls -LR $(Build.ArtifactStagingDirectory)
+
+        echo Build.SourcesDirectory
+        echo $(Build.SourcesDirectory)
+        ls -LR $(Build.SourcesDirectory)
+
+        echo terraformDirectory
+        echo $(terraformDirectory)        
+        ls -LR $(terraformDirectory)
       displayName: 'Test'
-      workingDirectory: '$(scriptDirectory)'
+      # workingDirectory: '$(scriptDirectory)'
 
     # - bash: |
     #     find . -name *_x?
