@@ -21,24 +21,3 @@ resource azurerm_role_assignment agent_registry_access {
 
   count                        = (var.agent_identity_id == "" || var.agent_identity_id == null) && var.configure_access_control ? 1 : 0
 }
-
-# resource azurerm_container_registry_task image_build {
-#   name                         = "${local.container_registry_name}-image"
-#   container_registry_id        = local.container_registry_id
-#   platform {
-#     os                         = "Linux"
-#   }
-#   docker_step {
-#     dockerfile_path            = "images/ubuntu/Dockerfile"
-#     context_path               = "https://github.com/ericvan/azure-pipelines-container-agent#christmas-agent"
-#     context_access_token       = var.github_repo_access_token
-#     image_names                = ["${var.container_image}:{{.Run.ID}}"]
-#   }
-
-#   depends_on                   = [
-#     azurerm_role_assignment.agent_registry_access
-#   ]
-# }
-# resource azurerm_container_registry_task_schedule_run_now image_build {
-#   container_registry_task_id   = azurerm_container_registry_task.image_build.id
-# }

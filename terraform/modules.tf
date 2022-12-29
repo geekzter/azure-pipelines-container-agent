@@ -9,8 +9,8 @@ module diagnostics_storage {
   tags                         = local.tags
 }
 
-module container_image {
-  source                       = "./modules/container-image"
+module container_registry {
+  source                       = "./modules/container-registry"
 
   agent_identity_id            = local.user_assigned_identity_id
   configure_access_control     = var.configure_access_control
@@ -29,7 +29,7 @@ module container_agents {
   source                       = "./modules/container-agents"
 
   container_image              = var.container_image
-  container_registry_id        = module.container_image.container_registry_id
+  container_registry_id        = module.container_registry.container_registry_id
   devops_org                   = var.devops_org
   devops_pat                   = var.devops_pat
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
@@ -53,6 +53,6 @@ module container_agents {
   user_assigned_identity_id    = local.user_assigned_identity_id
 
   depends_on                   = [
-    module.container_image
+    module.container_registry
   ]
 }
