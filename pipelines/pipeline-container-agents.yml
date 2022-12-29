@@ -377,14 +377,16 @@ jobs:
 - job: ubuntuContainer
   dependsOn: provision
   displayName: Container App
+  variables:
+    # Repeat resource group expression as there is no nested variable expansion
+    resourceGroup: $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
   pool:
     name: 'Container Agents'
     demands:
     - agent.os -equals Linux
-    # - CONTAINER_APP_NAME -equals ericvan-agents-gdac-app
-    # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['capabilities.containerAppName'] ]
-    # - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(resourceGroup)
-    - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
+    # Repeat resource group expression as there is no nested variable expansion
+    # - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
+    - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(resourceGroup)
   steps:
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
