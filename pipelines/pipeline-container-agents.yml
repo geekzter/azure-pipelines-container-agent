@@ -103,7 +103,7 @@ variables:
   value: ${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
 
 jobs:    
-- job: 'Provision'
+- job: 'provision'
   ${{ if eq(parameters.destroy, 'Always') }}:
     displayName: 'Provision & Destroy'
   ${{ if eq(parameters.destroy, 'Never') }}:
@@ -368,3 +368,35 @@ jobs:
     #       useGlobalConfig: true
     #       failOnStandardError: true
     #       workingDirectory: '$(terraformDirectory)'
+    - pwsh: |
+        Write-Host "##vso[task.setvariable variable=resourceGroup;isOutput=true]$(resourceGroup)"
+      name: capabilities
+      displayName: 'Outout Container App capability'
+      condition: succeeded()
+
+- job: ubuntuContainer
+  dependsOn: provision
+  displayName: Container App
+  pool:
+    # name: $[coalesce(variables.pool,'Default')]
+    demands:
+    - agent.os -equals Linux
+    - CONTAINER_APP_NAME
+    - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals 'ericvan-container-agents-gdac'
+    # - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $[ dependencies.provision.outputs['capabilities.resourceGroup'] ]
+  steps:
+  # - bash: |
+  #     echo Hello from Ubuntu
+  #     lsb_release -d
+  #   displayName: 'Ubuntu info'
+  # - pwsh: |
+  #     az -v
+  #   displayName: 'Azure CLI info'
+  - pwsh: |
+      Write-Host "`$PSVersionTable.OS"
+      $PSVersionTable.OS
+      Get-InstalledModule | Sort-Object -Property Name
+    displayName: 'PowerShell info'
+  # - pwsh: |
+  #     terraform -v
+  #   displayName: 'Terraform info'

@@ -21,6 +21,8 @@ locals {
       PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_RESOURCE_ID    = local.user_assigned_identity_id
       PIPELINE_DEMO_APPLICATION_NAME                            = var.application_name
       PIPELINE_DEMO_APPLICATION_OWNER                           = local.owner
+      PIPELINE_DEMO_RESOURCE_GROUP_ID                           = azurerm_resource_group.rg.id
+      PIPELINE_DEMO_RESOURCE_GROUP_NAME                         = azurerm_resource_group.rg.name
       PIPELINE_DEMO_RESOURCE_PREFIX                             = var.resource_prefix
       SYSTEM_DEBUG                                              = tostring(var.pipeline_agent_diagnostics)
       VSTSAGENT_TRACE                                           = tostring(var.pipeline_agent_diagnostics)
