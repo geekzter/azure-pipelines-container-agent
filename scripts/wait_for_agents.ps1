@@ -32,6 +32,11 @@ param (
 ) 
 Write-Host $MyInvocation.line
 
+$extensionExists = $(az extension list --query "[?name=='azure-devops']" -o tsv) 
+if (!$extensionExists) {
+    az extension add -y -n azure-devops
+}
+
 $stopWatch = New-Object -TypeName System.Diagnostics.Stopwatch     
 $stopWatch.Start()
 
