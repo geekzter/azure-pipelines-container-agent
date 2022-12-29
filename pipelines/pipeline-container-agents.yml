@@ -159,116 +159,116 @@ jobs:
         condition: and(succeeded(), eq(variables['unpinTerraformProviders'],'true'))
         workingDirectory: '$(terraformDirectory)'
 
-    # - task: TerraformCLI@0
-    #   displayName: 'Terraform init'
-    #   inputs:
-    #     command: 'init'
-    #     workingDirectory: '$(terraformDirectory)'
-    #     backendType: 'azurerm'
-    #     backendServiceArm: '$(subscriptionConnection)'
-    #     backendAzureRmResourceGroupName: '$(TF_STATE_RESOURCE_GROUP_NAME)'
-    #     backendAzureRmStorageAccountName: '$(TF_STATE_STORAGE_ACCOUNT_NAME)'
-    #     backendAzureRmContainerName: '$(TF_STATE_CONTAINER_NAME)'
-    #     backendAzureRmKey: 'terraform.tfstate'
-    #     allowTelemetryCollection: true
+    - task: TerraformCLI@0
+      displayName: 'Terraform init'
+      inputs:
+        command: 'init'
+        workingDirectory: '$(terraformDirectory)'
+        backendType: 'azurerm'
+        backendServiceArm: '$(subscriptionConnection)'
+        backendAzureRmResourceGroupName: '$(TF_STATE_RESOURCE_GROUP_NAME)'
+        backendAzureRmStorageAccountName: '$(TF_STATE_STORAGE_ACCOUNT_NAME)'
+        backendAzureRmContainerName: '$(TF_STATE_CONTAINER_NAME)'
+        backendAzureRmKey: 'terraform.tfstate'
+        allowTelemetryCollection: true
 
-    # - publish: $(terraformDirectory)
-    #   displayName: 'Publish Terraform workspace'
-    #   artifact: $(terraformArtifactPrefix)$(System.PlanId)
+    - publish: $(terraformDirectory)
+      displayName: 'Publish Terraform workspace'
+      artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
-    # - ${{ if eq(parameters.clear, true) }}:
-    #   - task: AzureCLI@2
-    #     name: clear
-    #     displayName: 'Clear Terraform state'
-    #     inputs:
-    #       azureSubscription: '$(subscriptionConnection)'
-    #       scriptType: pscore
-    #       scriptLocation: inlineScript
-    #       inlineScript: |
-    #         $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+    - ${{ if eq(parameters.clear, true) }}:
+      - task: AzureCLI@2
+        name: clear
+        displayName: 'Clear Terraform state'
+        inputs:
+          azureSubscription: '$(subscriptionConnection)'
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            $(scriptDirectory)/set_terraform_azurerm_vars.ps1
 
-    #         $terraformState = (terraform state pull | ConvertFrom-Json)
-    #         if ($terraformState.resources) {
-    #           Write-Host "Clearing Terraform state in workspace ${env:TF_WORKSPACE}..."
-    #           $terraformState.outputs = New-Object PSObject # Empty output
-    #           $terraformState.resources = @() # No resources
-    #           $terraformState.serial++
-    #           $terraformState | ConvertTo-Json | terraform state push -
-    #         } else {
-    #           Write-Host "No resources in Terraform state in workspace ${env:TF_WORKSPACE}..."
-    #         }
-    #         terraform state pull 
-    #       addSpnToEnvironment: true
-    #       useGlobalConfig: true
-    #       failOnStandardError: true
-    #       workingDirectory: '$(terraformDirectory)'
+            $terraformState = (terraform state pull | ConvertFrom-Json)
+            if ($terraformState.resources) {
+              Write-Host "Clearing Terraform state in workspace ${env:TF_WORKSPACE}..."
+              $terraformState.outputs = New-Object PSObject # Empty output
+              $terraformState.resources = @() # No resources
+              $terraformState.serial++
+              $terraformState | ConvertTo-Json | terraform state push -
+            } else {
+              Write-Host "No resources in Terraform state in workspace ${env:TF_WORKSPACE}..."
+            }
+            terraform state pull 
+          addSpnToEnvironment: true
+          useGlobalConfig: true
+          failOnStandardError: true
+          workingDirectory: '$(terraformDirectory)'
 
-    # - pwsh: |
-    #     if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
-    #       $env:TF_VAR_RESOURCE_SUFFIX = $null
-    #       $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
-    #     }
+    - pwsh: |
+        if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
+          $env:TF_VAR_RESOURCE_SUFFIX = $null
+          $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
+        }
 
-    #     # List environment variables
-    #     Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+        # List environment variables
+        Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
 
-    #     # Convert uppercased Terraform environment variables to .auto.tfvars file
-    #     foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
-    #       $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
-    #       $terraformVariableValue = $tfVar.Value
+        # Convert uppercased Terraform environment variables to .auto.tfvars file
+        foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
+          $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
+          $terraformVariableValue = $tfVar.Value
 
-    #       if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
-    #         # Boolean or List, write as-is
-    #         Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
-    #       } else {
-    #         Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
-    #       }
-    #     } 
-    #     Write-Host "Contents of ci.auto.tfvars:"
-    #     Get-Content ci.auto.tfvars | Sort-Object
-    #   name: terraformVariables
-    #   displayName: 'Prepare Terraform variables'
-    #   workingDirectory: '$(terraformDirectory)'
+          if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
+            # Boolean or List, write as-is
+            Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
+          } else {
+            Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
+          }
+        } 
+        Write-Host "Contents of ci.auto.tfvars:"
+        Get-Content ci.auto.tfvars | Sort-Object
+      name: terraformVariables
+      displayName: 'Prepare Terraform variables'
+      workingDirectory: '$(terraformDirectory)'
 
-    # - task: AzureCLI@2
-    #   displayName: 'Terraform plan & apply (deploy_firewall:$(TF_VAR_deploy_firewall))'
-    #   name: apply
-    #   retryCountOnTaskFailure: ${{ parameters.retryCount }}
-    #   inputs:
-    #     azureSubscription: '$(subscriptionConnection)'
-    #     scriptType: pscore
-    #     scriptLocation: inlineScript
-    #     inlineScript: |
-    #       ./set_terraform_azurerm_vars.ps1
-    #       ./deploy.ps1 -apply -force
-    #     addSpnToEnvironment: true
-    #     useGlobalConfig: true
-    #     failOnStandardError: true
-    #     workingDirectory: '$(scriptDirectory)'      
+    - task: AzureCLI@2
+      displayName: 'Terraform plan & apply (deploy_firewall:$(TF_VAR_deploy_firewall))'
+      name: apply
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          ./set_terraform_azurerm_vars.ps1
+          ./deploy.ps1 -apply -force
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'      
 
-    # - ${{ if parameters.testReentrance }}:
-    #   - task: AzureCLI@2
-    #     displayName: 'Terraform plan & apply (re-entrance test)'
-    #     retryCountOnTaskFailure: ${{ parameters.retryCount }}
-    #     inputs:
-    #       azureSubscription: '$(subscriptionConnection)'
-    #       scriptType: pscore
-    #       scriptLocation: inlineScript
-    #       inlineScript: |
-    #         ./set_terraform_azurerm_vars.ps1
+    - ${{ if parameters.testReentrance }}:
+      - task: AzureCLI@2
+        displayName: 'Terraform plan & apply (re-entrance test)'
+        retryCountOnTaskFailure: ${{ parameters.retryCount }}
+        inputs:
+          azureSubscription: '$(subscriptionConnection)'
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            ./set_terraform_azurerm_vars.ps1
 
-    #         ./deploy.ps1 -apply -force
-    #       addSpnToEnvironment: true
-    #       useGlobalConfig: true
-    #       failOnStandardError: true
-    #       workingDirectory: '$(scriptDirectory)'
+            ./deploy.ps1 -apply -force
+          addSpnToEnvironment: true
+          useGlobalConfig: true
+          failOnStandardError: true
+          workingDirectory: '$(scriptDirectory)'
           
-    # - ${{ if not(eq(parameters.destroy, 'Never')) }}:
-    #   - pwsh: |
-    #       Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
-    #     name: provisioningResult
-    #     displayName: 'Indicate provisioning success'
-    #     condition: succeeded()
+    - ${{ if not(eq(parameters.destroy, 'Never')) }}:
+      - pwsh: |
+          Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
+        name: provisioningResult
+        displayName: 'Indicate provisioning success'
+        condition: succeeded()
 
     # - ${{ if not(eq(parameters.destroy, 'Never')) }}:
     #   - task: TerraformCLI@0
@@ -377,16 +377,12 @@ jobs:
 - job: ubuntuContainer
   dependsOn: provision
   displayName: Container App
-  variables:
-    # Repeat resource group expression as there is no nested variable expansion
-    resourceGroup: $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
   pool:
     name: 'Container Agents'
     demands:
     - agent.os -equals Linux
-    # Repeat resource group expression as there is no nested variable expansion
-    # - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
-    - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(resourceGroup)
+    # Repeat resource group expression as there is no nested variable expansion in demands
+    - PIPELINE_DEMO_RESOURCE_GROUP_NAME -equals $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
   steps:
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
