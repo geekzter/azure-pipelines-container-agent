@@ -19,5 +19,5 @@ resource azurerm_role_assignment agent_registry_access {
   role_definition_name         = "AcrPush"
   principal_id                 = var.agent_identity_id
 
-  count                        = (var.agent_identity_id == "" || var.agent_identity_id == null) && var.configure_access_control ? 1 : 0
+  count                        = var.configure_access_control ? 1 : 0
 }
