@@ -13,6 +13,10 @@ parameters:
   - cd1
   - cd2
   - cd3
+- name: buildImage
+  displayName: Build agent image
+  type: boolean
+  default: true
 - name: clear
   displayName: Clear Terraform state
   type: boolean
@@ -113,33 +117,35 @@ variables:
   value: 'ubuntu-latest'
 
 jobs:    
-- job: buildImage
-  displayName: 'Build Container Agent image'
-  timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
+- ${{ if not(parameters.buildImage) }}:
+  - job: buildImage
+    displayName: 'Build Container Agent image'
+    timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
-  pool:
-    name: '$(pool)'
-    vmImage: $(vmImage)
+    pool:
+      name: '$(pool)'
+      vmImage: $(vmImage)
 
-  steps:
-  - pwsh: |
-      ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tag $(Build.BuildId)
-    displayName: Build image
-    failOnStderr: true
-    workingDirectory: '$(scriptDirectory)'
-  - task: Docker@2
-    displayName: Push image
-    inputs:
-      command: push
-      containerRegistry: '$(containerRegistry)'
-      repository: $(imageName)
-      tags: |
-        latest
-        $(Build.BuildId)
-        $(date)
+    steps:
+    - pwsh: |
+        ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tag $(Build.BuildId)
+      displayName: Build image
+      failOnStderr: true
+      workingDirectory: '$(scriptDirectory)'
+    - task: Docker@2
+      displayName: Push image
+      inputs:
+        command: push
+        containerRegistry: '$(containerRegistry)'
+        repository: $(imageName)
+        tags: |
+          latest
+          $(Build.BuildId)
+          $(date)
 
 - job: provision
-  dependsOn: buildImage
+  ${{ if not(parameters.buildImage) }}:
+    dependsOn: buildImage
   displayName: 'Provision Container App infrastructure'
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
