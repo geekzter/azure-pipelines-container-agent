@@ -348,32 +348,32 @@ jobs:
       displayName: 'Make Terraform providers executable'
       workingDirectory: $(terraformDirectory)/.terraform/providers
 
-    # - task: AzureCLI@2
-    #   displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
-    #   continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
-    #   retryCountOnTaskFailure: ${{ parameters.retryCount }}
-    #   inputs:
-    #     azureSubscription: '$(subscriptionConnection)'
-    #     scriptType: pscore
-    #     scriptLocation: inlineScript
-    #     inlineScript: |
-    #       ./set_terraform_azurerm_vars.ps1
-    #       ./deploy.ps1 -destroy -force
-    #     addSpnToEnvironment: true
-    #     useGlobalConfig: true
-    #     failOnStandardError: true
-    #     workingDirectory: '$(scriptDirectory)'      
-
-    - task: TerraformCLI@0
+    - task: AzureCLI@2
       displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
-        command: 'destroy'
-        workingDirectory: '$(terraformDirectory)'
-        environmentServiceName: '$(subscriptionConnection)'
-        runAzLogin: true
-        allowTelemetryCollection: true
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          ./set_terraform_azurerm_vars.ps1
+          ./deploy.ps1 -destroy -force
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'      
+
+    # - task: TerraformCLI@0
+    #   displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
+    #   continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
+    #   retryCountOnTaskFailure: ${{ parameters.retryCount }}
+    #   inputs:
+    #     command: 'destroy'
+    #     workingDirectory: '$(terraformDirectory)'
+    #     environmentServiceName: '$(subscriptionConnection)'
+    #     runAzLogin: true
+    #     allowTelemetryCollection: true
 
     - task: AzureCLI@2
       name: teardown
