@@ -75,10 +75,10 @@ variables:
 - group: 'pipeline-container-agents-ci'
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
   value: 'true'
-- name: 'AZURE_DEVOPS_EXT_PAT'
-  value: '$(System.AccessToken)'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
   value: 'yes_without_prompt'
+- name: 'correlationCapability'
+  value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)'
 - name: 'jobTimeOutMinutes'
   value: 180
 - name: 'repository'
@@ -94,7 +94,7 @@ variables:
 - name: 'TF_INPUT'
   value: 0
 - name: 'TF_VAR_environment_variables'
-  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)"}'
+  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapability)"}'
 - name: 'TF_VAR_pipeline_agent_pool_id'
   value: 1
 - name: 'TF_VAR_pipeline_agent_pool_name'
@@ -270,11 +270,14 @@ jobs:
           workingDirectory: '$(scriptDirectory)'
           
     - pwsh: |
-        ./wait_for_agents.ps1 -CapabilityValue $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE) `
+        ./wait_for_agents.ps1 -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
                               -PoolId $(TF_VAR_pipeline_agent_pool_id)
       displayName: 'Wait for agents to come online'
       workingDirectory: '$(scriptDirectory)'
+      env:
+        # Use Pipeline token to access Azure DevOps
+        AZURE_DEVOPS_EXT_PAT: '$(System.AccessToken)'
 
     - ${{ if not(eq(parameters.destroy, 'Never')) }}:
       - pwsh: |
