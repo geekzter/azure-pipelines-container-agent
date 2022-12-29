@@ -167,6 +167,33 @@ jobs:
       backendAzureRmKey: 'terraform.tfstate'
       allowTelemetryCollection: true
 
+  - pwsh: |
+      if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
+        $env:TF_VAR_RESOURCE_SUFFIX = $null
+        $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
+      }
+
+      # List environment variables
+      Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+
+      # Convert uppercased Terraform environment variables to .auto.tfvars file
+      foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
+        $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
+        $terraformVariableValue = $tfVar.Value
+
+        if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
+          # Boolean or List, write as-is
+          Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
+        } else {
+          Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
+        }
+      } 
+      Write-Host "Contents of ci.auto.tfvars:"
+      Get-Content ci.auto.tfvars | Sort-Object
+    name: terraformVariables
+    displayName: 'Prepare Terraform variables'
+    workingDirectory: '$(terraformDirectory)'
+
   - publish: $(terraformDirectory)
     displayName: 'Publish Terraform workspace'
     artifact: $(terraformArtifactPrefix)$(System.PlanId)
@@ -197,33 +224,6 @@ jobs:
   #       useGlobalConfig: true
   #       failOnStandardError: true
   #       workingDirectory: '$(terraformDirectory)'
-
-  # - pwsh: |
-  #     if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
-  #       $env:TF_VAR_RESOURCE_SUFFIX = $null
-  #       $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
-  #     }
-
-  #     # List environment variables
-  #     Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
-
-  #     # Convert uppercased Terraform environment variables to .auto.tfvars file
-  #     foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
-  #       $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
-  #       $terraformVariableValue = $tfVar.Value
-
-  #       if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
-  #         # Boolean or List, write as-is
-  #         Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
-  #       } else {
-  #         Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
-  #       }
-  #     } 
-  #     Write-Host "Contents of ci.auto.tfvars:"
-  #     Get-Content ci.auto.tfvars | Sort-Object
-  #   name: terraformVariables
-  #   displayName: 'Prepare Terraform variables'
-  #   workingDirectory: '$(terraformDirectory)'
 
   # - task: AzureCLI@2
   #   displayName: 'Terraform plan & apply'
@@ -323,8 +323,8 @@ jobs:
       name: '$(pool)'
       vmImage: $(vmImage)
 
-    # variables:
-    #   terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)
+    variables:
+      terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)
 
     steps:
     - download: current
@@ -332,25 +332,21 @@ jobs:
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
     - pwsh: |
-        Write-Host "`$PSVersionTable.OS"
-        $PSVersionTable.OS
-        Get-InstalledModule | Sort-Object -Property Name
-
         # List environment variables
-        Get-ChildItem Env: | Sort-Object -Property Name
+        Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
       displayName: 'Display agent info'
 
     - bash: |
         ls -alR
       continueOnError: true
       displayName: 'Terraform info'
-      workingDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)
+      workingDirectory: $(terraformDirectory)
 
     - bash: |
         echo Marking Terraform provider binaries as executable...
         find . | xargs chmod +x
       displayName: 'Make Terraform providers executable'
-      workingDirectory: $(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)/.terraform/providers
+      workingDirectory: $(terraformDirectory)/.terraform/providers
 
     # - task: AzureCLI@2
     #   displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
@@ -374,7 +370,7 @@ jobs:
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         command: 'destroy'
-        workingDirectory: '$(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)'
+        workingDirectory: '$(terraformDirectory)'
         environmentServiceName: '$(subscriptionConnection)'
         runAzLogin: true
         allowTelemetryCollection: true
@@ -444,4 +440,4 @@ jobs:
         addSpnToEnvironment: true
         useGlobalConfig: true
         failOnStandardError: true
-        workingDirectory: '$(Agent.BuildDirectory)/$(terraformArtifactPrefix)$(System.PlanId)'
+        workingDirectory: '$(terraformDirectory)'
