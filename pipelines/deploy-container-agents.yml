@@ -30,10 +30,6 @@ parameters:
   displayName: Terraform task retry count
   type: number
   default: 1
-- name: testReentrance
-  displayName: Test Terraform re-entrance (apply twice)
-  type: boolean
-  default: true
 - name: unpinTerraform
   displayName: Unpin Terraform version
   type: boolean
@@ -241,23 +237,6 @@ jobs:
       failOnStandardError: true
       workingDirectory: '$(scriptDirectory)'      
 
-  - ${{ if parameters.testReentrance }}:
-    - task: AzureCLI@2
-      displayName: 'Terraform plan & apply (re-entrance test)'
-      retryCountOnTaskFailure: ${{ parameters.retryCount }}
-      inputs:
-        azureSubscription: '$(subscriptionConnection)'
-        scriptType: pscore
-        scriptLocation: inlineScript
-        inlineScript: |
-          ./set_terraform_azurerm_vars.ps1
-
-          ./deploy.ps1 -apply -force
-        addSpnToEnvironment: true
-        useGlobalConfig: true
-        failOnStandardError: true
-        workingDirectory: '$(scriptDirectory)'
-        
   - pwsh: |
       ./wait_for_agents.ps1 -CapabilityValue $(correlationCapability) `
                             -OrganizationUrl $(System.CollectionUri) `
