@@ -341,19 +341,19 @@ jobs:
         # echo Build.SourcesDirectory: $(Build.SourcesDirectory)
         # ls -LR $(Build.SourcesDirectory)
 
-        echo terraformDirectory: $(terraformDirectory)        
-        ls -LR $(terraformDirectory)
+        # echo terraformDirectory: $(terraformDirectory)        
+        # ls -LR $(terraformDirectory)
 
-        ls -alR $(terraformDirectory)/.terraform/providers
+        ls -alR $(terraformDirectory)
       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       displayName: 'Test'
       # workingDirectory: '$(scriptDirectory)'
 
     - bash: |
-        find . -name *_x?
-        find . -name *_x? | xargs chmod +x
-      displayName: 'Make Terraform providers executable'
-      workingDirectory: $(terraformDirectory)/.terraform/providers/registry.terraform.io/hashicorp 
+        echo Marking Terraform provider binaries as executable...
+        find . | xargs chmod +x
+      displayName: 'Marke Terraform providers executable'
+      workingDirectory: $(terraformDirectory)/.terraform/providers
 
     - task: TerraformCLI@0
       displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
