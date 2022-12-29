@@ -329,28 +329,30 @@ jobs:
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
     - pwsh: |
-        echo pwd: $(pwd)
-        ls -LR $(pwd)
+        # echo pwd: $(pwd)
+        # ls -LR $(pwd)
 
-        echo Agent.BuildDirectory: $(Agent.BuildDirectory)
-        ls -LR $(Agent.BuildDirectory)
+        # echo Agent.BuildDirectory: $(Agent.BuildDirectory)
+        # ls -LR $(Agent.BuildDirectory)
 
-        echo Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
-        ls -LR $(Build.ArtifactStagingDirectory)
+        # echo Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
+        # ls -LR $(Build.ArtifactStagingDirectory)
 
-        echo Build.SourcesDirectory: $(Build.SourcesDirectory)
-        ls -LR $(Build.SourcesDirectory)
+        # echo Build.SourcesDirectory: $(Build.SourcesDirectory)
+        # ls -LR $(Build.SourcesDirectory)
 
         echo terraformDirectory: $(terraformDirectory)        
         ls -LR $(terraformDirectory)
+
+        ls -alR $(terraformDirectory)/.terraform/providers
       displayName: 'Test'
       # workingDirectory: '$(scriptDirectory)'
 
-    # - bash: |
-    #     find . -name *_x?
-    #     find . -name *_x? | xargs chmod +x
-    #   displayName: 'Make Terraform providers executable'
-    #   workingDirectory: $(terraformDirectory)/.terraform/providers/registry.terraform.io/hashicorp 
+    - bash: |
+        find . -name *_x?
+        find . -name *_x? | xargs chmod +x
+      displayName: 'Make Terraform providers executable'
+      workingDirectory: $(terraformDirectory)/.terraform/providers/registry.terraform.io/hashicorp 
 
     - task: TerraformCLI@0
       displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
