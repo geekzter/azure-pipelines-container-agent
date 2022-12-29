@@ -92,7 +92,7 @@ variables:
 - name: 'TF_INPUT'
   value: 0
 - name: 'TF_VAR_environment_variables'
-  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(System.CollectionUri)-$(System.TeamProject)-$(Build.DefinitionName)-$(TF_WORKSPACE)"}'
+  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)"}'
 - name: 'TF_VAR_pipeline_agent_pool_id'
   value: 1
 - name: 'TF_VAR_pipeline_agent_pool_name'
@@ -382,8 +382,8 @@ jobs:
     name: '$(TF_VAR_pipeline_agent_pool_name)'
     demands:
     - agent.os -equals Linux
-    # Repeat resource group expression as there is no nested variable expansion in demands
-    - PIPELINE_DEMO_JOB_CAPABILITY -equals $(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)
+    # Repeat capability expression as there is no nested variable expansion in demands
+    - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
   steps:
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
