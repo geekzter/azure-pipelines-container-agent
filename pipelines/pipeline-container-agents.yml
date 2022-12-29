@@ -374,11 +374,6 @@ jobs:
     #       useGlobalConfig: true
     #       failOnStandardError: true
     #       workingDirectory: '$(terraformDirectory)'
-    - pwsh: |
-        Write-Host "##vso[task.setvariable variable=containerAppName;isOutput=true]ericvan-agents-gdac-app"
-      name: capabilities
-      displayName: 'Outout Container App capability'
-      condition: succeeded()
 
 - job: ubuntuContainer
   dependsOn: provision
