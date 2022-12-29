@@ -280,40 +280,46 @@ jobs:
       displayName: 'Indicate provisioning success'
       condition: succeeded()
 
-# - job: ubuntuContainer
-#   dependsOn: provision
-#   displayName: Test Container App Agent
-#   pool:
-#     name: '$(TF_VAR_pipeline_agent_pool_name)'
-#     demands:
-#     - agent.os -equals Linux
-#     # Repeat capability expression as there is no nested variable expansion in demands
-#     # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
-#     - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
-#   steps:
-#   - pwsh: |
-#       Write-Host "`$PSVersionTable.OS"
-#       $PSVersionTable.OS
-#       Get-InstalledModule | Sort-Object -Property Name
+- job: ubuntuContainer
+  dependsOn: provision
+  displayName: Test Container App Agent
+  pool:
+    name: '$(TF_VAR_pipeline_agent_pool_name)'
+    demands:
+    - agent.os -equals Linux
+    # Repeat capability expression as there is no nested variable expansion inside demands
+    # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
+    - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+  steps:
+  - pwsh: |
+      Write-Host "`$PSVersionTable.OS"
+      $PSVersionTable.OS
+      Get-InstalledModule | Sort-Object -Property Name
 
-#       # List environment variables
-#       Get-ChildItem Env: | Sort-Object -Property Name
-#     displayName: 'Display agent info'
+      # List environment variables
+      Get-ChildItem Env: | Sort-Object -Property Name
+    displayName: 'Display agent info'
+  - ${{ if not(eq(parameters.destroy, 'Never')) }}:
+    - pwsh: |
+        Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
+      name: provisioningResult
+      displayName: 'Indicate deployment success'
+      condition: succeeded()
    
 - ${{ if ne(parameters.destroy, 'Never') }}:
   - job: destroy
     dependsOn: 
-      - provision
-      # - ubuntuContainer
+      # - provision
+      - ubuntuContainer
     ${{ if eq(parameters.destroy, 'Always') }}:
       displayName: 'Destroy infrastructure'
       condition: succeededOrFailed()
     ${{ if eq(parameters.destroy, 'On failure') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
-      condition: not(eq(dependencies.provisioning5.outputs['provisioningResult.result'],'success'))
+      condition: not(eq(dependencies.ubuntuContainer.outputs['provisioningResult.result'],'success'))
     ${{ if eq(parameters.destroy, 'On success') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
-      condition: eq(dependencies.provisioning5.outputs['provisioningResult.result'],'success')
+      condition: eq(dependencies.ubuntuContainer.outputs['provisioningResult.result'],'success')
     timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
     pool:
@@ -329,30 +335,8 @@ jobs:
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
     - bash: |
-        # echo pwd: $(pwd)
-        # ls -LR $(pwd)
-
-        # echo Agent.BuildDirectory: $(Agent.BuildDirectory)
-        # ls -aLR $(Agent.BuildDirectory)
-
-        # echo Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
-        # ls -LR $(Build.ArtifactStagingDirectory)
-
-        # echo Build.SourcesDirectory: $(Build.SourcesDirectory)
-        # ls -LR $(Build.SourcesDirectory)
-
-        echo terraformDirectory: $(terraformDirectory)        
-        ls -aLR $(terraformDirectory)
-
-        # ls -alR $(terraformDirectory)
-      continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
-      displayName: 'Test'
-      # workingDirectory: '$(scriptDirectory)'
-
-    - bash: |
         echo Marking Terraform provider binaries as executable...
         find . | xargs chmod +x
-      continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       displayName: 'Make Terraform providers executable'
       workingDirectory: $(terraformDirectory)/.terraform/providers
 
