@@ -117,7 +117,7 @@ variables:
   value: 'ubuntu-latest'
 
 jobs:    
-- ${{ if not(parameters.buildImage) }}:
+- ${{ if parameters.buildImage }}:
   - job: buildImage
     displayName: 'Build Container Agent image'
     timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
@@ -144,7 +144,7 @@ jobs:
           $(date)
 
 - job: provision
-  ${{ if not(parameters.buildImage) }}:
+  ${{ if parameters.buildImage }}:
     dependsOn: buildImage
   displayName: 'Provision Container App infrastructure'
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
