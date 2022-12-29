@@ -378,7 +378,7 @@ jobs:
   # dependsOn: provision
   displayName: Container App
   pool:
-    # name: $[coalesce(variables.pool,'Default')]
+    name: 'Container Agents'
     demands:
     - agent.os -equals Linux
     # - PWD -equals '/azp'
