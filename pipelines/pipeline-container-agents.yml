@@ -33,7 +33,7 @@ parameters:
 - name: testReentrance
   displayName: Test Terraform re-entrance (apply twice)
   type: boolean
-  default: true
+  default: false
 - name: unpinTerraform
   displayName: Unpin Terraform version
   type: boolean
@@ -345,7 +345,7 @@ jobs:
         scriptLocation: inlineScript
         inlineScript: |
           ./set_terraform_azurerm_vars.ps1
-          ./deploy.ps1 -destroy -force
+          ./deploy.ps1 -init -destroy -force
         addSpnToEnvironment: true
         useGlobalConfig: true
         failOnStandardError: true
