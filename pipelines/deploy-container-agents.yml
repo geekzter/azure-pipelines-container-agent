@@ -295,7 +295,7 @@ jobs:
 
 - job: ubuntuContainer
   dependsOn: provision
-  displayName: Test Container App Agents
+  displayName: Test Container App Agent
   pool:
     name: '$(TF_VAR_pipeline_agent_pool_name)'
     demands:
