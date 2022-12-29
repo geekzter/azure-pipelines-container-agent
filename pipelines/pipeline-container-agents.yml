@@ -81,7 +81,7 @@ variables:
 - name: 'pool'
   value: 'Azure Pipelines'
 - name: 'repository'
-  value: 'azure-pipelines-container-agents'
+  value: 'azure-pipelines-container-agent'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 - name: 'terraformArtifactPrefix'
@@ -104,8 +104,6 @@ variables:
   value: '$(Build.BuildId)'
 - name: 'TF_WORKSPACE'
   value: '${{ parameters.workspace }}'
-- name: 'unpinTerraformProviders'
-  value: ${{ parameters.unpinTerraformProviders }}
 - name: 'vmImage'
   value: 'ubuntu-latest'
 
@@ -143,7 +141,7 @@ jobs:
     inputs:
       terraformVersion: '$(terraformConfig.version)'
 
-  - ${{ if or(parameters.unpinTerraformProviders,not(eq(variables['Build.Reason'], 'Manual'))) }}:
+  - ${{ if parameters.unpinTerraformProviders }}:
     # Unpin version e.g. "= 2.56" -> "~> 2.56"
     - pwsh: |
         (Get-Content ./terraform.tf) -replace " = `" *= +",' = "~> ' | Out-File terraform.tf
@@ -152,7 +150,6 @@ jobs:
           Remove-Item .terraform.lock.hcl -Force
         }
       displayName: 'Unpin Terraform provider versions'
-      condition: and(succeeded(), eq(variables['unpinTerraformProviders'],'true'))
       workingDirectory: '$(terraformDirectory)'
 
   - task: TerraformCLI@0
