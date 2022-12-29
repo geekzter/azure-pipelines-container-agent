@@ -114,7 +114,7 @@ variables:
 
 jobs:    
 - job: provision
-  displayName: 'Provision infrastructure'
+  displayName: 'Provision Container App infrastructure'
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
   pool:
@@ -284,12 +284,13 @@ jobs:
   dependsOn: provision
   displayName: Test Container App Agent
   pool:
-    name: '$(TF_VAR_pipeline_agent_pool_name)'
+    # name: '$(TF_VAR_pipeline_agent_pool_name)'
+    name: 'Azure Pipelines'
     demands:
     - agent.os -equals Linux
     # Repeat capability expression as there is no nested variable expansion inside demands
     # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
-    - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+    # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
   steps:
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
@@ -312,13 +313,13 @@ jobs:
       # - provision
       - ubuntuContainer
     ${{ if eq(parameters.destroy, 'Always') }}:
-      displayName: 'Destroy infrastructure'
+      displayName: 'Destroy Container App infrastructure'
       condition: succeededOrFailed()
     ${{ if eq(parameters.destroy, 'On failure') }}:
-      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
+      displayName: 'Destroy Container App (${{ lower(parameters.destroy) }}) infrastructure'
       condition: not(eq(dependencies.ubuntuContainer.outputs['provisioningResult.result'],'success'))
     ${{ if eq(parameters.destroy, 'On success') }}:
-      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
+      displayName: 'Destroy Container App (${{ lower(parameters.destroy) }}) infrastructure'
       condition: eq(dependencies.ubuntuContainer.outputs['provisioningResult.result'],'success')
     timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
