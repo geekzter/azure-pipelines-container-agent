@@ -148,7 +148,7 @@ resource azapi_resource agent_container_app {
       }
       template                 = {
         containers             = [{
-          image                = var.container_image
+          image                = "${local.container_registry_name}.azurecr.io/${var.container_repository}"
           name                 = "pipeline-agent"
           env                  = local.environment_variables_template
           resources            = {

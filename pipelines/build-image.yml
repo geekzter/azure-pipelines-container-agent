@@ -25,7 +25,7 @@ pool:
   vmImage: 'ubuntu-latest' 
 
 variables:
-- group: 'build-container-agent-image'
+- group: 'build-container-agent-image' # should contain 'containerRegistry' -> name of Container Registry Service Connection
 - name: date
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
 - name: 'tags'

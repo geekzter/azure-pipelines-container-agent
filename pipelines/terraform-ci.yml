@@ -74,29 +74,34 @@ schedules:
 
 variables:
 - group: 'pipeline-container-agents-ci'
-- name: 'jobTimeOutMinutes'
-  value: 180
-- name: 'repository'
-  value: 'azure-pipelines-container-agents'
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
   value: 'true'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
   value: 'yes_without_prompt'
+- name: 'jobTimeOutMinutes'
+  value: 180
+- name: 'pool'
+  value: 'Azure Pipelines'
+- name: 'repository'
+  value: 'azure-pipelines-container-agents'
 - name: 'substituteAlternateVariables'
   value: 'false'
-- name: 'TF_IN_AUTOMATION'
-  value: 'true'
-- name: 'TF_INPUT'
-  value: 0
+- name: 'resourceGroup' 
+  value: 'azure-pipelines-container-agents-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 - name: 'terraformDirectory'
   value: '$(Build.SourcesDirectory)/terraform'
+- name: 'TF_IN_AUTOMATION'
+  value: 'true'
+- name: 'TF_INPUT'
+  value: 0
+- name: 'TF_VAR_configure_access_control'
+  value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_run_id'
   value: '$(Build.BuildId)'
-
-- name: 'resourceGroup' 
-  value: 'azure-pipelines-container-agents-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)'
+- name: 'vmImage'
+  value: 'ubuntu-latest'
 
 jobs:
 - job: createStrategy

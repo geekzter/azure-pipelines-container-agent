@@ -28,8 +28,8 @@ module container_registry {
 module container_agents {
   source                       = "./modules/container-agents"
 
-  container_image              = var.container_image
   container_registry_id        = module.container_registry.container_registry_id
+  container_repository         = var.container_repository
   devops_url                   = var.devops_url
   devops_pat                   = var.devops_pat
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
@@ -50,7 +50,7 @@ module container_agents {
   resource_group_name          = azurerm_resource_group.rg.name
   suffix                       = local.suffix
   tags                         = local.tags
-  user_assigned_identity_id    = local.user_assigned_identity_id
+  user_assigned_identity_id    = local.agent_identity_resource_id
 
   depends_on                   = [
     module.container_registry

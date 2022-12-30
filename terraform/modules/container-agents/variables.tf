@@ -1,5 +1,5 @@
-variable container_image {}
 variable container_registry_id {}
+variable container_repository {}
 variable devops_pat {}
 variable devops_url {}
 variable diagnostics_storage_share_key {}
