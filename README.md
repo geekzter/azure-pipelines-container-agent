@@ -21,7 +21,7 @@ Either let Terraform fail -> build & push the image -> retry Terraform apply, or
 `agent_identity_resource_id`  
 `container_registry_id`   
 `devops_pat`   
-`devops_url` (Organization url https://dev.azure.com/<org>)   
+`devops_url` (Organization url `https://dev.azure.com/<org>`)   
 - Provision infrastructure by running `terraform apply`
 
 ### Pipeline setup
