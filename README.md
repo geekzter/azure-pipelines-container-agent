@@ -41,10 +41,10 @@ Either let Terraform fail -> build & push the image -> retry Terraform apply, or
 `TF_VAR_devops_pat`
 - Use the [`deploy-container-agents.yml`](./pipelines/deploy-container-agents.yml) to build the agent container image, provision infrastructure and run a test job on a newly created agent.
 ### Testing
-- Use the [`image-info.yml`](./pipelines/image-info.yml) pipeline to test the agents. You can override the `numberOfJobs` parameter to test elasticity
+By default, the agents will be created in the `Default` agent pool with system capability `CONTAINER_APP_NAME`. Use the [`image-info.yml`](./pipelines/image-info.yml) pipeline to test the agents. You can override the `numberOfJobs` parameter to test elasticity
 
 ## Limitations
 - `ScaledJob` is [not supported](https://github.com/microsoft/azure-container-apps/issues/24) in Azure Container Apps. The KEDA Pipelines scaler requires this to indicate a long-running process needs to finish before a pod instance is terminated. This means pipeline jobs can get terminated prematurely.
 - Azure Container Apps have a [maximum replica limit of 30](https://learn.microsoft.com/en-us/azure/container-apps/scale-app). Hence a Container App pool can at most have 30 agents.
 - Azure Container Apps do not yet support [volume mount options](https://github.com/microsoft/azure-container-apps/issues/520). Option `nobrl` is required to guarantee logs are persisted. Hence agents that are configured to terminate after a job run may not have logs fully captured.
-- The image is not a general purpose image that works with all of the [Azure Pipeline Tasks](https://github.com/microsoft/azure-pipelines-tasks)
+- The image is not a general purpose image that works with all of the standard [Azure Pipeline Tasks](https://github.com/microsoft/azure-pipelines-tasks)
