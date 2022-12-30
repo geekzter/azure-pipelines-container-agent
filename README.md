@@ -9,21 +9,23 @@ Features (see [limitations below](#Limitations)):
 ![](visuals/overview.png) 
 
 ## Instructions
+There are a number of [scripts](./scripts) and [pipelines](./pipelines). Below, I will describe a local and pipeline approach, but you can blend these.
 
 ### Local setup
-- You'll need the [Azure CLI](http://aka.ms/azure-cli), Docker, [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell) and [Terraform](https://developer.hashicorp.com/terraform/downloads)
+- You'll need [Azure CLI](http://aka.ms/azure-cli), Docker, [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell) and [Terraform](https://developer.hashicorp.com/terraform/downloads)
 - You can use an existing Azure Container Registry (if shared) or let Terraform create one. In case Terraform creates the ACR, there is no opportunity to build and push the container image to the ACR before the Container App will use it.   
 Either let Terraform fail -> build & push the image -> retry Terraform apply, or pre-create the ACR. In case you pre-create the ACR, you also need to pre-create a User-assigned Managed Identity with `AcrPull` role on the ACR.
-- Build and push the agent container image using either the [`build_image.ps1`](./scripts/build_image.ps1) script
-- Create a `config.auto.tfvars` file ([example](./terraform/config.auto.tfvars.example)) in the terraform directory, and use it to set the following variables:   
+- Build and push the agent container image using [`build_image.ps1`](./scripts/build_image.ps1) script (alternatively, use the [`build-image.yml`](./pipelines/build-image.yml) pipeline)
+- Create a Personal Access Token with Agent Pools read & manage scope
+- Create a `config.auto.tfvars` file ([example](./terraform/config.auto.tfvars.example)) in the terraform directory, and use it to override the following variables:   
 `agent_identity_resource_id`  
 `container_registry_id`   
 `devops_pat`   
-`devops_url`   
+`devops_url` (Organization url https://dev.azure.com/<org>)   
 - Provision infrastructure by running `terraform apply`
 
 ### Pipeline setup
-- You'll need an existing Azure Container Registry (the assumption is this is a shared component and the Service Connection identity does not have the Azure `Owner` role required to configure RBAC)
+- You'll need an existing Azure Container Registry (the assumption is that the Service Connection identity does not have the Azure `Owner` role required to configure RBAC and the ACR is a shared component anyway)
 - Create an User-assigned Managed Identity with `AcrPush` role on the Azure Container Registry
 - Create an [Terraform azurerm backend](https://developer.hashicorp.com/terraform/language/settings/backends/azurerm)
 - Create a Docker Registry Service Connection to the ACR
