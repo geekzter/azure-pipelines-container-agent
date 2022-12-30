@@ -69,10 +69,10 @@ schedules:
     - main
 
 variables:
-- group: 'build-container-agent-image' 
+- group: 'build-container-agent-image' # shared with build-image.yml
   # should contain 
   # containerRegistry -> name of Container Registry Service Connection
-- group: 'pipeline-container-agents-ci'
+- group: 'pipeline-container-agents' # shared with terraform-ci.yml
   # should contain:
   # subscriptionConnection -> name of Azure Registry Service Connection
   # TF_VAR_agent_identity_resource_id -> Resource id of pre-created User-assigned Managed Identity used to access Container Registry
@@ -314,9 +314,9 @@ jobs:
     name: '$(TF_VAR_pipeline_agent_pool_name)'
     demands:
     - agent.os -equals Linux
-    - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
-    # Repeat capability expression as there is no nested variable expansion inside demands
+    # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
     # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
+    # Repeat capability expression as there is no nested variable expansion inside demands
     # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
   steps:
   - pwsh: |

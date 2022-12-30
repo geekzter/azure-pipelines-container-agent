@@ -73,7 +73,12 @@ schedules:
     - main
 
 variables:
-- group: 'pipeline-container-agents-ci'
+- group: 'pipeline-container-agents' # shared with deploy-container-agents.yml
+  # should contain:
+  # subscriptionConnection -> name of Azure Registry Service Connection
+  # TF_VAR_agent_identity_resource_id -> Resource id of pre-created User-assigned Managed Identity used to access Container Registry
+  # TF_VAR_container_registry_id -> Resource id of pre-created Container Registry
+  # TF_VAR_devops_pat -> Personal Access Token used by agent to register itself, requires Agent Pools read & manage scope.
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
   value: 'true'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
