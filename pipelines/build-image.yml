@@ -36,17 +36,23 @@ variables:
   value: '$(Build.SourcesDirectory)/scripts'
 
 steps:
-- pwsh: |
-    ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tag $(Build.BuildId)
+- task: Docker@2
   displayName: Build image
-  failOnStderr: true
-  workingDirectory: '$(scriptDirectory)'
+  inputs:
+    command: build
+    containerRegistry: '$(containerRegistry)'
+    repository: $(TF_VAR_container_repository)
+    tags: |
+      latest
+      $(Build.BuildId)
+      $(date)
+
 - task: Docker@2
   displayName: Push image
   inputs:
     command: push
     containerRegistry: '$(containerRegistry)'
-    repository: $(imageName)
+    repository: $(TF_VAR_container_repository)
     tags: |
       latest
       $(Build.BuildId)
