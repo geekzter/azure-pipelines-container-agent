@@ -41,7 +41,7 @@ parameters:
 - name: unpinTerraformProviders
   displayName: Unpin Terraform provider versions
   type: string
-  default: No
+  default: Strategy
   values:
   - No
   - Yes
