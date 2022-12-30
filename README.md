@@ -6,6 +6,8 @@ Features (see limitations below):
 - Diagnostics logs captured on [Azure Files](https://azure.microsoft.com/en-us/products/storage/files/)
 - Ubuntu based image with core set of tools: Azure CLI, Helm, Kubectl, Packer, PowerShell, Terraform ([`Dockerfile`](./images/ubuntu/Dockerfile))
 
+![](visuals/overview.png) 
+
 ## Instructions
 
 ### Local setup
