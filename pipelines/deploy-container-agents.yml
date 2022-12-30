@@ -75,6 +75,8 @@ variables:
 - group: 'pipeline-container-agents' # shared with terraform-ci.yml
   # should contain:
   # subscriptionConnection -> name of Azure Registry Service Connection
+  # TF_STATE_RESOURCE_GROUP_NAME, TF_STATE_STORAGE_ACCOUNT_NAME, TF_STATE_CONTAINER_NAME -> Terraform azurerm backend
+  # (See https://developer.hashicorp.com/terraform/language/settings/backends/azurerm)
   # TF_VAR_agent_identity_resource_id -> Resource id of pre-created User-assigned Managed Identity used to access Container Registry
   # TF_VAR_container_registry_id -> Resource id of pre-created Container Registry
   # TF_VAR_devops_pat -> Personal Access Token used by agent to register itself, requires Agent Pools read & manage scope.
