@@ -107,8 +107,19 @@ variables:
   value: 0
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
+- name: 'TF_VAR_container_repository'
+  value: 'pipelineagent/ubuntu'
+- name: 'TF_VAR_devops_url'
+  value: '$(System.CollectionUri)'
+- name: 'TF_VAR_environment_variables'
+  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapability)"}'
+- name: 'TF_VAR_pipeline_agent_pool_id'
+  value: 1
+- name: 'TF_VAR_pipeline_agent_pool_name'
+  value: 'Default'
 - name: 'TF_VAR_run_id'
   value: '$(Build.BuildId)'
+
 - name: 'vmImage'
   value: 'ubuntu-latest'
 
