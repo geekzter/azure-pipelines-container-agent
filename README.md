@@ -11,7 +11,7 @@ Features (see limitations below):
 ### Local setup
 - You'll need the [Azure CLI](http://aka.ms/azure-cli), Docker, [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell) and [Terraform](https://developer.hashicorp.com/terraform/downloads)
 - You can use an existing Azure Container Registry (if shared) or let Terraform create one. In case Terraform creates the ACR, there is no opportunity to build and push the container image to the ACR before the Container App will use it.   
-Either let Terraform fail -> build & push the image -> retry Terraform apply, or pre-create the ACR. In case you pre-create the ACR, you also need to pre-create a User-assignecd Managed Identity with `AcrPull` role on the ACR.
+Either let Terraform fail -> build & push the image -> retry Terraform apply, or pre-create the ACR. In case you pre-create the ACR, you also need to pre-create a User-assigned Managed Identity with `AcrPull` role on the ACR.
 - Build and push the agent container image using either the [`build_image.ps1`](./scripts/build_image.ps1) script
 - Create a `config.auto.tfvars` file ([example](./terraform/config.auto.tfvars.example)) in the terraform directory, and use it to set the following variables:   
 `agent_identity_resource_id`  
@@ -21,7 +21,7 @@ Either let Terraform fail -> build & push the image -> retry Terraform apply, or
 - Provision infrastructure by running `terraform apply`
 
 ### Pipeline setup
-- You'll need an existing Azure Container Registry (the assumption is this is a shared component and the Service Conneection identity does not have the Azure `Owner` role required to configure RBAC)
+- You'll need an existing Azure Container Registry (the assumption is this is a shared component and the Service Connection identity does not have the Azure `Owner` role required to configure RBAC)
 - Create an User-assigned Managed Identity with `AcrPush` role on the Azure Container Registry
 - Create an [Terraform azurerm backend](https://developer.hashicorp.com/terraform/language/settings/backends/azurerm)
 - Create a Docker Registry Service Connection to the ACR
