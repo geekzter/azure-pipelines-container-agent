@@ -31,7 +31,7 @@ parameters:
   - 'On failure'
   - 'On success'
 - name: retryCount
-  displayName: Terraform task retry count
+  displayName: Task retry count
   type: number
   default: 1
 - name: unpinTerraform
@@ -317,6 +317,9 @@ jobs:
     # Repeat capability expression as there is no nested variable expansion inside demands
     # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
   steps:
+  - checkout: self
+    retryCountOnTaskFailure: ${{ parameters.retryCount }}
+
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
       $PSVersionTable.OS
