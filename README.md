@@ -1,7 +1,7 @@
 # Azure Pipeline Agent Container App
 This repo contains an __experiment__ to run [Azure Pipeline Agents](https://learn.microsoft.com/azure/devops/pipelines/agents/docker?view=azure-devops) in [Azure Container Apps](https://azure.microsoft.com/products/container-apps). For __production__ use, consider [Scale set agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/scale-set-agents?view=azure-devops) ([sample repo](https://github.com/geekzter/azure-pipeline-agents)).
 
-Features (see limitations below):
+Features (see [limitations below](#Limitations)):
 - [KEDA Azure Pipelines scaler](https://keda.sh/docs/scalers/azure-pipelines/)
 - Diagnostics logs captured on [Azure Files](https://azure.microsoft.com/en-us/products/storage/files/)
 - Ubuntu based image with core set of tools: Azure CLI, Helm, Kubectl, Packer, PowerShell, Terraform ([`Dockerfile`](./images/ubuntu/Dockerfile))
