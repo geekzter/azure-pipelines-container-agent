@@ -8,8 +8,8 @@ Features (see limitations below):
 
 ## Instructions
 
-### Pre-requisites
 ### Local setup
+- You'll need the [Azure CLI](http://aka.ms/azure-cli), Docker, [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell) and [Terraform](https://developer.hashicorp.com/terraform/downloads)
 - You can use an existing Azure Container Registry (if shared) or let Terraform create one. In case Terraform creates the ACR, there is no opportunity to build and push the container image to the ACR before the Container App will use it.   
 Either let Terraform fail -> build & push the image -> retry Terraform apply, or pre-create the ACR. In case you pre-create the ACR, you also need to pre-create a User-assignecd Managed Identity with `AcrPull` role on the ACR.
 - Build and push the agent container image using either the [`build_image.ps1`](./scripts/build_image.ps1) script
@@ -37,7 +37,7 @@ Either let Terraform fail -> build & push the image -> retry Terraform apply, or
 `TF_VAR_devops_pat`
 - Use the [`deploy-container-agents.yml`](./pipelines/deploy-container-agents.yml) to build the agent container image, provision infrastructure and run a test job on a newly created agent.
 ### Testing
-- Use the [`image-info.yml`](./pipelines/image-info.yml) pipeline to test the agents. You can override the `numberOfJobs` parameter to test elasticity of the pool
+- Use the [`image-info.yml`](./pipelines/image-info.yml) pipeline to test the agents. You can override the `numberOfJobs` parameter to test elasticity
 
 ## Limitations
 - `ScaledJob` is [not supported](https://github.com/microsoft/azure-container-apps/issues/24) in Azure Container Apps. The KEDA Pipelines scaler requires this to indicate a long-running process needs to finish before a pod instance is terminated. This means pipeline jobs can get terminated prematurely.
