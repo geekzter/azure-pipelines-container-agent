@@ -36,8 +36,12 @@ parameters:
   default: true
 - name: unpinTerraform
   displayName: Unpin Terraform version
-  type: boolean
-  default: false
+  type: string
+  default: Strategy
+  values:
+  - No
+  - Yes
+  - Strategy
 - name: unpinTerraformProviders
   displayName: Unpin Terraform provider versions
   type: string
@@ -116,7 +120,7 @@ jobs:
   steps:
   - pwsh: |
       $strategyHash = @{}
-      if ($${{ not(or(eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
+      if ($${{ not(or(eq(parameters.unpinTerraform, 'Strategy'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
         $strategyHash.Add("primary",
           @{
             resourceGroup = '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)'
@@ -124,6 +128,7 @@ jobs:
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             TF_WORKSPACE = '${{ parameters.workspace }}'
+            unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
         )
@@ -135,6 +140,7 @@ jobs:
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             TF_WORKSPACE = '${{ parameters.workspace }}a'
+            unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
         )
@@ -145,6 +151,7 @@ jobs:
             substituteAlternateVariables = $true
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             TF_WORKSPACE = '${{ parameters.workspace }}b'
+            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
@@ -180,22 +187,24 @@ jobs:
     clean: all
 
   steps:
-    - ${{ if not(parameters.unpinTerraform) }}:
+    - ${{ if or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),not(eq(variables['Build.Reason'], 'Manual'))) }}:
       - pwsh: |
           $terraformVersion = (Get-Content .terraform-version)
           Write-Host "##vso[task.setvariable variable=version;isOutput=true]${terraformVersion}"
           Copy-Item backend.tf.sample backend.tf
         name: terraformConfig
+        condition: and(succeeded(), eq(variables['unpinTerraform'],'false'))
         displayName: 'Prepare Terraform config (pinned)'
         workingDirectory: '$(terraformDirectory)'
 
-    - ${{ if parameters.unpinTerraform }}:
+    - ${{ if or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),not(eq(variables['Build.Reason'], 'Manual'))) }}:
       - pwsh: |
           (Get-Content ./terraform.tf) -replace "required_version *= `" *(~>|=) +",'required_version = ">= ' | Out-File terraform.tf
           Get-Content ./terraform.tf
           Write-Host "##vso[task.setvariable variable=version;isOutput=true]latest"
           Copy-Item backend.tf.sample backend.tf
         name: terraformConfig
+        condition: and(succeeded(), eq(variables['unpinTerraform'],'true'))
         displayName: 'Prepare Terraform config (unpinned/latest)'
         workingDirectory: '$(terraformDirectory)'
 
