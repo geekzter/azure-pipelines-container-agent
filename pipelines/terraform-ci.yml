@@ -188,12 +188,12 @@ jobs:
 
   steps:
     - pwsh: |
-        if ('$(unpinTerraform)' -eq true) {
-          $terraformVersion = (Get-Content .terraform-version)
-        } else {
+        if ($$(unpinTerraform)) {
           $terraformVersion = 'latest'
           (Get-Content ./terraform.tf) -replace "required_version *= `" *(~>|=) +",'required_version = ">= ' | Out-File terraform.tf
           Get-Content ./terraform.tf
+        } else {
+          $terraformVersion = (Get-Content .terraform-version)
         }
         Write-Host "Terraform version: '${terraformVersion}'"
         Write-Host "##vso[task.setvariable variable=version;isOutput=true]${terraformVersion}"
