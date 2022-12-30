@@ -45,7 +45,6 @@ steps:
     repository: $(imageName)
     tags: |
       latest
-      $(Build.BuildId)
       $(date)
 
 - task: Docker@2
@@ -56,5 +55,4 @@ steps:
     repository: $(imageName)
     tags: |
       latest
-      $(Build.BuildId)
       $(date)

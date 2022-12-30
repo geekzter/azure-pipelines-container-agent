@@ -144,7 +144,6 @@ jobs:
         repository: $(TF_VAR_container_repository)
         tags: |
           latest
-          $(Build.BuildId)
           $(date)
 
     - task: Docker@2
@@ -155,7 +154,6 @@ jobs:
         repository: $(TF_VAR_container_repository)
         tags: |
           latest
-          $(Build.BuildId)
           $(date)
 
 - job: provision
