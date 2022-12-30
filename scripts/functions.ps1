@@ -110,6 +110,17 @@ function Login-Az (
     }
 }
 
+function Set-PipelineVariablesFromTerraform () {
+    $json = terraform output -json | ConvertFrom-Json -AsHashtable
+    foreach ($outputVariable in $json.keys) {
+        $value = $json[$outputVariable].value
+        if ($value) {
+            # Write variable output in the format a Pipeline can understand
+            Write-Host "##vso[task.setvariable variable=${outputVariable};isOutput=true]${value}"
+        }
+    }
+}
+
 function Start-Docker () {
     Get-Process docker -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id | Set-Variable dockerProcessId
 

@@ -298,7 +298,6 @@ jobs:
     displayName: 'Wait for agents to come online'
     workingDirectory: '$(scriptDirectory)'
     env:
-      # Use Pipeline token to access Azure DevOps
       AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
 
   - ${{ if not(eq(parameters.destroy, 'Never')) }}:
@@ -315,9 +314,10 @@ jobs:
     name: '$(TF_VAR_pipeline_agent_pool_name)'
     demands:
     - agent.os -equals Linux
+    - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
     # Repeat capability expression as there is no nested variable expansion inside demands
     # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
-    - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+    # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
   steps:
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
