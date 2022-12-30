@@ -41,7 +41,7 @@ steps:
   inputs:
     command: build
     containerRegistry: '$(containerRegistry)'
-    repository: $(TF_VAR_container_repository)
+    repository: $(imageName)
     tags: |
       latest
       $(Build.BuildId)
@@ -52,7 +52,7 @@ steps:
   inputs:
     command: push
     containerRegistry: '$(containerRegistry)'
-    repository: $(TF_VAR_container_repository)
+    repository: $(imageName)
     tags: |
       latest
       $(Build.BuildId)
