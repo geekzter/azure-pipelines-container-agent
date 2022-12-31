@@ -41,6 +41,7 @@ This approach uses the [`deploy-container-agents.yml`](./pipelines/deploy-contai
 `TF_VAR_agent_identity_resource_id`  
 `TF_VAR_container_registry_id`  
 `TF_VAR_devops_pat`
+- Make sure you have the [Terraform extension](https://marketplace.visualstudio.com/items?itemName=charleszipp.azure-pipelines-tasks-terraform) installed
 - Use the [`deploy-container-agents.yml`](./pipelines/deploy-container-agents.yml) to build the agent container image, provision infrastructure and run a test job on a newly created agent. Override the destroy parameter to prevent the Container App infrastructure from being destroyed at the end of the pipeline run
 ### Testing
 By default, the agents will be created in the `Default` agent pool with system capability `CONTAINER_APP_NAME`. Use the [`image-info.yml`](./pipelines/image-info.yml) pipeline to test the agents. You can override the `numberOfJobs` parameter to test elasticity
