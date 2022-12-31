@@ -1,4 +1,4 @@
-variable agent_identity_id {}
+variable agent_identity_principal_id {}
 variable configure_access_control {
   type                         = bool
 }

@@ -70,7 +70,6 @@ try {
     } else {
         # ACR build
         Login-Az -DisplayMessages
-        # tags: ubuntu, latest, date, run-id, acr
         az acr build -t ${Repository}/${ImageName}:acr `
                      -t ${Repository}/${ImageName}:latest `
                      -t ${Repository}/${ImageName}:${Tag} `

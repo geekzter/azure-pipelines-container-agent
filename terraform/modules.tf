@@ -9,10 +9,10 @@ module diagnostics_storage {
   tags                         = local.tags
 }
 
-module container_image {
-  source                       = "./modules/container-image"
+module container_registry {
+  source                       = "./modules/container-registry"
 
-  agent_identity_id            = local.user_assigned_identity_id
+  agent_identity_principal_id  = local.agent_identity_principal_id
   configure_access_control     = var.configure_access_control
   # container_image              = var.container_image
   container_image              = "pipelineagent/ubuntu"
@@ -28,9 +28,9 @@ module container_image {
 module container_agents {
   source                       = "./modules/container-agents"
 
-  container_image              = var.container_image
-  container_registry_id        = module.container_image.container_registry_id
-  devops_org                   = var.devops_org
+  container_registry_id        = module.container_registry.container_registry_id
+  container_repository         = var.container_repository
+  devops_url                   = var.devops_url
   devops_pat                   = var.devops_pat
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
   diagnostics_storage_share_name= module.diagnostics_storage.diagnostics_storage_name
@@ -50,9 +50,9 @@ module container_agents {
   resource_group_name          = azurerm_resource_group.rg.name
   suffix                       = local.suffix
   tags                         = local.tags
-  user_assigned_identity_id    = local.user_assigned_identity_id
+  user_assigned_identity_id    = local.agent_identity_resource_id
 
   depends_on                   = [
-    module.container_image
+    module.container_registry
   ]
 }

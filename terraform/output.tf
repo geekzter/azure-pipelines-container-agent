@@ -15,6 +15,9 @@ output agent_identity_principal_id {
 output container_app_id {
   value                        = module.container_agents.container_app_id
 }
+output container_app_name {
+  value                        = module.container_agents.container_app_name
+}
 output container_environment_id {
   value                        = module.container_agents.container_environment_id
 }

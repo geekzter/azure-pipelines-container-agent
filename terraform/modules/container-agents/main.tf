@@ -1,7 +1,6 @@
 locals {
   container_registry_name      = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-1)
   create_files_share           = var.diagnostics_share_name != null && var.diagnostics_share_name != ""
-  devops_url                   = "https://dev.azure.com/${var.devops_org}"
   diagnostics_volume_name      = "diagnostics"
   environment_variables_template= concat(
     [for key,value in var.environment_variables : {
@@ -139,7 +138,7 @@ resource azapi_resource agent_container_app {
           },
           {
             name               = "azp-url"
-            value              = local.devops_url
+            value              = var.devops_url
           },
           {
             name               = "azp-token"
@@ -149,7 +148,7 @@ resource azapi_resource agent_container_app {
       }
       template                 = {
         containers             = [{
-          image                = var.container_image
+          image                = "${local.container_registry_name}.azurecr.io/${var.container_repository}"
           name                 = "pipeline-agent"
           env                  = local.environment_variables_template
           resources            = {

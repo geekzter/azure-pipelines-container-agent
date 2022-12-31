@@ -1,7 +1,7 @@
 # This pipeline is for CI/CD
 parameters:
 - name: workspace
-  displayName: Pipeline Environment / Terraform Workspace prefix
+  displayName: Terraform Workspace (prefix in case of strategy)
   type: string
   default: ci
   values:
@@ -36,12 +36,16 @@ parameters:
   default: true
 - name: unpinTerraform
   displayName: Unpin Terraform version
-  type: boolean
-  default: false
+  type: string
+  default: Strategy
+  values:
+  - No
+  - Yes
+  - Strategy
 - name: unpinTerraformProviders
   displayName: Unpin Terraform provider versions
   type: string
-  default: No
+  default: Strategy
   values:
   - No
   - Yes
@@ -64,7 +68,7 @@ pr:
     - '*.md'  
 
 schedules:
-- cron: '0 0 * * Mon,Thu'
+- cron: '0 0 * * Tue,Fri'
   displayName: 'Bi-weekly build (UTC)'
   # Run if there are no changes
   always: 'true'
@@ -73,30 +77,53 @@ schedules:
     - main
 
 variables:
-- group: 'pipeline-container-agents-ci'
-- name: 'jobTimeOutMinutes'
-  value: 180
-- name: 'repository'
-  value: 'azure-pipelines-container-agents'
+- group: 'pipeline-container-agents' # shared with deploy-container-agents.yml
+  # should contain:
+  # subscriptionConnection -> name of Azure Registry Service Connection
+  # TF_STATE_RESOURCE_GROUP_NAME, TF_STATE_STORAGE_ACCOUNT_NAME, TF_STATE_CONTAINER_NAME -> Terraform azurerm backend
+  # (See https://developer.hashicorp.com/terraform/language/settings/backends/azurerm)
+  # TF_VAR_agent_identity_resource_id -> Resource id of pre-created User-assigned Managed Identity used to access Container Registry
+  # TF_VAR_container_registry_id -> Resource id of pre-created Container Registry
+  # TF_VAR_devops_pat -> Personal Access Token used by agent to register itself, requires Agent Pools read & manage scope.
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
   value: 'true'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
   value: 'yes_without_prompt'
+- name: 'jobTimeOutMinutes'
+  value: 180
+- name: 'pool'
+  value: 'Azure Pipelines'
+- name: 'repository'
+  value: 'azure-pipelines-container-agents'
 - name: 'substituteAlternateVariables'
   value: 'false'
-- name: 'TF_IN_AUTOMATION'
-  value: 'true'
-- name: 'TF_INPUT'
-  value: 0
+- name: 'resourceGroup' 
+  value: 'azure-pipelines-container-agents-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 - name: 'terraformDirectory'
   value: '$(Build.SourcesDirectory)/terraform'
+- name: 'TF_IN_AUTOMATION'
+  value: 'true'
+- name: 'TF_INPUT'
+  value: 0
+- name: 'TF_VAR_configure_access_control'
+  value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
+- name: 'TF_VAR_container_repository'
+  value: 'pipelineagent/ubuntu'
+- name: 'TF_VAR_devops_url'
+  value: '$(System.CollectionUri)'
+- name: 'TF_VAR_environment_variables'
+  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapability)"}'
+- name: 'TF_VAR_pipeline_agent_pool_id'
+  value: 1
+- name: 'TF_VAR_pipeline_agent_pool_name'
+  value: 'Default'
 - name: 'TF_VAR_run_id'
   value: '$(Build.BuildId)'
 
-- name: 'resourceGroup' 
-  value: 'azure-pipelines-container-agents-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)'
+- name: 'vmImage'
+  value: 'ubuntu-latest'
 
 jobs:
 - job: createStrategy
@@ -106,7 +133,7 @@ jobs:
   steps:
   - pwsh: |
       $strategyHash = @{}
-      if ($${{ not(or(eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
+      if ($${{ not(or(eq(parameters.unpinTerraform, 'Strategy'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
         $strategyHash.Add("primary",
           @{
             resourceGroup = '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)'
@@ -114,6 +141,7 @@ jobs:
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             TF_WORKSPACE = '${{ parameters.workspace }}'
+            unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
         )
@@ -125,6 +153,7 @@ jobs:
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             TF_WORKSPACE = '${{ parameters.workspace }}a'
+            unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
         )
@@ -135,6 +164,7 @@ jobs:
             substituteAlternateVariables = $true
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             TF_WORKSPACE = '${{ parameters.workspace }}b'
+            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
@@ -170,24 +200,20 @@ jobs:
     clean: all
 
   steps:
-    - ${{ if not(parameters.unpinTerraform) }}:
-      - pwsh: |
-          $terraformVersion = (Get-Content .terraform-version)
-          Write-Host "##vso[task.setvariable variable=version;isOutput=true]${terraformVersion}"
-          Copy-Item backend.tf.sample backend.tf
-        name: terraformConfig
-        displayName: 'Prepare Terraform config (pinned)'
-        workingDirectory: '$(terraformDirectory)'
-
-    - ${{ if parameters.unpinTerraform }}:
-      - pwsh: |
+    - pwsh: |
+        if ($$(unpinTerraform)) {
+          $terraformVersion = 'latest'
           (Get-Content ./terraform.tf) -replace "required_version *= `" *(~>|=) +",'required_version = ">= ' | Out-File terraform.tf
           Get-Content ./terraform.tf
-          Write-Host "##vso[task.setvariable variable=version;isOutput=true]latest"
-          Copy-Item backend.tf.sample backend.tf
-        name: terraformConfig
-        displayName: 'Prepare Terraform config (unpinned/latest)'
-        workingDirectory: '$(terraformDirectory)'
+        } else {
+          $terraformVersion = (Get-Content .terraform-version)
+        }
+        Write-Host "Terraform version: '${terraformVersion}'"
+        Write-Host "##vso[task.setvariable variable=version;isOutput=true]${terraformVersion}"
+        Copy-Item backend.tf.sample backend.tf
+      name: terraformConfig
+      displayName: 'Prepare Terraform config (unpinned/latest)'
+      workingDirectory: '$(terraformDirectory)'
 
     - task: TerraformInstaller@0
       displayName: 'Install Terraform'
@@ -291,7 +317,7 @@ jobs:
       workingDirectory: '$(terraformDirectory)'
 
     - task: AzureCLI@2
-      displayName: 'Terraform plan & apply (deploy_firewall:$(TF_VAR_deploy_firewall))'
+      displayName: 'Terraform plan & apply'
       name: apply
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
@@ -317,8 +343,6 @@ jobs:
           inlineScript: |
             ./set_terraform_azurerm_vars.ps1
 
-            # Swap NAT Gateway <-> Azure Firewall
-            # $env:TF_VAR_deploy_firewall = ($env:TF_VAR_deploy_firewall -ieq "true" ? "false" : "true")
             ./deploy.ps1 -apply -force
           addSpnToEnvironment: true
           useGlobalConfig: true

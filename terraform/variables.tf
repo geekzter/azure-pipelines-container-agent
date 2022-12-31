@@ -1,3 +1,8 @@
+variable agent_identity_resource_id {
+  description                  = "Resource id of pre-created User-assigned Managed Identity used to access Container Registry"
+  default                      = ""
+}
+
 variable application_name {
   description                  = "Value of 'application' resource tag"
   default                      = "Container Agents"
@@ -14,12 +19,12 @@ variable configure_access_control {
   type                         = bool
 }
 
-variable container_image {
-  default                      = null
-}
 variable container_registry_id {
   description                  = "Container Registry resource id"
   default                      = null
+}
+variable container_repository {
+  default                      = "pipelineagent/ubuntu"
 }
 
 variable create_files_share {
@@ -28,13 +33,11 @@ variable create_files_share {
   type                         = bool
 }
 
-variable devops_org {
-  description                  = "The Azure DevOps org to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
-  default                      = null
+variable devops_url {
+  description                  = "The Azure DevOps organization url to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
 }
 variable devops_pat {
-  description                  = "A Personal Access Token to access the Azure DevOps organization"
-  default                      = null
+  description                  = "A Personal Access Token to access the Azure DevOps organization. Requires Agent Pools read & manage scope."
 }
 
 variable environment_variables {
@@ -130,8 +133,3 @@ variable tags {
   default                      = {
   }  
 } 
-
-variable user_assigned_identity_id {
-  description                  = "User-assigned Managed Identity resource id"
-  default                      = ""
-}

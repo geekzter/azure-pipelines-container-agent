@@ -25,7 +25,8 @@ pool:
   vmImage: 'ubuntu-latest' 
 
 variables:
-- group: 'build-container-agent-image'
+- group: 'build-container-agent-image' # shared with deploy-container-agents.yml
+# should contain 'containerRegistry' -> name of Container Registry Service Connection
 - name: date
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
 - name: 'tags'
@@ -36,11 +37,16 @@ variables:
   value: '$(Build.SourcesDirectory)/scripts'
 
 steps:
-- pwsh: |
-    ./build_image.ps1 -Registry $(containerRegistryFQDN) -Tag $(Build.BuildId)
+- task: Docker@2
   displayName: Build image
-  failOnStderr: true
-  workingDirectory: '$(scriptDirectory)'
+  inputs:
+    command: build
+    containerRegistry: '$(containerRegistry)'
+    repository: $(imageName)
+    tags: |
+      latest
+      $(date)
+
 - task: Docker@2
   displayName: Push image
   inputs:
@@ -49,5 +55,4 @@ steps:
     repository: $(imageName)
     tags: |
       latest
-      $(Build.BuildId)
       $(date)
