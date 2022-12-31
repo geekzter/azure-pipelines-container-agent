@@ -1,4 +1,10 @@
 #!/usr/bin/env pwsh
+<# 
+.SYNOPSIS 
+    Used in a pipeline to configure Terraform azapi/azurerm providers inside a AzureCLI task.
+    See https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli
+#> 
+#Requires -Version 7
 
 if (Get-Command az -ErrorAction SilentlyContinue) {
     # Get from Azure CLI context
