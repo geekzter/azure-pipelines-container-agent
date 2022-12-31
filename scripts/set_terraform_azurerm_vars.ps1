@@ -26,5 +26,9 @@ if ($pipeline) {
     $env:ARM_CLIENT_SECRET   ??= $env:servicePrincipalKey
     $env:ARM_TENANT_ID       ??= $env:tenantId
 } else {
-    Write-Warning "Not in a pipeline, no context to propagate as ARM_TENANT_ID & ARM_SUBSCRIPTION_ID environment variables"
+    Write-Warning "Not in a pipeline, no context to propagate as ARM_CLIENT_ID & ARM_CLIENT_SECRET environment variables"
 }
+
+Write-Host "The following variables have been set:"
+Get-ChildItem -Path Env: -Recurse -Include ARM_* | Sort-Object -Property Name `
+                                                 | Format-Table -HideTableHeaders -Property Name

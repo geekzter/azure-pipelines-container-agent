@@ -9,9 +9,6 @@ terraform {
     #   version                  = "~> 0.3"
     # }
     azurerm                    = "~> 3.37"
-    # http                       = "~> 2.2"
-    # local                      = "~> 2.1"
-    # null                       = "~> 3.1"
     random                     = "~> 3.4"
     time                       = "~> 0.9"
   }
@@ -20,8 +17,8 @@ terraform {
 
 # provider azuredevops {
 #   features {
-#     org_service_url            = "https://dev.azure.com/${var.devops_org}"
-#     personal_access_token      = var.devops_provisioning_pat
+#     org_service_url            = var.devops_url
+#     personal_access_token      = var.devops_pat
 #   }
 # }
 provider azurerm {
