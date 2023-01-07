@@ -8,6 +8,7 @@ variable diagnostics_share_name {}
 variable environment_variables {
     type = map
 }
+variable gateway_id {}
 variable location {}
 variable log_analytics_workspace_resource_id {}
 variable pipeline_agent_cpu {
@@ -30,6 +31,7 @@ variable pipeline_agent_run_once {
 variable pipeline_agent_version_id {}
 variable resource_group_id {}
 variable resource_group_name {}
+variable subnet_id {}
 variable suffix {}
 variable tags {
   type = map

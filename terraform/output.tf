@@ -34,6 +34,10 @@ output environment_variables {
   value                        = local.environment_variables
 }
 
+output gateway_id {
+  value                        = var.deploy_network ? module.network.0.gateway_id : null
+}
+
 output log_analytics_workspace_resource_id {
   value                        = local.log_analytics_workspace_resource_id
 }

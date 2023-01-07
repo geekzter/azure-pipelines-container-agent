@@ -44,6 +44,8 @@ resource azapi_resource agent_container_environment {
   type                         = "Microsoft.App/managedEnvironments@2022-03-01"
   tags                         = var.tags
   
+  # schema_validation_enabled    = false
+
   body                         = jsonencode({
     properties                 = {
       appLogsConfiguration     = {
@@ -53,7 +55,23 @@ resource azapi_resource agent_container_environment {
           sharedKey            = data.azurerm_log_analytics_workspace.monitor.primary_shared_key
         }
       }
+      # BUG: https://github.com/microsoft/azure-container-apps/issues/522 (NAT Gateway)
+      # BUG: https://github.com/microsoft/azure-container-apps/issues/227 (Azure Firewall)
+      vnetConfiguration        = var.subnet_id != null ?{
+        infrastructureSubnetId = var.subnet_id
+        internal               = true
+        # Requires Premium SKU
+        # outboundSettings       = var.gateway_id != null ? {
+        #   outBoundType         = "UserDefinedRouting"
+        #   virtualNetworkApplianceIp= var.gateway_id
+        # } : null
+      } : null
     }
+    # sku                        = {
+    #   # https://github.com/microsoft/azure-container-apps/issues/452
+    #   # name                     = var.gateway_id != null ? "Premium" : "Consumption"
+    #   name                     = "Consumption"
+    # }
   })
 
   lifecycle {
