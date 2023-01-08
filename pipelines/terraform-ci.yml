@@ -268,7 +268,7 @@ jobs:
         backendAzureRmKey: 'terraform.tfstate'
         allowTelemetryCollection: true
       env:
-        TF_WORKSPACE: '' # Workspace may not exist yet
+        TF_WORKSPACE: 'default' # Workspace may not exist yet
 
     - task: AzureCLI@2
       name: clear
@@ -279,8 +279,9 @@ jobs:
         scriptLocation: inlineScript
         inlineScript: |
           $(scriptDirectory)/set_terraform_azurerm_vars.ps1
-          Invoke-Command -ScriptBlock {
-            $Private:ErrorActionPreference = "SilentlyContinue"
+
+          if (!((terraform workspace list) -match "\W+$env:TF_WORKSPACE$")) {
+            Write-Host "Creating Terraform workspace ${env:TF_WORKSPACE}..."
             terraform workspace new $env:TF_WORKSPACE 2>$null
           }
         addSpnToEnvironment: true
