@@ -1,3 +1,7 @@
+variable address_space {
+  default                      = "10.201.0.0/22"
+}
+
 variable agent_identity_resource_id {
   description                  = "Resource id of pre-created User-assigned Managed Identity used to access Container Registry"
   default                      = ""
@@ -12,6 +16,13 @@ variable application_owner {
   description                  = "Value of 'owner' resource tag"
   default                      = "" # Empty string takes objectId of current user
 }
+
+variable bastion_tags {
+  description                  = "A map of the tags to use for the bastion resources that are deployed"
+  type                         = map
+
+  default                      = {}  
+} 
 
 variable configure_access_control {
   description                  = "Assumes the Terraform user is an owner of the subscription."
@@ -33,6 +44,24 @@ variable create_files_share {
   type                         = bool
 }
 
+variable deploy_bastion {
+  description                  = "Deploys managed bastion host"
+  default                      = false
+  type                         = bool
+}
+
+variable deploy_container_app {
+  description                  = "Deploys Container App"
+  default                      = true
+  type                         = bool
+}
+
+variable deploy_network {
+  description                  = "Deploys Virtual Network"
+  default                      = true
+  type                         = bool
+}
+
 variable devops_url {
   description                  = "The Azure DevOps organization url to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
 }
@@ -44,6 +73,19 @@ variable environment_variables {
   type                         = map
   default                      = {}  
 } 
+
+variable firewall_sku_tier {
+  default                      = "Basic"
+}
+
+variable gateway_type {
+  type                         = string
+  default                      = "None"
+  validation {
+    condition                  = var.gateway_type == "Firewall" || var.gateway_type == "NATGateway" || var.gateway_type == "None"
+    error_message              = "The gateway_type must be 'Firewall', 'NATGateway' or 'None'"
+  }
+}
 
 variable github_repo_access_token {
   description                  = "A GitHib Personal Access Token to access the Dockerfile"
@@ -109,6 +151,11 @@ variable resource_prefix {
 variable resource_suffix {
   description                  = "The suffix to put at the of resource names created"
   default                      = "" # Empty string triggers a random suffix
+}
+
+variable repository {
+  description                  = "The value for the 'repository' resource tag"
+  default                      = "azure-pipelines-container-agent"
 }
 
 variable run_id {

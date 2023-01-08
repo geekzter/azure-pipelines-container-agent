@@ -13,13 +13,13 @@ output agent_identity_principal_id {
 }
 
 output container_app_id {
-  value                        = module.container_agents.container_app_id
+  value                        = var.deploy_container_app ? module.container_agents.0.container_app_id : null
 }
 output container_app_name {
-  value                        = module.container_agents.container_app_name
+  value                        = var.deploy_container_app ? module.container_agents.0.container_app_name : null
 }
 output container_environment_id {
-  value                        = module.container_agents.container_environment_id
+  value                        = var.deploy_container_app ? module.container_agents.0.container_environment_id : null
 }
 
 output diagnostics_storage_account_name {
@@ -32,6 +32,10 @@ output diagnostics_storage_sas {
 
 output environment_variables {
   value                        = local.environment_variables
+}
+
+output gateway_id {
+  value                        = var.deploy_network ? module.network.0.gateway_id : null
 }
 
 output log_analytics_workspace_resource_id {

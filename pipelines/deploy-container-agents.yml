@@ -6,13 +6,15 @@ parameters:
   default: ci
   values:
   - ci
-  - ci1
-  - ci2
-  - ci3
   - cd
   - cd1
   - cd2
   - cd3
+  - cd3
+  - test
+  - test1
+  - test2
+  - test3
 - name: buildImage
   displayName: Build agent image
   type: boolean
@@ -21,6 +23,30 @@ parameters:
   displayName: Clear Terraform state
   type: boolean
   default: false
+- name: unpinTerraform
+  displayName: Unpin Terraform version
+  type: boolean
+  default: false
+- name: deployNetwork
+  displayName: Deploy network
+  type: boolean
+  default: true
+- name: gatewayType
+  displayName: Gateway type
+  type: string
+  default: None
+  values:
+  - None
+  - Firewall 
+  - NATGateway
+- name: deployBastion
+  displayName: Deploy bastion host
+  type: boolean
+  default: false
+- name: retryCount
+  displayName: Task retry count
+  type: number
+  default: 1
 - name: destroy
   displayName: Destroy Infrastructure
   type: string
@@ -30,18 +56,6 @@ parameters:
   - Never 
   - 'On failure'
   - 'On success'
-- name: retryCount
-  displayName: Task retry count
-  type: number
-  default: 1
-- name: unpinTerraform
-  displayName: Unpin Terraform version
-  type: boolean
-  default: false
-- name: unpinTerraformProviders
-  displayName: Unpin Terraform provider versions
-  type: boolean
-  default: false
 
 name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId)
 
@@ -92,8 +106,6 @@ variables:
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
 - name: 'pool'
   value: 'Azure Pipelines'
-- name: 'repository'
-  value: 'azure-pipelines-container-agent'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 - name: 'tags'
@@ -110,14 +122,22 @@ variables:
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_container_repository'
   value: 'pipelineagent/ubuntu'
+- name: 'TF_VAR_deploy_bastion'
+  value: '${{ lower(parameters.deployBastion) }}'
+- name: 'TF_VAR_deploy_network'
+  value: '${{ lower(parameters.deployNetwork) }}'
 - name: 'TF_VAR_devops_url'
   value: '$(System.CollectionUri)'
+- name: 'TF_VAR_gateway_type'
+  value: '${{ parameters.gatewayType }}'
 - name: 'TF_VAR_environment_variables'
   value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapability)"}'
 - name: 'TF_VAR_pipeline_agent_pool_id'
   value: 1
 - name: 'TF_VAR_pipeline_agent_pool_name'
   value: 'Default'
+- name: 'TF_VAR_repository'
+  value: 'azure-pipelines-container-agent'
 - name: 'TF_VAR_resource_suffix'
   value: '$(Build.BuildId)'
 - name: 'TF_VAR_run_id'
@@ -193,7 +213,7 @@ jobs:
     inputs:
       terraformVersion: '$(terraformConfig.version)'
 
-  - ${{ if parameters.unpinTerraformProviders }}:
+  - ${{ if parameters.unpinTerraform }}:
     # Unpin version e.g. "= 2.56" -> "~> 2.56"
     - pwsh: |
         (Get-Content ./terraform.tf) -replace " = `" *= +",' = "~> ' | Out-File terraform.tf
@@ -245,7 +265,7 @@ jobs:
     workingDirectory: '$(terraformDirectory)'
 
   - publish: $(terraformDirectory)
-    displayName: 'Publish Terraform workspace'
+    displayName: 'Publish Terraform directory'
     artifact: $(terraformArtifactName)
 
   - ${{ if eq(parameters.clear, true) }}:
@@ -392,7 +412,7 @@ jobs:
         inlineScript: |
           $ErrorActionPreference = "Continue" # Continue to remove resources if remove by resource group fails
           # Build JMESPath expression
-          $tagQuery = "[?tags.repository == '$(repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.runid == '$(Build.BuildId)' && properties.provisioningState != 'Deleting'].id"
+          $tagQuery = "[?tags.repository == '$(TF_VAR_repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.runid == '$(Build.BuildId)' && properties.provisioningState != 'Deleting'].id"
           Write-Host "Removing resources identified by `"$tagQuery`"..."
 
           # Remove resource groups

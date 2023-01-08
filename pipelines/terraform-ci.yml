@@ -93,14 +93,12 @@ variables:
   value: 180
 - name: 'pool'
   value: 'Azure Pipelines'
-- name: 'repository'
-  value: 'azure-pipelines-container-agents'
-- name: 'substituteAlternateVariables'
-  value: 'false'
 - name: 'resourceGroup' 
   value: 'azure-pipelines-container-agents-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
+- name: 'substituteAlternateVariables'
+  value: 'false'
 - name: 'terraformDirectory'
   value: '$(Build.SourcesDirectory)/terraform'
 - name: 'TF_IN_AUTOMATION'
@@ -119,6 +117,8 @@ variables:
   value: 1
 - name: 'TF_VAR_pipeline_agent_pool_name'
   value: 'Default'
+- name: 'TF_VAR_repository'
+  value: 'azure-pipelines-container-agent'
 - name: 'TF_VAR_run_id'
   value: '$(Build.BuildId)'
 
@@ -136,11 +136,8 @@ jobs:
       if ($${{ not(or(eq(parameters.unpinTerraform, 'Strategy'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
         $strategyHash.Add("primary",
           @{
-            resourceGroup = '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)'
-            terraformArtifactPrefix = 'terraformPrimary'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
-            TF_WORKSPACE = '${{ parameters.workspace }}'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
@@ -148,27 +145,53 @@ jobs:
       } else {
         $strategyHash.Add("primary",
           @{
-            resourceGroup = '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}a-$(Build.BuildId)'
-            terraformArtifactPrefix = 'terraformPrimary'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
-            TF_WORKSPACE = '${{ parameters.workspace }}a'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
         )
         $strategyHash.Add("alternate",
           @{
-            resourceGroup = '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}b-$(Build.BuildId)'
-            terraformArtifactPrefix = 'terraformAlternate'
             substituteAlternateVariables = $true
             TF_VAR_resource_suffix = '$(Build.BuildId)'
-            TF_WORKSPACE = '${{ parameters.workspace }}b'
+            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+          }
+        )
+        $strategyHash.Add("gw-fw",
+          @{
+            substituteAlternateVariables = $false
+            TF_VAR_deploy_container_app = 'false'
+            TF_VAR_deploy_network = 'true'
+            TF_VAR_gateway_type = 'Firewall'
+            TF_VAR_resource_suffix = '$(Build.BuildId)'
+            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+          }
+        )
+        $strategyHash.Add("gw-nat",
+          @{
+            substituteAlternateVariables = $false
+            TF_VAR_deploy_container_app = 'false'
+            TF_VAR_deploy_network = 'true'
+            TF_VAR_gateway_type = 'NATGateway'
+            TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
       }
+
+      [int]$jobIndex = 0
+      foreach ($job in $strategyHash.Keys) {
+        $jobIndex++
+        $workspace = "${{ parameters.workspace }}${jobIndex}"
+        $strategyHash[$job].resourceGroup = "$(TF_VAR_resource_prefix)-${workspace}-$(Build.BuildId)"
+        $strategyHash[$job].terraformArtifactPrefix = "terraform${jobIndex}"
+        $strategyHash[$job].TF_WORKSPACE = $workspace
+      }
+
       $strategyHash | ConvertTo-Json
       $strategyHash | ConvertTo-Json -Compress | Set-Variable strategyJson
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]${strategyJson}"
@@ -194,7 +217,7 @@ jobs:
 
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
-    maxParallel: 2
+    maxParallel: 4
 
   workspace:
     clean: all
@@ -232,22 +255,54 @@ jobs:
         condition: and(succeeded(), eq(variables['unpinTerraformProviders'],'true'))
         workingDirectory: '$(terraformDirectory)'
 
-    - task: TerraformCLI@0
+    - task: AzureCLI@2
       displayName: 'Terraform init'
       inputs:
-        command: 'init'
-        workingDirectory: '$(terraformDirectory)'
-        backendType: 'azurerm'
-        backendServiceArm: '$(subscriptionConnection)'
-        backendAzureRmResourceGroupName: '$(TF_STATE_RESOURCE_GROUP_NAME)'
-        backendAzureRmStorageAccountName: '$(TF_STATE_STORAGE_ACCOUNT_NAME)'
-        backendAzureRmContainerName: '$(TF_STATE_CONTAINER_NAME)'
-        backendAzureRmKey: 'terraform.tfstate'
-        allowTelemetryCollection: true
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
 
-    - publish: $(terraformDirectory)
-      displayName: 'Publish Terraform workspace'
-      artifact: $(terraformArtifactPrefix)$(System.PlanId)
+          $env:TF_WORKSPACE = 'default' # Workspace may not exist yet
+
+          terraform init -reconfigure `
+                         -backend-config="resource_group_name=${env:TF_STATE_RESOURCE_GROUP_NAME}" `
+                         -backend-config="storage_account_name=${env:TF_STATE_STORAGE_ACCOUNT_NAME}" `
+                         -backend-config="container_name=${env:TF_STATE_CONTAINER_NAME}" `
+                         -backend-config="key=terraform.tfstate"
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(terraformDirectory)'
+
+    - task: AzureCLI@2
+      displayName: 'Select Terraform workspace'
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+
+          if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
+            Write-Host "Terraform workspace '$(TF_WORKSPACE)' already exists"
+            terraform workspace select $(TF_WORKSPACE) 2>$null
+          } else {
+            Write-Host "Creating Terraform workspace '$(TF_WORKSPACE)'..."
+            terraform workspace new $(TF_WORKSPACE) 2>$null
+          }
+          if ((terraform workspace show) -eq '$(TF_WORKSPACE)') {
+            Write-Host "Terraform workspace '$(TF_WORKSPACE)' selected"
+            exit 0
+          } else {
+            Write-Error "Terraform workspace '$(TF_WORKSPACE)' does not exist"
+            exit 1
+          } 
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(terraformDirectory)'
 
     - ${{ if eq(parameters.clear, true) }}:
       - task: AzureCLI@2
@@ -276,45 +331,69 @@ jobs:
           failOnStandardError: true
           workingDirectory: '$(terraformDirectory)'
 
-    - pwsh: |
-        if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
-          $env:TF_VAR_RESOURCE_SUFFIX = $null
-          $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
-        }
-
-        # Parse alternate strategy variables
-        if ($$(substituteAlternateVariables)) {
-          foreach ($alternateVar in $(Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_TF_VAR_*)) {
-            $primaryTerraformVariableName = $alternateVar.Name.Substring(17).ToLowerInvariant()
-            $primaryVariableName = "TF_VAR_${primaryTerraformVariableName}"
-            $variableValue = $alternateVar.Value
-
-            # Replace primary value with alternate
-            Get-ChildItem -path env: -Recurse -Include $primaryVariableName | Remove-Item
-            Set-Item env:${primaryVariableName} -Value $variableValue
-          } 
-        }
-
-        # List environment variables
-        Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
-
-        # Convert uppercased Terraform environment variables to .auto.tfvars file
-        foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
-          $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
-          $terraformVariableValue = $tfVar.Value
-
-          if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
-            # Boolean or List, write as-is
-            Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
-          } else {
-            Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
-          }
-        } 
-        Write-Host "Contents of ci.auto.tfvars:"
-        Get-Content ci.auto.tfvars | Sort-Object
-      name: terraformVariables
+    - task: AzureCLI@2
       displayName: 'Prepare Terraform variables'
-      workingDirectory: '$(terraformDirectory)'
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+
+          Write-Host "Terraform workspace: $(terraform workspace show)"
+          terraform output
+
+          Write-Host "Last exit code 0: $LASTEXITCODE"
+          if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
+            Write-Host "Last exit code 1: $LASTEXITCODE"
+            $env:TF_VAR_RESOURCE_SUFFIX = $null
+            $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
+            Write-Host "Last exit code 2: $LASTEXITCODE"
+          }
+          Write-Host "Last exit code 3: $LASTEXITCODE"
+
+          # Parse alternate strategy variables
+          if ($$(substituteAlternateVariables)) {
+            foreach ($alternateVar in $(Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_TF_VAR_*)) {
+              $primaryTerraformVariableName = $alternateVar.Name.Substring(17).ToLowerInvariant()
+              $primaryVariableName = "TF_VAR_${primaryTerraformVariableName}"
+              $variableValue = $alternateVar.Value
+
+              # Replace primary value with alternate
+              Get-ChildItem -path env: -Recurse -Include $primaryVariableName | Remove-Item
+              Set-Item env:${primaryVariableName} -Value $variableValue
+            } 
+          }
+          Write-Host "Last exit code 4: $LASTEXITCODE"
+
+          # List environment variables
+          Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+          Write-Host "Last exit code 5: $LASTEXITCODE"
+
+          # Convert uppercased Terraform environment variables to .auto.tfvars file
+          foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
+            $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
+            $terraformVariableValue = $tfVar.Value
+
+            if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
+              # Boolean or List, write as-is
+              Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
+            } else {
+              Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
+            }
+          } 
+          Write-Host "Last exit code 6: $LASTEXITCODE"
+          Write-Host "Contents of ci.auto.tfvars:"
+          Get-Content ci.auto.tfvars | Sort-Object
+          Write-Host "Last exit code 7: $LASTEXITCODE"
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(terraformDirectory)'
+
+    - publish: $(terraformDirectory)
+      displayName: 'Publish Terraform directory'
+      artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
     - task: AzureCLI@2
       displayName: 'Terraform plan & apply'
@@ -342,7 +421,6 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: |
             ./set_terraform_azurerm_vars.ps1
-
             ./deploy.ps1 -apply -force
           addSpnToEnvironment: true
           useGlobalConfig: true
@@ -391,7 +469,7 @@ jobs:
           inlineScript: |
             $ErrorActionPreference = "Continue" # Continue to remove resources if remove by resource group fails
             # Build JMESPath expression
-            $tagQuery = "[?tags.repository == '$(repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.runid == '$(Build.BuildId)' && properties.provisioningState != 'Deleting'].id"
+            $tagQuery = "[?tags.repository == '$(TF_VAR_repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.runid == '$(Build.BuildId)' && properties.provisioningState != 'Deleting'].id"
             Write-Host "Removing resources identified by `"$tagQuery`"..."
 
             # Remove resource groups
