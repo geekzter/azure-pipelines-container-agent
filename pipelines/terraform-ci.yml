@@ -255,52 +255,52 @@ jobs:
         condition: and(succeeded(), eq(variables['unpinTerraformProviders'],'true'))
         workingDirectory: '$(terraformDirectory)'
 
-    - task: TerraformCLI@0
-      displayName: 'Terraform init'
-      inputs:
-        command: 'init'
-        workingDirectory: '$(terraformDirectory)'
-        backendType: 'azurerm'
-        backendServiceArm: '$(subscriptionConnection)'
-        backendAzureRmResourceGroupName: '$(TF_STATE_RESOURCE_GROUP_NAME)'
-        backendAzureRmStorageAccountName: '$(TF_STATE_STORAGE_ACCOUNT_NAME)'
-        backendAzureRmContainerName: '$(TF_STATE_CONTAINER_NAME)'
-        backendAzureRmKey: 'terraform.tfstate'
-        allowTelemetryCollection: true
-      env:
-        TF_WORKSPACE: 'default' # Workspace may not exist yet
-
-    # - task: AzureCLI@2
+    # - task: TerraformCLI@0
     #   displayName: 'Terraform init'
     #   inputs:
-    #     azureSubscription: '$(subscriptionConnection)'
-    #     scriptType: pscore
-    #     scriptLocation: inlineScript
-    #     inlineScript: |
-    #       $(scriptDirectory)/set_terraform_azurerm_vars.ps1
-
-    #       $env:TF_WORKSPACE = 'default' # Workspace may not exist yet
-
-    #       terraform init -reconfigure `
-    #                      -backend-config="resource_group_name=${env:TF_STATE_RESOURCE_GROUP_NAME}" `
-    #                      -backend-config="storage_account_name=${env:TF_STATE_STORAGE_ACCOUNT_NAME}" `
-    #                      -backend-config="container_name=${env:TF_STATE_CONTAINER_NAME}" `
-    #                      -backend-config="key=terraform.tfstate" `
-
-    #       if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
-    #         Write-Host "Terraform workspace '$(TF_WORKSPACE)' already exists"
-    #       } else {
-    #         Write-Host "Creating Terraform workspace '$(TF_WORKSPACE)'..."
-    #         terraform workspace new $(TF_WORKSPACE) 2>&1 | Write-Host
-    #       }
-    #       if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
-    #         Write-Host "Terraform workspace '$(TF_WORKSPACE)' exists"
-    #         exit 0
-    #       } 
-    #     addSpnToEnvironment: true
-    #     useGlobalConfig: true
-    #     failOnStandardError: false
+    #     command: 'init'
     #     workingDirectory: '$(terraformDirectory)'
+    #     backendType: 'azurerm'
+    #     backendServiceArm: '$(subscriptionConnection)'
+    #     backendAzureRmResourceGroupName: '$(TF_STATE_RESOURCE_GROUP_NAME)'
+    #     backendAzureRmStorageAccountName: '$(TF_STATE_STORAGE_ACCOUNT_NAME)'
+    #     backendAzureRmContainerName: '$(TF_STATE_CONTAINER_NAME)'
+    #     backendAzureRmKey: 'terraform.tfstate'
+    #     allowTelemetryCollection: true
+    #   env:
+    #     TF_WORKSPACE: 'default' # Workspace may not exist yet
+
+    - task: AzureCLI@2
+      displayName: 'Terraform init'
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+
+          $env:TF_WORKSPACE = 'default' # Workspace may not exist yet
+
+          terraform init -reconfigure `
+                         -backend-config="resource_group_name=${env:TF_STATE_RESOURCE_GROUP_NAME}" `
+                         -backend-config="storage_account_name=${env:TF_STATE_STORAGE_ACCOUNT_NAME}" `
+                         -backend-config="container_name=${env:TF_STATE_CONTAINER_NAME}" `
+                         -backend-config="key=terraform.tfstate" `
+
+          if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
+            Write-Host "Terraform workspace '$(TF_WORKSPACE)' already exists"
+          } else {
+            Write-Host "Creating Terraform workspace '$(TF_WORKSPACE)'..."
+            terraform workspace new $(TF_WORKSPACE) 2>&1 | Write-Host
+          }
+          if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
+            Write-Host "Terraform workspace '$(TF_WORKSPACE)' exists"
+            exit 0
+          } 
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: false
+        workingDirectory: '$(terraformDirectory)'
 
     - ${{ if eq(parameters.clear, true) }}:
       - task: AzureCLI@2
@@ -331,9 +331,12 @@ jobs:
 
     - pwsh: |
         if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
+          Write-Host "Last exit code 1: $LASTEXITCODE"
           $env:TF_VAR_RESOURCE_SUFFIX = $null
           $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
+          Write-Host "Last exit code 2: $LASTEXITCODE"
         }
+        Write-Host "Last exit code 3: $LASTEXITCODE"
 
         # Parse alternate strategy variables
         if ($$(substituteAlternateVariables)) {
@@ -347,9 +350,11 @@ jobs:
             Set-Item env:${primaryVariableName} -Value $variableValue
           } 
         }
+        Write-Host "Last exit code 4: $LASTEXITCODE"
 
         # List environment variables
         Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+        Write-Host "Last exit code 5: $LASTEXITCODE"
 
         # Convert uppercased Terraform environment variables to .auto.tfvars file
         foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
@@ -363,11 +368,13 @@ jobs:
             Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
           }
         } 
+        Write-Host "Last exit code 6: $LASTEXITCODE"
         Write-Host "Contents of ci.auto.tfvars:"
         Get-Content ci.auto.tfvars | Sort-Object
+        Write-Host "Last exit code 7: $LASTEXITCODE"
       name: terraformVariables
       displayName: 'Prepare Terraform variables'
-      # errorActionPreference: stop
+      errorActionPreference: stop
       workingDirectory: '$(terraformDirectory)'
 
     - publish: $(terraformDirectory)
