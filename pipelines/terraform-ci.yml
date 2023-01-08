@@ -193,7 +193,7 @@ jobs:
       [int]$jobIndex = 0
       foreach ($job in $strategyHash.Keys) {
         $jobIndex++
-        $workspace = '${{ parameters.workspace }}${jobIndex}'
+        $workspace = "${{ parameters.workspace }}${jobIndex}"
         $strategyHash[$job].resourceGroup = '$(TF_VAR_resource_prefix)-${workspace}-$(Build.BuildId)'
         $strategyHash[$job].TF_WORKSPACE = $workspace
       }
@@ -223,7 +223,7 @@ jobs:
 
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
-    maxParallel: 2
+    maxParallel: 3
 
   workspace:
     clean: all
