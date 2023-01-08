@@ -330,6 +330,7 @@ jobs:
           workingDirectory: '$(terraformDirectory)'
 
     - pwsh: |
+        Write-Host "Last exit code 0: $LASTEXITCODE"
         if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
           Write-Host "Last exit code 1: $LASTEXITCODE"
           $env:TF_VAR_RESOURCE_SUFFIX = $null
