@@ -267,10 +267,8 @@ jobs:
         backendAzureRmContainerName: '$(TF_STATE_CONTAINER_NAME)'
         backendAzureRmKey: 'terraform.tfstate'
         allowTelemetryCollection: true
-
-    - publish: $(terraformDirectory)
-      displayName: 'Publish Terraform workspace'
-      artifact: $(terraformArtifactPrefix)$(System.PlanId)
+      env:
+        TF_WORKSPACE: '' # Workspace may not exist yet
 
     - task: AzureCLI@2
       name: clear
@@ -356,6 +354,10 @@ jobs:
       name: terraformVariables
       displayName: 'Prepare Terraform variables'
       workingDirectory: '$(terraformDirectory)'
+
+    - publish: $(terraformDirectory)
+      displayName: 'Publish Terraform directory'
+      artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
     - task: AzureCLI@2
       displayName: 'Terraform plan & apply'
