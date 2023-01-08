@@ -136,7 +136,6 @@ jobs:
       if ($${{ not(or(eq(parameters.unpinTerraform, 'Strategy'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
         $strategyHash.Add("primary",
           @{
-            continueOnApplyError = 'false'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
@@ -146,7 +145,6 @@ jobs:
       } else {
         $strategyHash.Add("primary",
           @{
-            continueOnApplyError = 'false'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
@@ -155,7 +153,6 @@ jobs:
         )
         $strategyHash.Add("alternate",
           @{
-            continueOnApplyError = 'false'
             substituteAlternateVariables = $true
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
@@ -164,7 +161,6 @@ jobs:
         )
         $strategyHash.Add("gw-fw",
           @{
-            continueOnApplyError = 'false'
             substituteAlternateVariables = $true
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_network = 'true'
@@ -176,7 +172,6 @@ jobs:
         )
         $strategyHash.Add("gw-nat",
           @{
-            continueOnApplyError = 'false'
             substituteAlternateVariables = $true
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_network = 'true'
@@ -403,7 +398,6 @@ jobs:
     - task: AzureCLI@2
       displayName: 'Terraform plan & apply'
       name: apply
-      continueOnError: $[ coalesce(variables['continueOnApplyError'],'false') ]
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         azureSubscription: '$(subscriptionConnection)'
@@ -420,7 +414,6 @@ jobs:
     - ${{ if parameters.testReentrance }}:
       - task: AzureCLI@2
         displayName: 'Terraform plan & apply (re-entrance test)'
-        continueOnError: $[ coalesce(variables['continueOnApplyError'],'false') ]
         retryCountOnTaskFailure: ${{ parameters.retryCount }}
         inputs:
           azureSubscription: '$(subscriptionConnection)'
