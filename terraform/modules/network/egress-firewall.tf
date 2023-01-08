@@ -172,6 +172,14 @@ resource azurerm_firewall_policy_rule_collection_group agents {
     }
   }
 
+  depends_on                   = [
+    # https://github.com/hashicorp/terraform-provider-azurerm/issues/19843
+    azurerm_ip_group.agents,
+    azurerm_ip_group.azdo,
+    azurerm_ip_group.microsoft_365,
+    azurerm_ip_group.vnet
+  ]
+
   count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 

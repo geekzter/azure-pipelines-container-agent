@@ -23,6 +23,30 @@ parameters:
   displayName: Clear Terraform state
   type: boolean
   default: false
+- name: unpinTerraform
+  displayName: Unpin Terraform version
+  type: boolean
+  default: false
+- name: deployNetwork
+  displayName: Deploy network
+  type: boolean
+  default: true
+- name: gatewayType
+  displayName: Gateway type
+  type: string
+  default: None
+  values:
+  - None
+  - Firewall 
+  - NATGateway
+- name: deployBastion
+  displayName: Deploy bastion host
+  type: boolean
+  default: false
+- name: retryCount
+  displayName: Task retry count
+  type: number
+  default: 1
 - name: destroy
   displayName: Destroy Infrastructure
   type: string
@@ -32,18 +56,6 @@ parameters:
   - Never 
   - 'On failure'
   - 'On success'
-- name: retryCount
-  displayName: Task retry count
-  type: number
-  default: 1
-- name: unpinTerraform
-  displayName: Unpin Terraform version
-  type: boolean
-  default: false
-- name: unpinTerraformProviders
-  displayName: Unpin Terraform provider versions
-  type: boolean
-  default: false
 
 name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId)
 
@@ -110,8 +122,14 @@ variables:
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_container_repository'
   value: 'pipelineagent/ubuntu'
+- name: 'TF_VAR_deploy_bastion'
+  value: '${{ parameters.deployBastion}}'
+- name: 'TF_VAR_deploy_network'
+  value: '${{ parameters.deployNetwork }}'
 - name: 'TF_VAR_devops_url'
   value: '$(System.CollectionUri)'
+- name: 'TF_VAR_gateway_type'
+  value: '${{ parameters.gatewayType }}'
 - name: 'TF_VAR_environment_variables'
   value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapability)"}'
 - name: 'TF_VAR_pipeline_agent_pool_id'
@@ -195,7 +213,7 @@ jobs:
     inputs:
       terraformVersion: '$(terraformConfig.version)'
 
-  - ${{ if parameters.unpinTerraformProviders }}:
+  - ${{ if parameters.unpinTerraform }}:
     # Unpin version e.g. "= 2.56" -> "~> 2.56"
     - pwsh: |
         (Get-Content ./terraform.tf) -replace " = `" *= +",' = "~> ' | Out-File terraform.tf
