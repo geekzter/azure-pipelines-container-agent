@@ -69,13 +69,13 @@ resource azurerm_nat_gateway_public_ip_association egress {
   count                        = var.deploy_firewall ? 0 : 1
 }
 
-resource azurerm_subnet_nat_gateway_association container_apps_environment {
-  subnet_id                    = azurerm_subnet.container_apps_environment.id
-  nat_gateway_id               = azurerm_nat_gateway.egress.0.id
+# resource azurerm_subnet_nat_gateway_association container_apps_environment {
+#   subnet_id                    = azurerm_subnet.container_apps_environment.id
+#   nat_gateway_id               = azurerm_nat_gateway.egress.0.id
 
-  depends_on                   = [
-    azurerm_nat_gateway_public_ip_association.egress,
-  ]
+#   depends_on                   = [
+#     azurerm_nat_gateway_public_ip_association.egress,
+#   ]
 
-  count                        = var.deploy_firewall ? 0 : 1
-}
+#   count                        = var.deploy_firewall ? 0 : 1
+# }
