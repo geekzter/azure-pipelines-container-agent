@@ -161,7 +161,7 @@ jobs:
         )
         $strategyHash.Add("gw-fw",
           @{
-            substituteAlternateVariables = $true
+            substituteAlternateVariables = $false
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_network = 'true'
             TF_VAR_gateway_type = 'Firewall'
@@ -172,7 +172,7 @@ jobs:
         )
         $strategyHash.Add("gw-nat",
           @{
-            substituteAlternateVariables = $true
+            substituteAlternateVariables = $false
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_network = 'true'
             TF_VAR_gateway_type = 'NATGateway'
