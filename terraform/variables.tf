@@ -153,6 +153,11 @@ variable resource_suffix {
   default                      = "" # Empty string triggers a random suffix
 }
 
+variable repository {
+  description                  = "The value for the 'repository' resource tag"
+  default                      = "azure-pipelines-container-agent"
+}
+
 variable run_id {
   description                  = "The ID that identifies the pipeline / workflow that invoked Terraform"
   default                      = ""

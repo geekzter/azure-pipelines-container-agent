@@ -6,13 +6,15 @@ parameters:
   default: ci
   values:
   - ci
-  - ci1
-  - ci2
-  - ci3
   - cd
   - cd1
   - cd2
   - cd3
+  - cd3
+  - test
+  - test1
+  - test2
+  - test3
 - name: buildImage
   displayName: Build agent image
   type: boolean
@@ -92,8 +94,6 @@ variables:
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
 - name: 'pool'
   value: 'Azure Pipelines'
-- name: 'repository'
-  value: 'azure-pipelines-container-agent'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 - name: 'tags'
@@ -118,6 +118,8 @@ variables:
   value: 1
 - name: 'TF_VAR_pipeline_agent_pool_name'
   value: 'Default'
+- name: 'TF_VAR_repository'
+  value: 'azure-pipelines-container-agent'
 - name: 'TF_VAR_resource_suffix'
   value: '$(Build.BuildId)'
 - name: 'TF_VAR_run_id'
@@ -392,7 +394,7 @@ jobs:
         inlineScript: |
           $ErrorActionPreference = "Continue" # Continue to remove resources if remove by resource group fails
           # Build JMESPath expression
-          $tagQuery = "[?tags.repository == '$(repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.runid == '$(Build.BuildId)' && properties.provisioningState != 'Deleting'].id"
+          $tagQuery = "[?tags.repository == '$(TF_VAR_repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.runid == '$(Build.BuildId)' && properties.provisioningState != 'Deleting'].id"
           Write-Host "Removing resources identified by `"$tagQuery`"..."
 
           # Remove resource groups
