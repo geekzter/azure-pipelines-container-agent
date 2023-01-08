@@ -346,57 +346,117 @@ jobs:
           failOnStandardError: true
           workingDirectory: '$(terraformDirectory)'
 
-    - pwsh: |
-        Write-Host "Terraform workspace: $(terraform workspace show)"
-        terraform output
-
-        Write-Host "Last exit code 0: $LASTEXITCODE"
-        if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
-          Write-Host "Last exit code 1: $LASTEXITCODE"
-          $env:TF_VAR_RESOURCE_SUFFIX = $null
-          $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
-          Write-Host "Last exit code 2: $LASTEXITCODE"
-        }
-        Write-Host "Last exit code 3: $LASTEXITCODE"
-
-        # Parse alternate strategy variables
-        if ($$(substituteAlternateVariables)) {
-          foreach ($alternateVar in $(Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_TF_VAR_*)) {
-            $primaryTerraformVariableName = $alternateVar.Name.Substring(17).ToLowerInvariant()
-            $primaryVariableName = "TF_VAR_${primaryTerraformVariableName}"
-            $variableValue = $alternateVar.Value
-
-            # Replace primary value with alternate
-            Get-ChildItem -path env: -Recurse -Include $primaryVariableName | Remove-Item
-            Set-Item env:${primaryVariableName} -Value $variableValue
-          } 
-        }
-        Write-Host "Last exit code 4: $LASTEXITCODE"
-
-        # List environment variables
-        Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
-        Write-Host "Last exit code 5: $LASTEXITCODE"
-
-        # Convert uppercased Terraform environment variables to .auto.tfvars file
-        foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
-          $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
-          $terraformVariableValue = $tfVar.Value
-
-          if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
-            # Boolean or List, write as-is
-            Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
-          } else {
-            Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
-          }
-        } 
-        Write-Host "Last exit code 6: $LASTEXITCODE"
-        Write-Host "Contents of ci.auto.tfvars:"
-        Get-Content ci.auto.tfvars | Sort-Object
-        Write-Host "Last exit code 7: $LASTEXITCODE"
-      name: terraformVariables
+    - task: AzureCLI@2
       displayName: 'Prepare Terraform variables'
-      errorActionPreference: stop
-      workingDirectory: '$(terraformDirectory)'
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+
+          Write-Host "Terraform workspace: $(terraform workspace show)"
+          terraform output
+
+          Write-Host "Last exit code 0: $LASTEXITCODE"
+          if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
+            Write-Host "Last exit code 1: $LASTEXITCODE"
+            $env:TF_VAR_RESOURCE_SUFFIX = $null
+            $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
+            Write-Host "Last exit code 2: $LASTEXITCODE"
+          }
+          Write-Host "Last exit code 3: $LASTEXITCODE"
+
+          # Parse alternate strategy variables
+          if ($$(substituteAlternateVariables)) {
+            foreach ($alternateVar in $(Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_TF_VAR_*)) {
+              $primaryTerraformVariableName = $alternateVar.Name.Substring(17).ToLowerInvariant()
+              $primaryVariableName = "TF_VAR_${primaryTerraformVariableName}"
+              $variableValue = $alternateVar.Value
+
+              # Replace primary value with alternate
+              Get-ChildItem -path env: -Recurse -Include $primaryVariableName | Remove-Item
+              Set-Item env:${primaryVariableName} -Value $variableValue
+            } 
+          }
+          Write-Host "Last exit code 4: $LASTEXITCODE"
+
+          # List environment variables
+          Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+          Write-Host "Last exit code 5: $LASTEXITCODE"
+
+          # Convert uppercased Terraform environment variables to .auto.tfvars file
+          foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
+            $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
+            $terraformVariableValue = $tfVar.Value
+
+            if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
+              # Boolean or List, write as-is
+              Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
+            } else {
+              Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
+            }
+          } 
+          Write-Host "Last exit code 6: $LASTEXITCODE"
+          Write-Host "Contents of ci.auto.tfvars:"
+          Get-Content ci.auto.tfvars | Sort-Object
+          Write-Host "Last exit code 7: $LASTEXITCODE"
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(terraformDirectory)'
+
+    # - pwsh: |
+    #     Write-Host "Terraform workspace: $(terraform workspace show)"
+    #     terraform output
+
+    #     Write-Host "Last exit code 0: $LASTEXITCODE"
+    #     if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
+    #       Write-Host "Last exit code 1: $LASTEXITCODE"
+    #       $env:TF_VAR_RESOURCE_SUFFIX = $null
+    #       $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
+    #       Write-Host "Last exit code 2: $LASTEXITCODE"
+    #     }
+    #     Write-Host "Last exit code 3: $LASTEXITCODE"
+
+    #     # Parse alternate strategy variables
+    #     if ($$(substituteAlternateVariables)) {
+    #       foreach ($alternateVar in $(Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_TF_VAR_*)) {
+    #         $primaryTerraformVariableName = $alternateVar.Name.Substring(17).ToLowerInvariant()
+    #         $primaryVariableName = "TF_VAR_${primaryTerraformVariableName}"
+    #         $variableValue = $alternateVar.Value
+
+    #         # Replace primary value with alternate
+    #         Get-ChildItem -path env: -Recurse -Include $primaryVariableName | Remove-Item
+    #         Set-Item env:${primaryVariableName} -Value $variableValue
+    #       } 
+    #     }
+    #     Write-Host "Last exit code 4: $LASTEXITCODE"
+
+    #     # List environment variables
+    #     Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+    #     Write-Host "Last exit code 5: $LASTEXITCODE"
+
+    #     # Convert uppercased Terraform environment variables to .auto.tfvars file
+    #     foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
+    #       $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
+    #       $terraformVariableValue = $tfVar.Value
+
+    #       if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
+    #         # Boolean or List, write as-is
+    #         Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
+    #       } else {
+    #         Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
+    #       }
+    #     } 
+    #     Write-Host "Last exit code 6: $LASTEXITCODE"
+    #     Write-Host "Contents of ci.auto.tfvars:"
+    #     Get-Content ci.auto.tfvars | Sort-Object
+    #     Write-Host "Last exit code 7: $LASTEXITCODE"
+    #   name: terraformVariables
+    #   displayName: 'Prepare Terraform variables'
+    #   errorActionPreference: stop
+    #   workingDirectory: '$(terraformDirectory)'
 
     - publish: $(terraformDirectory)
       displayName: 'Publish Terraform directory'
