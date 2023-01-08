@@ -4,7 +4,7 @@ resource azurerm_subnet gateway {
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
   address_prefixes             = [cidrsubnet(azurerm_virtual_network.pipeline_network.address_space[0],4,0)]
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_subnet firewall_management {
@@ -13,7 +13,7 @@ resource azurerm_subnet firewall_management {
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
   address_prefixes             = [cidrsubnet(azurerm_virtual_network.pipeline_network.address_space[0],4,1)]
 
-  count                        = var.deploy_firewall && var.firewall_sku_tier == "Basic" ? 1 : 0
+  count                        = var.gateway_type == "Firewall" && var.firewall_sku_tier == "Basic" ? 1 : 0
 }
 
 
@@ -26,7 +26,7 @@ resource azurerm_ip_group agents {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_ip_group vnet {
@@ -38,7 +38,7 @@ resource azurerm_ip_group vnet {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_ip_group azdo {
@@ -56,7 +56,7 @@ resource azurerm_ip_group azdo {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_ip_group microsoft_365 {
@@ -79,7 +79,7 @@ resource azurerm_ip_group microsoft_365 {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_public_ip gateway {
@@ -91,7 +91,7 @@ resource azurerm_public_ip gateway {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_public_ip firewall_management {
@@ -103,7 +103,7 @@ resource azurerm_public_ip firewall_management {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall && var.firewall_sku_tier == "Basic" ? 1 : 0
+  count                        = var.gateway_type == "Firewall" && var.firewall_sku_tier == "Basic" ? 1 : 0
 }
 
 resource azurerm_firewall gateway {
@@ -133,14 +133,14 @@ resource azurerm_firewall gateway {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_virtual_network_dns_servers dns_proxy {
   virtual_network_id           = azurerm_virtual_network.pipeline_network.id
   dns_servers                  = [azurerm_firewall.gateway.0.ip_configuration.0.private_ip_address]
 
-  count                        = var.deploy_firewall && (var.firewall_sku_tier == "Standard" || var.firewall_sku_tier == "Premium") ? 1 : 0
+  count                        = var.gateway_type == "Firewall" && (var.firewall_sku_tier == "Standard" || var.firewall_sku_tier == "Premium") ? 1 : 0
 }
 
 resource azurerm_firewall_policy gateway {
@@ -151,7 +151,7 @@ resource azurerm_firewall_policy gateway {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_firewall_policy_rule_collection_group agents {
@@ -172,7 +172,7 @@ resource azurerm_firewall_policy_rule_collection_group agents {
     }
   }
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_monitor_diagnostic_setting firewall_ip_logs {
@@ -216,7 +216,7 @@ resource azurerm_monitor_diagnostic_setting firewall_ip_logs {
     }
   }
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_monitor_diagnostic_setting firewall_logs {
@@ -260,7 +260,7 @@ resource azurerm_monitor_diagnostic_setting firewall_logs {
     }
   }
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_route_table gateway {
@@ -281,14 +281,14 @@ resource azurerm_route_table gateway {
   }
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_subnet_route_table_association container_apps_environment {
   subnet_id                    = azurerm_subnet.container_apps_environment.id
   route_table_id               = azurerm_route_table.gateway.0.id
 
-  count                        = var.deploy_firewall ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
   depends_on                   = [
     azurerm_firewall_policy_rule_collection_group.agents,
     azurerm_monitor_diagnostic_setting.firewall_logs,

@@ -15,9 +15,9 @@ module network {
   address_space                = var.address_space
   bastion_tags                 = var.bastion_tags
   deploy_bastion               = var.deploy_bastion
-  deploy_firewall              = var.deploy_firewall
   diagnostics_storage_id       = module.diagnostics_storage.diagnostics_storage_id
   firewall_sku_tier            = var.firewall_sku_tier
+  gateway_type                 = var.gateway_type
   location                     = var.location
   log_analytics_workspace_resource_id   = local.log_analytics_workspace_resource_id
   resource_group_name          = azurerm_resource_group.rg.name
@@ -75,4 +75,6 @@ module container_agents {
     module.container_registry,
     module.network
   ]
+
+  count                        = var.deploy_container_apps ? 1 : 0
 }

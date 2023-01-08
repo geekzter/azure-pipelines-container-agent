@@ -50,15 +50,15 @@ variable deploy_bastion {
   type                         = bool
 }
 
-variable deploy_firewall {
-  description                  = "Deploys NAT Gateway if set to false"
+variable deploy_container_app {
+  description                  = "Deploys Container App"
   default                      = true
   type                         = bool
 }
 
 variable deploy_network {
   description                  = "Deploys Virtual Network"
-  default                      = false
+  default                      = true
   type                         = bool
 }
 
@@ -76,6 +76,15 @@ variable environment_variables {
 
 variable firewall_sku_tier {
   default                      = "Basic"
+}
+
+variable gateway_type {
+  type                         = string
+  default                      = "None"
+  validation {
+    condition                  = var.gateway_type == "Firewall" || var.gateway_type == "NATGateway" || var.gateway_type == "None"
+    error_message              = "The gateway_type must be 'Firewall', 'NATGateway' or 'None'"
+  }
 }
 
 variable github_repo_access_token {

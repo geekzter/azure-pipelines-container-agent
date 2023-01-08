@@ -6,7 +6,7 @@ resource azurerm_nat_gateway egress {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 0 : 1
+  count                        = var.gateway_type == "NATGateway" ? 1 : 0
 }
 
 resource azurerm_public_ip nat_egress {
@@ -18,7 +18,7 @@ resource azurerm_public_ip nat_egress {
 
   tags                         = var.tags
 
-  count                        = var.deploy_firewall ? 0 : 1
+  count                        = var.gateway_type == "NATGateway" ? 1 : 0
 }
 
 resource azurerm_monitor_diagnostic_setting nat_egress {
@@ -59,14 +59,14 @@ resource azurerm_monitor_diagnostic_setting nat_egress {
     }
   }
 
-  count                        = var.deploy_firewall ? 0 : 1
+  count                        = var.gateway_type == "NATGateway" ? 1 : 0
 } 
 
 resource azurerm_nat_gateway_public_ip_association egress {
   nat_gateway_id               = azurerm_nat_gateway.egress.0.id
   public_ip_address_id         = azurerm_public_ip.nat_egress.0.id
 
-  count                        = var.deploy_firewall ? 0 : 1
+  count                        = var.gateway_type == "NATGateway" ? 1 : 0
 }
 
 # resource azurerm_subnet_nat_gateway_association container_apps_environment {
@@ -77,5 +77,5 @@ resource azurerm_nat_gateway_public_ip_association egress {
 #     azurerm_nat_gateway_public_ip_association.egress,
 #   ]
 
-#   count                        = var.deploy_firewall ? 0 : 1
+#   count                        = var.gateway_type == "NATGateway" ? 1 : 0
 # }

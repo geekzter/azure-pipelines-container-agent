@@ -3,11 +3,11 @@ output container_apps_environment_subnet_id {
 }
 
 output gateway_id {
-  value                        = var.deploy_firewall ? azurerm_public_ip.gateway.0.id : azurerm_public_ip.nat_egress.0.id
+  value                        = var.gateway_type == "Firewall" ? azurerm_public_ip.gateway.0.id : (var.gateway_type == "NATGateway" ? azurerm_public_ip.nat_egress.0.id : null)
 }
 
 output outbound_ip_address {
-  value                        = var.deploy_firewall ? azurerm_public_ip.gateway.0.ip_address : azurerm_public_ip.nat_egress.0.ip_address
+  value                        = var.gateway_type == "Firewall" ? azurerm_public_ip.gateway.0.ip_address : (var.gateway_type == "NATGateway" ? azurerm_public_ip.nat_egress.0.ip_address : null)
 }
 
 output virtual_network_id {
