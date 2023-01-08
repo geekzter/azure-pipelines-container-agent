@@ -136,7 +136,6 @@ jobs:
       if ($${{ not(or(eq(parameters.unpinTerraform, 'Strategy'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
         $strategyHash.Add("primary",
           @{
-            terraformArtifactPrefix = 'terraformPrimary'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
@@ -146,7 +145,6 @@ jobs:
       } else {
         $strategyHash.Add("primary",
           @{
-            terraformArtifactPrefix = 'terraformPrimary'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
@@ -155,18 +153,14 @@ jobs:
         )
         $strategyHash.Add("alternate",
           @{
-            resourceGroup = '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}b-$(Build.BuildId)'
-            terraformArtifactPrefix = 'terraformAlternate'
             substituteAlternateVariables = $true
             TF_VAR_resource_suffix = '$(Build.BuildId)'
-            TF_WORKSPACE = '${{ parameters.workspace }}b'
             unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
         $strategyHash.Add("gw-fw",
           @{
-            terraformArtifactPrefix = 'terraformAlternate'
             substituteAlternateVariables = $true
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_network = 'true'
@@ -178,7 +172,6 @@ jobs:
         )
         $strategyHash.Add("gw-nat",
           @{
-            terraformArtifactPrefix = 'terraformAlternate'
             substituteAlternateVariables = $true
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_network = 'true'
@@ -195,6 +188,7 @@ jobs:
         $jobIndex++
         $workspace = "${{ parameters.workspace }}${jobIndex}"
         $strategyHash[$job].resourceGroup = "$(TF_VAR_resource_prefix)-${workspace}-$(Build.BuildId)"
+        $strategyHash[$job].terraformArtifactPrefix = "terraform${jobIndex}"
         $strategyHash[$job].TF_WORKSPACE = $workspace
       }
 
@@ -288,7 +282,7 @@ jobs:
         inlineScript: |
           $(scriptDirectory)/set_terraform_azurerm_vars.ps1
           Invoke-Command -ScriptBlock {
-            $Private:ErrorActionPreference = "Continue"
+            $Private:ErrorActionPreference = "SilentlyContinue"
             terraform workspace new $env:TF_WORKSPACE 2>$null
           }
         addSpnToEnvironment: true
