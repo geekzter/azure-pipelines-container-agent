@@ -245,7 +245,7 @@ jobs:
     workingDirectory: '$(terraformDirectory)'
 
   - publish: $(terraformDirectory)
-    displayName: 'Publish Terraform workspace'
+    displayName: 'Publish Terraform directory'
     artifact: $(terraformArtifactName)
 
   - ${{ if eq(parameters.clear, true) }}:

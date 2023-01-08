@@ -13,13 +13,13 @@ output agent_identity_principal_id {
 }
 
 output container_app_id {
-  value                        = var.deploy_container_apps ? module.container_agents.0.container_app_id : null
+  value                        = var.deploy_container_app ? module.container_agents.0.container_app_id : null
 }
 output container_app_name {
-  value                        = var.deploy_container_apps ? module.container_agents.0.container_app_name : null
+  value                        = var.deploy_container_app ? module.container_agents.0.container_app_name : null
 }
 output container_environment_id {
-  value                        = var.deploy_container_apps ? module.container_agents.0.container_environment_id : null
+  value                        = var.deploy_container_app ? module.container_agents.0.container_environment_id : null
 }
 
 output diagnostics_storage_account_name {
