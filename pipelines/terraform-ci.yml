@@ -136,6 +136,7 @@ jobs:
       if ($${{ not(or(eq(parameters.unpinTerraform, 'Strategy'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
         $strategyHash.Add("primary",
           @{
+            continueOnApplyError = 'false'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
@@ -145,6 +146,7 @@ jobs:
       } else {
         $strategyHash.Add("primary",
           @{
+            continueOnApplyError = 'false'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
@@ -153,6 +155,7 @@ jobs:
         )
         $strategyHash.Add("alternate",
           @{
+            continueOnApplyError = 'false'
             substituteAlternateVariables = $true
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
@@ -161,6 +164,7 @@ jobs:
         )
         $strategyHash.Add("gw-fw",
           @{
+            continueOnApplyError = 'false'
             substituteAlternateVariables = $true
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_network = 'true'
@@ -172,6 +176,7 @@ jobs:
         )
         $strategyHash.Add("gw-nat",
           @{
+            continueOnApplyError = 'false'
             substituteAlternateVariables = $true
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_network = 'true'
@@ -254,21 +259,6 @@ jobs:
         displayName: 'Unpin Terraform provider versions'
         condition: and(succeeded(), eq(variables['unpinTerraformProviders'],'true'))
         workingDirectory: '$(terraformDirectory)'
-
-    # - task: TerraformCLI@0
-    #   displayName: 'Terraform init'
-    #   inputs:
-    #     command: 'init'
-    #     workingDirectory: '$(terraformDirectory)'
-    #     backendType: 'azurerm'
-    #     backendServiceArm: '$(subscriptionConnection)'
-    #     backendAzureRmResourceGroupName: '$(TF_STATE_RESOURCE_GROUP_NAME)'
-    #     backendAzureRmStorageAccountName: '$(TF_STATE_STORAGE_ACCOUNT_NAME)'
-    #     backendAzureRmContainerName: '$(TF_STATE_CONTAINER_NAME)'
-    #     backendAzureRmKey: 'terraform.tfstate'
-    #     allowTelemetryCollection: true
-    #   env:
-    #     TF_WORKSPACE: 'default' # Workspace may not exist yet
 
     - task: AzureCLI@2
       displayName: 'Terraform init'
@@ -406,58 +396,6 @@ jobs:
         failOnStandardError: true
         workingDirectory: '$(terraformDirectory)'
 
-    # - pwsh: |
-    #     Write-Host "Terraform workspace: $(terraform workspace show)"
-    #     terraform output
-
-    #     Write-Host "Last exit code 0: $LASTEXITCODE"
-    #     if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
-    #       Write-Host "Last exit code 1: $LASTEXITCODE"
-    #       $env:TF_VAR_RESOURCE_SUFFIX = $null
-    #       $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
-    #       Write-Host "Last exit code 2: $LASTEXITCODE"
-    #     }
-    #     Write-Host "Last exit code 3: $LASTEXITCODE"
-
-    #     # Parse alternate strategy variables
-    #     if ($$(substituteAlternateVariables)) {
-    #       foreach ($alternateVar in $(Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_TF_VAR_*)) {
-    #         $primaryTerraformVariableName = $alternateVar.Name.Substring(17).ToLowerInvariant()
-    #         $primaryVariableName = "TF_VAR_${primaryTerraformVariableName}"
-    #         $variableValue = $alternateVar.Value
-
-    #         # Replace primary value with alternate
-    #         Get-ChildItem -path env: -Recurse -Include $primaryVariableName | Remove-Item
-    #         Set-Item env:${primaryVariableName} -Value $variableValue
-    #       } 
-    #     }
-    #     Write-Host "Last exit code 4: $LASTEXITCODE"
-
-    #     # List environment variables
-    #     Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
-    #     Write-Host "Last exit code 5: $LASTEXITCODE"
-
-    #     # Convert uppercased Terraform environment variables to .auto.tfvars file
-    #     foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
-    #       $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
-    #       $terraformVariableValue = $tfVar.Value
-
-    #       if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
-    #         # Boolean or List, write as-is
-    #         Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
-    #       } else {
-    #         Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
-    #       }
-    #     } 
-    #     Write-Host "Last exit code 6: $LASTEXITCODE"
-    #     Write-Host "Contents of ci.auto.tfvars:"
-    #     Get-Content ci.auto.tfvars | Sort-Object
-    #     Write-Host "Last exit code 7: $LASTEXITCODE"
-    #   name: terraformVariables
-    #   displayName: 'Prepare Terraform variables'
-    #   errorActionPreference: stop
-    #   workingDirectory: '$(terraformDirectory)'
-
     - publish: $(terraformDirectory)
       displayName: 'Publish Terraform directory'
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
@@ -465,6 +403,7 @@ jobs:
     - task: AzureCLI@2
       displayName: 'Terraform plan & apply'
       name: apply
+      continueOnError: $(continueOnApplyError)
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         azureSubscription: '$(subscriptionConnection)'
@@ -481,6 +420,7 @@ jobs:
     - ${{ if parameters.testReentrance }}:
       - task: AzureCLI@2
         displayName: 'Terraform plan & apply (re-entrance test)'
+        continueOnError: $(continueOnApplyError)
         retryCountOnTaskFailure: ${{ parameters.retryCount }}
         inputs:
           azureSubscription: '$(subscriptionConnection)'
