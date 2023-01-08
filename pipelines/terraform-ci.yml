@@ -291,11 +291,15 @@ jobs:
             Write-Host "Terraform workspace '$(TF_WORKSPACE)' already exists"
           } else {
             Write-Host "Creating Terraform workspace '$(TF_WORKSPACE)'..."
-            terraform workspace new $(TF_WORKSPACE) 2>$null
+            terraform workspace new $(TF_WORKSPACE) 2>&1 | Write-Host
           }
+          if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
+            Write-Host "Terraform workspace '$(TF_WORKSPACE)' exists"
+            exit 0
+          } 
         addSpnToEnvironment: true
         useGlobalConfig: true
-        failOnStandardError: true
+        failOnStandardError: false
         workingDirectory: '$(terraformDirectory)'
 
     - ${{ if eq(parameters.clear, true) }}:
@@ -363,6 +367,7 @@ jobs:
         Get-Content ci.auto.tfvars | Sort-Object
       name: terraformVariables
       displayName: 'Prepare Terraform variables'
+      # errorActionPreference: stop
       workingDirectory: '$(terraformDirectory)'
 
     - publish: $(terraformDirectory)
@@ -395,7 +400,6 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: |
             ./set_terraform_azurerm_vars.ps1
-
             ./deploy.ps1 -apply -force
           addSpnToEnvironment: true
           useGlobalConfig: true
