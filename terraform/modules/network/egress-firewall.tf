@@ -133,6 +133,9 @@ resource azurerm_firewall gateway {
 
   tags                         = var.tags
 
+  depends_on                   = [
+    azurerm_firewall_policy_rule_collection_group.agents
+  ]
   count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
