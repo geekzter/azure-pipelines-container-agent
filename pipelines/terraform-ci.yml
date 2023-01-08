@@ -136,11 +136,9 @@ jobs:
       if ($${{ not(or(eq(parameters.unpinTerraform, 'Strategy'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
         $strategyHash.Add("primary",
           @{
-            resourceGroup = '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}-$(Build.BuildId)'
             terraformArtifactPrefix = 'terraformPrimary'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
-            TF_WORKSPACE = '${{ parameters.workspace }}'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
@@ -148,11 +146,9 @@ jobs:
       } else {
         $strategyHash.Add("primary",
           @{
-            resourceGroup = '$(TF_VAR_resource_prefix)-${{ parameters.workspace }}a-$(Build.BuildId)'
             terraformArtifactPrefix = 'terraformPrimary'
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
-            TF_WORKSPACE = '${{ parameters.workspace }}a'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
@@ -168,7 +164,40 @@ jobs:
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
+        $strategyHash.Add("gw-fw",
+          @{
+            terraformArtifactPrefix = 'terraformAlternate'
+            substituteAlternateVariables = $true
+            TF_VAR_deploy_container_app = 'false'
+            TF_VAR_deploy_network = 'true'
+            TF_VAR_gateway_type = 'Firewall'
+            TF_VAR_resource_suffix = '$(Build.BuildId)'
+            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+          }
+        )
+        $strategyHash.Add("gw-nat",
+          @{
+            terraformArtifactPrefix = 'terraformAlternate'
+            substituteAlternateVariables = $true
+            TF_VAR_deploy_container_app = 'false'
+            TF_VAR_deploy_network = 'true'
+            TF_VAR_gateway_type = 'NATGateway'
+            TF_VAR_resource_suffix = '$(Build.BuildId)'
+            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+          }
+        )
       }
+
+      [int]$jobIndex = 0
+      foreach ($job in $strategyHash.Keys) {
+        $jobIndex++
+        $workspace = '${{ parameters.workspace }}${jobIndex}'
+        $strategyHash[$job].resourceGroup = '$(TF_VAR_resource_prefix)-${workspace}-$(Build.BuildId)'
+        $strategyHash[$job].TF_WORKSPACE = $workspace
+      }
+
       $strategyHash | ConvertTo-Json
       $strategyHash | ConvertTo-Json -Compress | Set-Variable strategyJson
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]${strategyJson}"
@@ -248,6 +277,24 @@ jobs:
     - publish: $(terraformDirectory)
       displayName: 'Publish Terraform workspace'
       artifact: $(terraformArtifactPrefix)$(System.PlanId)
+
+    - task: AzureCLI@2
+      name: clear
+      displayName: 'Create Terraform workspace'
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+          Invoke-Command -ScriptBlock {
+            $Private:ErrorActionPreference = "Continue"
+            terraform workspace new $env:TF_WORKSPACE 2>$null
+          }
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: false
+        workingDirectory: '$(terraformDirectory)'
 
     - ${{ if eq(parameters.clear, true) }}:
       - task: AzureCLI@2
