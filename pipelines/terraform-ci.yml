@@ -403,7 +403,7 @@ jobs:
     - task: AzureCLI@2
       displayName: 'Terraform plan & apply'
       name: apply
-      continueOnError: $[ eq(variables['continueOnApplyError'],'true') ]
+      continueOnError: $[ coalesce(variables['continueOnApplyError'],'false') ]
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         azureSubscription: '$(subscriptionConnection)'
@@ -420,7 +420,7 @@ jobs:
     - ${{ if parameters.testReentrance }}:
       - task: AzureCLI@2
         displayName: 'Terraform plan & apply (re-entrance test)'
-        continueOnError: $[ eq(variables['continueOnApplyError'],'true') ]
+        continueOnError: $[ coalesce(variables['continueOnApplyError'],'false') ]
         retryCountOnTaskFailure: ${{ parameters.retryCount }}
         inputs:
           azureSubscription: '$(subscriptionConnection)'
