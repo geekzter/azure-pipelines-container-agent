@@ -41,8 +41,8 @@ module container_registry {
   tags                         = local.tags
 }
 
-module container_agents {
-  source                       = "./modules/container-agents"
+module container_app_agents {
+  source                       = "./modules/container-app"
 
   container_registry_id        = module.container_registry.container_registry_id
   container_repository         = var.container_repository
