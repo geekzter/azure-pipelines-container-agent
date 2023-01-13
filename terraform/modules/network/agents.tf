@@ -4,6 +4,16 @@ locals {
   agent_prefixes               = concat(local.container_app_address_prefixes,local.aks_address_prefixes)
 }
 
+resource azurerm_subnet aks_node_pool {
+  name                         = "AksNodePool"
+  virtual_network_name         = azurerm_virtual_network.pipeline_network.name
+  resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
+  address_prefixes             = local.aks_address_prefixes
+  depends_on                   = [
+    azurerm_network_security_rule.inbound_agent_rdp,
+    azurerm_network_security_rule.inbound_agent_ssh,
+  ]
+}
 
 resource azurerm_subnet container_apps_environment {
   name                         = "ContainerAppsEnvironment"
@@ -63,6 +73,11 @@ resource azurerm_network_security_rule inbound_agent_lb {
   destination_address_prefixes = local.agent_prefixes
   resource_group_name          = azurerm_network_security_group.agent_nsg.resource_group_name
   network_security_group_name  = azurerm_network_security_group.agent_nsg.name
+}
+
+resource azurerm_subnet_network_security_group_association aks_node_pool {
+  subnet_id                    = azurerm_subnet.aks_node_pool.id
+  network_security_group_id    = azurerm_network_security_group.agent_nsg.id
 }
 
 resource azurerm_subnet_network_security_group_association container_apps_environment {
