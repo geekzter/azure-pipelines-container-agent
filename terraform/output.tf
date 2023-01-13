@@ -12,6 +12,14 @@ output agent_identity_principal_id {
   value                        = local.agent_identity_principal_id
 }
 
+output aks_id {
+  value                        = var.deploy_aks ? module.aks_agents.0.aks_id : null
+}
+
+output aks_name {
+  value                        = var.deploy_aks ? module.aks_agents.0.aks_name : null
+}
+
 output container_app_id {
   value                        = var.deploy_container_app ? module.container_app_agents.0.container_app_id : null
 }
@@ -37,6 +45,16 @@ output environment_variables {
 output gateway_id {
   value                        = var.deploy_network ? module.network.0.gateway_id : null
 }
+
+output kube_config {
+  sensitive                    = true
+  value                        = var.deploy_aks ? module.aks_agents.0.kube_config : null
+}
+
+output kubernetes_api_server_ip_address {
+  value                        = var.deploy_aks ? module.aks_agents.0.kubernetes_api_server_ip_address : null
+}
+
 
 output log_analytics_workspace_resource_id {
   value                        = local.log_analytics_workspace_resource_id

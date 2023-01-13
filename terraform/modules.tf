@@ -97,6 +97,7 @@ module aks_agents {
   node_size                    = var.kubernetes_node_size
   node_subnet_id               = var.deploy_network ? module.network.0.aks_node_pool_subnet_id : null
   private_cluster_enabled      = var.gateway_type == "Firewall" ? true : false
+  rbac_enabled                 = false
   resource_group_id            = azurerm_resource_group.rg.id
   tags                         = azurerm_resource_group.rg.tags
 

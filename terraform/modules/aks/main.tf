@@ -32,7 +32,7 @@ resource azurerm_role_assignment spn_dns_permission {
   role_definition_name         = "Private DNS Zone Contributor"
   principal_id                 = azurerm_user_assigned_identity.aks_identity.principal_id
 
-  count                        = var.configure_access_control ? 1 : 0
+  count                        = var.configure_access_control && var.private_cluster_enabled ? 1 : 0
 }
 
 # Requires Terraform owner access to resource group, in order to be able to perform access management
@@ -50,7 +50,7 @@ resource azurerm_role_assignment terraform_cluster_permission {
   role_definition_name         = "Azure Kubernetes Service Cluster Admin Role"
   principal_id                 = var.client_object_id
 
-  count                        = var.configure_access_control ? 1 : 0
+  count                        = var.configure_access_control && var.rbac_enabled ? 1 : 0
 }
 
 data azurerm_kubernetes_service_versions current {
@@ -70,11 +70,14 @@ resource azurerm_kubernetes_cluster aks {
 
   automatic_channel_upgrade    = "stable"
 
-  azure_active_directory_role_based_access_control {
-    admin_group_object_ids     = [var.client_object_id]
-    azure_rbac_enabled         = true
-    managed                    = true
-  }
+  dynamic azure_active_directory_role_based_access_control {
+    for_each = range(var.rbac_enabled ? 1 : 0) 
+    content {
+      admin_group_object_ids     = [var.client_object_id]
+      azure_rbac_enabled         = true
+      managed                    = true
+    }
+  }  
 
   azure_policy_enabled         = true
 

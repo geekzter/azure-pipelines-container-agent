@@ -17,6 +17,9 @@ variable network_outbound_type {}
 variable private_cluster_enabled {
   type        = bool
 }
+variable rbac_enabled {
+  type        = bool
+}
 variable resource_group_id {}
 variable tags {
   type        = map
