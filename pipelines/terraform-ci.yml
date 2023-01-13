@@ -134,7 +134,7 @@ jobs:
   - pwsh: |
       $strategyHash = @{}
       if ($${{ not(or(eq(parameters.unpinTerraform, 'Strategy'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}) {
-        $strategyHash.Add("primary",
+        $strategyHash.Add("default",
           @{
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
@@ -143,7 +143,7 @@ jobs:
           }
         )
       } else {
-        $strategyHash.Add("primary",
+        $strategyHash.Add("app-default",
           @{
             substituteAlternateVariables = $false
             TF_VAR_resource_suffix = '$(Build.BuildId)'
@@ -151,7 +151,7 @@ jobs:
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
         )
-        $strategyHash.Add("alternate",
+        $strategyHash.Add("app-unpinned",
           @{
             substituteAlternateVariables = $true
             TF_VAR_resource_suffix = '$(Build.BuildId)'
@@ -159,10 +159,11 @@ jobs:
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
-        $strategyHash.Add("gw-fw",
+        $strategyHash.Add("aks-gw-fw",
           @{
             substituteAlternateVariables = $false
             TF_VAR_deploy_container_app = 'false'
+            TF_VAR_deploy_aks = 'true'
             TF_VAR_deploy_network = 'true'
             TF_VAR_gateway_type = 'Firewall'
             TF_VAR_resource_suffix = '$(Build.BuildId)'
@@ -170,10 +171,11 @@ jobs:
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
-        $strategyHash.Add("gw-nat",
+        $strategyHash.Add("aks-gw-nat",
           @{
             substituteAlternateVariables = $false
             TF_VAR_deploy_container_app = 'false'
+            TF_VAR_deploy_aks = 'true'
             TF_VAR_deploy_network = 'true'
             TF_VAR_gateway_type = 'NATGateway'
             TF_VAR_resource_suffix = '$(Build.BuildId)'
