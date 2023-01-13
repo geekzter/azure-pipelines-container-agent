@@ -188,7 +188,6 @@ jobs:
         $jobIndex++
         $workspace = "${{ parameters.workspace }}${jobIndex}"
         $strategyHash[$job].resourceGroup = "$(TF_VAR_resource_prefix)-${workspace}-$(Build.BuildId)"
-        $strategyHash[$job].terraformArtifactPrefix = "terraform${jobIndex}"
         $strategyHash[$job].TF_WORKSPACE = $workspace
       }
 
@@ -390,10 +389,6 @@ jobs:
         useGlobalConfig: true
         failOnStandardError: true
         workingDirectory: '$(terraformDirectory)'
-
-    - publish: $(terraformDirectory)
-      displayName: 'Publish Terraform directory'
-      artifact: $(terraformArtifactPrefix)$(System.PlanId)
 
     - task: AzureCLI@2
       displayName: 'Terraform plan & apply'
