@@ -31,6 +31,8 @@ locals {
     },
     var.environment_variables
   )
+  kube_config_relative_path    = var.kube_config_path != "" ? var.kube_config_path : "../.kube/${local.workspace_moniker}config"
+  kube_config_absolute_path    = var.kube_config_path != "" ? var.kube_config_path : "${path.root}/../.kube/${local.workspace_moniker}config"
   log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
   owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
   suffix                       = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
@@ -49,6 +51,7 @@ locals {
     },
     var.tags
   )  
+  workspace_moniker            = terraform.workspace == "default" ? "" : terraform.workspace
 }
 
 resource azurerm_resource_group rg {

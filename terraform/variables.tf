@@ -44,6 +44,12 @@ variable create_files_share {
   type                         = bool
 }
 
+variable deploy_aks {
+  description                  = "Deploys AKS"
+  default                      = false
+  type                         = bool
+}
+
 variable deploy_bastion {
   description                  = "Deploys managed bastion host"
   default                      = false
@@ -92,6 +98,18 @@ variable github_repo_access_token {
   default                      = null
 }
 
+variable kube_config_path {
+  description                  = "Path to the kube config file (e.g. ~/.kube/config)"
+  default                      = ""
+}
+
+variable kubernetes_version {
+  default                      = ""
+}
+
+variable kubernetes_node_size {
+  default                      = "Standard_B4ms"
+}
 variable location {
   default                      = "centralus"
 }
@@ -171,6 +189,11 @@ variable service_connection_id {
 variable service_connection_project {
   description                  = "The Azure DevOps project where the Service Connection GUID to join the scale set agents resides"
   default                      = ""
+}
+
+variable ssh_public_key_file {
+  type                         = string
+  default                      = "~/.ssh/id_rsa.pub"
 }
 
 variable tags {

@@ -1,3 +1,7 @@
+output aks_node_pool_subnet_id {
+  value                        = azurerm_subnet.aks_node_pool.id
+}
+
 output container_apps_environment_subnet_id {
   value                        = azurerm_subnet.container_apps_environment.id
 }

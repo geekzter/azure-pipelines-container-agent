@@ -78,3 +78,28 @@ module container_app_agents {
 
   count                        = var.deploy_container_app ? 1 : 0
 }
+
+module aks_agents {
+  source                       = "./modules/aks"
+  name                         = "${var.resource_prefix}-${terraform.workspace}-${local.suffix}"
+
+  admin_username               = "aksadmin"
+  client_object_id             = data.azurerm_client_config.default.object_id
+  configure_access_control     = var.configure_access_control
+  dns_prefix                   = var.resource_prefix
+  location                     = var.location
+  kube_config_path             = local.kube_config_absolute_path
+  kubernetes_version           = var.kubernetes_version
+  log_analytics_workspace_id   = local.log_analytics_workspace_resource_id
+  network_outbound_type        = var.deploy_network ? (var.gateway_type == "Firewall" ? "userDefinedRouting" : (var.gateway_type == "NATGateway" ? "userAssignedNATGateway" : null)) : null
+  network_plugin               = var.deploy_network ? "azure" : "kubenet"
+  network_policy               = var.deploy_network ? "azure" : "calico"
+  node_size                    = var.kubernetes_node_size
+  node_subnet_id               = var.deploy_network ? module.network.0.aks_node_pool_subnet_id : null
+  private_cluster_enabled      = var.gateway_type == "Firewall" ? true : false
+  resource_group_id            = azurerm_resource_group.rg.id
+  tags                         = azurerm_resource_group.rg.tags
+
+  count                        = var.deploy_aks ? 1 : 0
+  depends_on                   = [module.network]
+}
