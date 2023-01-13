@@ -55,6 +55,9 @@ output kubernetes_api_server_ip_address {
   value                        = var.deploy_aks ? module.aks_agents.0.kubernetes_api_server_ip_address : null
 }
 
+output kubernetes_version {
+  value                        = var.deploy_aks ? module.aks_agents.0.kubernetes_version : null
+}
 
 output log_analytics_workspace_resource_id {
   value                        = local.log_analytics_workspace_resource_id

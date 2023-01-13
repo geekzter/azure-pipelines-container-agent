@@ -11,17 +11,16 @@ data azurerm_subnet nodes_subnet {
   resource_group_name          = element(split("/",var.node_subnet_id),length(split("/",var.node_subnet_id))-7)
 }
 
-resource azurerm_user_assigned_identity aks_identity {
-  name                         = "${var.name}-identity"
-  location                     = var.location
-  resource_group_name          = local.resource_group_name
+data azurerm_user_assigned_identity aks_identity {
+  name                         = element(split("/",var.user_assigned_identity_id),length(split("/",var.user_assigned_identity_id))-1)
+  resource_group_name          = element(split("/",var.user_assigned_identity_id),length(split("/",var.user_assigned_identity_id))-5)
 }
 
 # AKS needs permission to make changes for kubelet networking mode
 resource azurerm_role_assignment spn_network_permission {
   scope                        = var.resource_group_id
   role_definition_name         = "Network Contributor"
-  principal_id                 = azurerm_user_assigned_identity.aks_identity.principal_id
+  principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
 
   count                        = var.configure_access_control ? 1 : 0
 }
@@ -30,7 +29,7 @@ resource azurerm_role_assignment spn_network_permission {
 resource azurerm_role_assignment spn_dns_permission {
   scope                        = var.resource_group_id
   role_definition_name         = "Private DNS Zone Contributor"
-  principal_id                 = azurerm_user_assigned_identity.aks_identity.principal_id
+  principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
 
   count                        = var.configure_access_control && var.private_cluster_enabled ? 1 : 0
 }
@@ -39,7 +38,7 @@ resource azurerm_role_assignment spn_dns_permission {
 resource azurerm_role_assignment spn_permission {
   scope                        = var.resource_group_id
   role_definition_name         = "Virtual Machine Contributor"
-  principal_id                 = azurerm_user_assigned_identity.aks_identity.principal_id
+  principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
 
   count                        = var.configure_access_control ? 1 : 0
 }
@@ -58,11 +57,20 @@ data azurerm_kubernetes_service_versions current {
   include_preview              = false
 }
 
+# resource azurerm_resource_provider_registration keda {
+#   name                         = "Microsoft.ContainerService"
+
+#   feature {
+#     name                       = "AKS-KedaPreview"
+#     registered                 = true
+#   }
+# }
+
 resource azurerm_kubernetes_cluster aks {
-  name                         = var.name
+  name                         = "${local.resource_group_name}-k8s"
   location                     = var.location
   resource_group_name          = local.resource_group_name
-  node_resource_group          = "${local.resource_group_name}-nodes"
+  node_resource_group          = "${local.resource_group_name}-k8s-nodes"
   dns_prefix                   = var.dns_prefix
 
   # Triggers resource to be recreated
@@ -84,7 +92,7 @@ resource azurerm_kubernetes_cluster aks {
   default_node_pool {
     enable_auto_scaling        = true
     enable_host_encryption     = false # Requires 'Microsoft.Compute/EncryptionAtHost' feature
-    enable_node_public_ip      = false
+    enable_node_public_ip      = var.enable_node_public_ip
     min_count                  = 3
     max_count                  = 10
     name                       = "default"
@@ -95,11 +103,11 @@ resource azurerm_kubernetes_cluster aks {
     vnet_subnet_id             = var.node_subnet_id
   }
 
-  http_application_routing_enabled = true
+  # http_application_routing_enabled = false
 
   identity {
     type                       = "UserAssigned"
-    identity_ids               = [azurerm_user_assigned_identity.aks_identity.id]
+    identity_ids               = [var.user_assigned_identity_id]
   }
 
   # local_account_disabled       = true # Will become default in 1.24
@@ -118,7 +126,11 @@ resource azurerm_kubernetes_cluster aks {
   private_dns_zone_id          = var.private_cluster_enabled ? "System" : null
   #private_cluster_public_fqdn_enabled = true
 
-  role_based_access_control_enabled = true
+  # role_based_access_control_enabled = var.rbac_enabled
+
+  workload_autoscaler_profile {
+    keda_enabled               = true
+  }
 
   lifecycle {
     ignore_changes             = [
@@ -129,6 +141,7 @@ resource azurerm_kubernetes_cluster aks {
   tags                         = var.tags
 
   depends_on                   = [
+    # azurerm_resource_provider_registration.keda,
     azurerm_role_assignment.spn_permission,
     azurerm_role_assignment.spn_dns_permission,
     azurerm_role_assignment.spn_network_permission,

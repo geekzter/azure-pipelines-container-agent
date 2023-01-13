@@ -81,12 +81,12 @@ module container_app_agents {
 
 module aks_agents {
   source                       = "./modules/aks"
-  name                         = "${var.resource_prefix}-${terraform.workspace}-${local.suffix}"
 
   admin_username               = "aksadmin"
   client_object_id             = data.azurerm_client_config.default.object_id
   configure_access_control     = var.configure_access_control
   dns_prefix                   = var.resource_prefix
+  enable_node_public_ip        = !var.deploy_network || var.gateway_type == "None"
   location                     = var.location
   kube_config_path             = local.kube_config_absolute_path
   kubernetes_version           = var.kubernetes_version
@@ -100,6 +100,7 @@ module aks_agents {
   rbac_enabled                 = false
   resource_group_id            = azurerm_resource_group.rg.id
   tags                         = azurerm_resource_group.rg.tags
+  user_assigned_identity_id    = local.agent_identity_resource_id
 
   count                        = var.deploy_aks ? 1 : 0
   depends_on                   = [module.network]
