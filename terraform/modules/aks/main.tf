@@ -16,6 +16,14 @@ data azurerm_user_assigned_identity aks_identity {
   resource_group_name          = element(split("/",var.user_assigned_identity_id),length(split("/",var.user_assigned_identity_id))-5)
 }
 
+resource azurerm_role_assignment spn_metrics_publisher_permission {
+  scope                        = var.resource_group_id
+  role_definition_name         = "Monitoring Metrics Publisher"
+  principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
+
+  count                        = var.configure_access_control ? 1 : 0
+}
+
 # AKS needs permission to make changes for kubelet networking mode
 resource azurerm_role_assignment spn_network_permission {
   scope                        = var.resource_group_id
@@ -67,10 +75,11 @@ data azurerm_kubernetes_service_versions current {
 # }
 
 resource azurerm_kubernetes_cluster aks {
-  name                         = "${local.resource_group_name}-k8s"
+  # name                         = "${local.resource_group_name}-k8s"
+  name                         = "${local.resource_group_name}"
   location                     = var.location
   resource_group_name          = local.resource_group_name
-  node_resource_group          = "${local.resource_group_name}-k8s-nodes"
+  # node_resource_group          = "${local.resource_group_name}-k8s-nodes"
   dns_prefix                   = var.dns_prefix
 
   # Triggers resource to be recreated
@@ -78,21 +87,28 @@ resource azurerm_kubernetes_cluster aks {
 
   automatic_channel_upgrade    = "stable"
 
-  dynamic azure_active_directory_role_based_access_control {
-    for_each = range(var.rbac_enabled ? 1 : 0) 
-    content {
-      admin_group_object_ids     = [var.client_object_id]
-      azure_rbac_enabled         = true
-      managed                    = true
-    }
-  }  
+  # dynamic azure_active_directory_role_based_access_control {
+  #   for_each = range(var.rbac_enabled ? 1 : 0) 
+  #   content {
+  #     admin_group_object_ids     = [var.client_object_id]
+  #     azure_rbac_enabled         = true
+  #     managed                    = true
+  #   }
+  # }  
+  azure_active_directory_role_based_access_control {
+    admin_group_object_ids     = [var.client_object_id]
+    azure_rbac_enabled         = true
+    managed                    = true
+  }
 
   azure_policy_enabled         = true
 
   default_node_pool {
     enable_auto_scaling        = true
     enable_host_encryption     = false # Requires 'Microsoft.Compute/EncryptionAtHost' feature
-    enable_node_public_ip      = var.enable_node_public_ip
+    # TODO
+    # enable_node_public_ip      = var.enable_node_public_ip
+    enable_node_public_ip      = false
     min_count                  = 3
     max_count                  = 10
     name                       = "default"
@@ -103,7 +119,7 @@ resource azurerm_kubernetes_cluster aks {
     vnet_subnet_id             = var.node_subnet_id
   }
 
-  # http_application_routing_enabled = false
+  http_application_routing_enabled = true
 
   identity {
     type                       = "UserAssigned"
@@ -112,25 +128,35 @@ resource azurerm_kubernetes_cluster aks {
 
   # local_account_disabled       = true # Will become default in 1.24
 
+  # network_profile {
+  #   network_plugin             = var.network_plugin
+  #   network_policy             = var.network_policy
+  #   outbound_type              = var.network_outbound_type
+  # }
   network_profile {
-    network_plugin             = var.network_plugin
-    network_policy             = var.network_policy
-    outbound_type              = var.network_outbound_type
+    network_plugin             = "azure"
+    network_policy             = "azure"
+    outbound_type              = "userDefinedRouting"
   }
 
   oms_agent {
     log_analytics_workspace_id = var.log_analytics_workspace_id
   }
 
-  private_cluster_enabled      = var.private_cluster_enabled
-  private_dns_zone_id          = var.private_cluster_enabled ? "System" : null
+  private_cluster_enabled      = false
+  # private_cluster_enabled      = var.private_cluster_enabled
+  # TODO
+  # private_dns_zone_id          = var.private_cluster_enabled ? "System" : null
+  # private_dns_zone_id          = "System"
   #private_cluster_public_fqdn_enabled = true
 
   # role_based_access_control_enabled = var.rbac_enabled
+  role_based_access_control_enabled = true
+  # role_based_access_control_enabled = true
 
-  workload_autoscaler_profile {
-    keda_enabled               = true
-  }
+  # workload_autoscaler_profile {
+  #   keda_enabled               = true
+  # }
 
   lifecycle {
     ignore_changes             = [
@@ -142,9 +168,11 @@ resource azurerm_kubernetes_cluster aks {
 
   depends_on                   = [
     # azurerm_resource_provider_registration.keda,
+    azurerm_role_assignment.spn_metrics_publisher_permission,
     azurerm_role_assignment.spn_permission,
     azurerm_role_assignment.spn_dns_permission,
     azurerm_role_assignment.spn_network_permission,
+    azurerm_role_assignment.terraform_cluster_permission
   ]
 }
 

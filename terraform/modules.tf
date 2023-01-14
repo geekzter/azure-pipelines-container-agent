@@ -96,8 +96,10 @@ module aks_agents {
   network_policy               = var.deploy_network ? "azure" : "calico"
   node_size                    = var.kubernetes_node_size
   node_subnet_id               = var.deploy_network ? module.network.0.aks_node_pool_subnet_id : null
-  private_cluster_enabled      = var.gateway_type == "Firewall" ? true : false
-  rbac_enabled                 = false
+  # private_cluster_enabled      = var.gateway_type == "Firewall" ? true : false
+  private_cluster_enabled      = false
+  # rbac_enabled                 = false
+  rbac_enabled                 = true
   resource_group_id            = azurerm_resource_group.rg.id
   tags                         = azurerm_resource_group.rg.tags
   user_assigned_identity_id    = local.agent_identity_resource_id

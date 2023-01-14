@@ -55,7 +55,8 @@ locals {
 }
 
 resource azurerm_resource_group rg {
-  name                         = terraform.workspace == "default" ? "${var.resource_prefix}-container-agents-${local.suffix}" : "${var.resource_prefix}-${terraform.workspace}-container-agents-${local.suffix}"
+  # name                         = terraform.workspace == "default" ? "${var.resource_prefix}-container-agents-${local.suffix}" : "${var.resource_prefix}-${terraform.workspace}-container-agents-${local.suffix}"
+  name                         = "${var.resource_prefix}-container-agents-${local.suffix}"
   location                     = var.location
 
   tags                         = local.tags
