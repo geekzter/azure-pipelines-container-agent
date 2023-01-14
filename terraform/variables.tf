@@ -80,10 +80,6 @@ variable environment_variables {
   default                      = {}  
 } 
 
-variable firewall_sku_tier {
-  default                      = "Basic"
-}
-
 variable gateway_type {
   type                         = string
   default                      = "None"

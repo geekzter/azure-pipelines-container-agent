@@ -7,16 +7,6 @@ resource azurerm_subnet gateway {
   count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
-resource azurerm_subnet firewall_management {
-  name                         = "AzureFirewallManagementSubnet"
-  virtual_network_name         = azurerm_virtual_network.pipeline_network.name
-  resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
-  address_prefixes             = [cidrsubnet(azurerm_virtual_network.pipeline_network.address_space[0],4,1)]
-
-  count                        = var.gateway_type == "Firewall" && var.firewall_sku_tier == "Basic" ? 1 : 0
-}
-
-
 resource azurerm_ip_group agents {
   name                         = "${var.resource_group_name}-gw-agents"
   location                     = var.location
@@ -94,34 +84,14 @@ resource azurerm_public_ip gateway {
   count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
-resource azurerm_public_ip firewall_management {
-  name                         = "${var.resource_group_name}-gwmgmt-pip"
-  location                     = var.location
-  resource_group_name          = var.resource_group_name
-  allocation_method            = "Static"
-  sku                          = "Standard"
-
-  tags                         = var.tags
-
-  count                        = var.gateway_type == "Firewall" && var.firewall_sku_tier == "Basic" ? 1 : 0
-}
-
 resource azurerm_firewall gateway {
   name                         = "${var.resource_group_name}-gw"
   location                     = var.location
   resource_group_name          = var.resource_group_name
 
   sku_name                     = "AZFW_VNet"
-  sku_tier                     = var.firewall_sku_tier
+  sku_tier                     = "Standard"
 
-  dynamic management_ip_configuration {
-    for_each = range(var.firewall_sku_tier == "Basic" ? 1 : 0) 
-    content {
-      name                     = "gw_mgmt_ipconfig"
-      public_ip_address_id     = azurerm_public_ip.firewall_management.0.id
-      subnet_id                = azurerm_subnet.firewall_management.0.id
-    }
-  }
 
   firewall_policy_id           = azurerm_firewall_policy.gateway.0.id
   ip_configuration {
@@ -143,17 +113,17 @@ resource azurerm_virtual_network_dns_servers dns_proxy {
   virtual_network_id           = azurerm_virtual_network.pipeline_network.id
   dns_servers                  = [azurerm_firewall.gateway.0.ip_configuration.0.private_ip_address]
 
-  count                        = var.gateway_type == "Firewall" && (var.firewall_sku_tier == "Standard" || var.firewall_sku_tier == "Premium") ? 1 : 0
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
 resource azurerm_firewall_policy gateway {
   name                         = "${var.resource_group_name}-gw"
   location                     = var.location
   resource_group_name          = var.resource_group_name
-  sku                          = var.firewall_sku_tier
+  sku                          = "Standard"
 
   dns {
-    proxy_enabled              = var.firewall_sku_tier == "Standard" || var.firewall_sku_tier == "Premium"
+    proxy_enabled              = true
   }
 
   insights {

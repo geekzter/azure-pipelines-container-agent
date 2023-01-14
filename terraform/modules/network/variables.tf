@@ -7,7 +7,6 @@ variable deploy_bastion {
   type                         = bool
 }
 variable diagnostics_storage_id {}
-variable firewall_sku_tier {}
 variable gateway_type {
   type                         = string
   validation {
