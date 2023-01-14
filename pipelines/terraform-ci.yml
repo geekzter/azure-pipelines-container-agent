@@ -164,6 +164,7 @@ jobs:
             substituteAlternateVariables = $false
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_aks = 'true'
+            TF_VAR_deploy_bastion = 'true'
             TF_VAR_deploy_network = 'true'
             TF_VAR_gateway_type = 'Firewall'
             TF_VAR_resource_suffix = '$(Build.BuildId)'
