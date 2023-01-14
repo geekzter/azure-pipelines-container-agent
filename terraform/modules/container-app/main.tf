@@ -88,17 +88,15 @@ resource azurerm_monitor_diagnostic_setting agent_container_environment {
   log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
   target_resource_id           = azapi_resource.agent_container_environment.id
 
-  log {
+  enabled_log {
     category_group             = "audit"
-    enabled                    = true
 
     retention_policy {
       enabled                  = false
     }
   }
-  log {
+  enabled_log {
     category_group             = "allLogs"
-    enabled                    = true
 
     retention_policy {
       enabled                  = false
