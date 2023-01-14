@@ -75,11 +75,10 @@ data azurerm_kubernetes_service_versions current {
 # }
 
 resource azurerm_kubernetes_cluster aks {
-  # name                         = "${local.resource_group_name}-k8s"
-  name                         = "${local.resource_group_name}"
+  name                         = "${local.resource_group_name}-k8s"
   location                     = var.location
   resource_group_name          = local.resource_group_name
-  # node_resource_group          = "${local.resource_group_name}-k8s-nodes"
+  node_resource_group          = "${local.resource_group_name}-k8s-nodes"
   dns_prefix                   = var.dns_prefix
 
   # Triggers resource to be recreated
@@ -106,9 +105,7 @@ resource azurerm_kubernetes_cluster aks {
   default_node_pool {
     enable_auto_scaling        = true
     enable_host_encryption     = false # Requires 'Microsoft.Compute/EncryptionAtHost' feature
-    # TODO
-    # enable_node_public_ip      = var.enable_node_public_ip
-    enable_node_public_ip      = false
+    enable_node_public_ip      = var.enable_node_public_ip
     min_count                  = 3
     max_count                  = 10
     name                       = "default"
@@ -128,35 +125,25 @@ resource azurerm_kubernetes_cluster aks {
 
   # local_account_disabled       = true # Will become default in 1.24
 
-  # network_profile {
-  #   network_plugin             = var.network_plugin
-  #   network_policy             = var.network_policy
-  #   outbound_type              = var.network_outbound_type
-  # }
   network_profile {
-    network_plugin             = "azure"
-    network_policy             = "azure"
-    outbound_type              = "userDefinedRouting"
+    network_plugin             = var.network_plugin
+    network_policy             = var.network_policy
+    outbound_type              = var.network_outbound_type
   }
 
   oms_agent {
     log_analytics_workspace_id = var.log_analytics_workspace_id
   }
 
-  private_cluster_enabled      = false
-  # private_cluster_enabled      = var.private_cluster_enabled
-  # TODO
-  # private_dns_zone_id          = var.private_cluster_enabled ? "System" : null
-  # private_dns_zone_id          = "System"
+  private_cluster_enabled      = var.private_cluster_enabled
+  private_dns_zone_id          = var.private_cluster_enabled ? "System" : null
   #private_cluster_public_fqdn_enabled = true
 
-  # role_based_access_control_enabled = var.rbac_enabled
   role_based_access_control_enabled = true
-  # role_based_access_control_enabled = true
 
-  # workload_autoscaler_profile {
-  #   keda_enabled               = true
-  # }
+  workload_autoscaler_profile {
+    keda_enabled               = true
+  }
 
   lifecycle {
     ignore_changes             = [

@@ -139,13 +139,12 @@ resource azurerm_firewall gateway {
   count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
-# TODO
-# resource azurerm_virtual_network_dns_servers dns_proxy {
-#   virtual_network_id           = azurerm_virtual_network.pipeline_network.id
-#   dns_servers                  = [azurerm_firewall.gateway.0.ip_configuration.0.private_ip_address]
+resource azurerm_virtual_network_dns_servers dns_proxy {
+  virtual_network_id           = azurerm_virtual_network.pipeline_network.id
+  dns_servers                  = [azurerm_firewall.gateway.0.ip_configuration.0.private_ip_address]
 
-#   count                        = var.gateway_type == "Firewall" && (var.firewall_sku_tier == "Standard" || var.firewall_sku_tier == "Premium") ? 1 : 0
-# }
+  count                        = var.gateway_type == "Firewall" && (var.firewall_sku_tier == "Standard" || var.firewall_sku_tier == "Premium") ? 1 : 0
+}
 
 resource azurerm_firewall_policy gateway {
   name                         = "${var.resource_group_name}-gw"
