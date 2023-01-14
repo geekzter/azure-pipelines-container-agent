@@ -19,6 +19,8 @@ module network {
   gateway_type                 = var.gateway_type
   location                     = var.location
   log_analytics_workspace_resource_id   = local.log_analytics_workspace_resource_id
+  peer_network_has_gateway     = var.peer_network_has_gateway
+  peer_network_id              = var.peer_network_id
   resource_group_name          = azurerm_resource_group.rg.name
   tags                         = local.tags
 
@@ -94,9 +96,9 @@ module aks_agents {
   network_plugin               = var.deploy_network ? "azure" : "kubenet"
   network_policy               = var.deploy_network ? "azure" : "calico"
   node_size                    = var.kubernetes_node_size
+  peer_network_id              = var.peer_network_id
   node_subnet_id               = var.deploy_network ? module.network.0.aks_node_pool_subnet_id : null
-  # private_cluster_enabled      = var.gateway_type == "Firewall" ? true : false
-  private_cluster_enabled      = false
+  private_cluster_enabled      = var.aks_private_cluster_enabled
   # rbac_enabled                 = false
   rbac_enabled                 = true
   resource_group_id            = azurerm_resource_group.rg.id

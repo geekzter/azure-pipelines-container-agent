@@ -7,6 +7,11 @@ variable agent_identity_resource_id {
   default                      = ""
 }
 
+variable aks_private_cluster_enabled {
+  default                      = false
+  type                         = bool
+}
+
 variable application_name {
   description                  = "Value of 'application' resource tag"
   default                      = "Container Agents"
@@ -112,6 +117,16 @@ variable location {
 
 variable log_analytics_workspace_resource_id {
   description                  = "Specify a pre-existing Log Analytics workspace. The workspace needs to have the Security, SecurityCenterFree, ServiceMap, Updates, VMInsights solutions provisioned"
+  default                      = ""
+}
+
+variable peer_network_has_gateway {
+  type                         = bool
+  default                      = false
+}
+
+variable peer_network_id {
+  description                  = "Virtual network to be peered with. This is usefull to run Terraform from and be able to access a private API server."
   default                      = ""
 }
 

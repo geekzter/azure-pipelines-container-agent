@@ -46,3 +46,4 @@ resource azurerm_network_security_group default {
 
   tags                         = var.tags
 }
+

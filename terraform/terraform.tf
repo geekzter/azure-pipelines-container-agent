@@ -8,7 +8,7 @@ terraform {
     #   source                   = "microsoft/azuredevops"
     #   version                  = "~> 0.3"
     # }
-    azurerm                    = "~> 3.37"
+    azurerm                    = "~> 3.39"
     random                     = "~> 3.4"
     time                       = "~> 0.9"
   }

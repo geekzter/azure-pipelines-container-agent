@@ -16,6 +16,8 @@ variable gateway_type {
 }
 variable location {}
 variable log_analytics_workspace_resource_id {}
+variable peer_network_id {}
+variable peer_network_has_gateway {}
 variable resource_group_name {}
 variable tags {
   type                         = map

@@ -16,6 +16,7 @@ variable node_subnet_id {}
 variable network_plugin {}
 variable network_policy {}
 variable network_outbound_type {}
+variable peer_network_id {}
 variable private_cluster_enabled {
   type        = bool
 }

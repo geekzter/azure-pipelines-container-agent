@@ -239,9 +239,8 @@ resource azurerm_monitor_diagnostic_setting bastion {
   target_resource_id           = azurerm_bastion_host.bastion.0.id
   log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
 
-  log {
+  enabled_log {
     category                   = "BastionAuditLogs"
-    enabled                    = true
 
     retention_policy {
       enabled                  = false
