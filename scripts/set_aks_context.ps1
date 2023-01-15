@@ -6,7 +6,7 @@
 #Requires -Version 7.2
 
 param ( 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
     [ValidateNotNull()]
     [string]
     $AksId
@@ -42,8 +42,10 @@ if (!$currentContext.StartsWith($aksClusterName)) {
 
 # Install KEDA
 # https://keda.sh/docs/2.9/deploy/
-Write-Host "`nConfiguring KEDA..."
-helm repo add kedacore https://kedacore.github.io/charts
-helm repo update
-kubectl create namespace keda
-helm install keda kedacore/keda --namespace keda
+# Write-Host "`nConfiguring KEDA..."
+# helm repo add kedacore https://kedacore.github.io/charts
+# helm repo update
+# kubectl create namespace keda
+# helm install keda kedacore/keda --namespace keda
+
+# $manifestsDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) manifests)
