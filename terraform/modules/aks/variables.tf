@@ -1,11 +1,11 @@
 variable admin_username {}
 variable client_object_id {}
 variable configure_access_control {
-  type                         = bool
+  type        = bool
 }
 variable dns_prefix {}
 variable enable_node_public_ip {
-  type                         = bool
+  type        = bool
 }
 variable kube_config_path {}
 variable kubernetes_version {}
@@ -18,9 +18,6 @@ variable network_policy {}
 variable network_outbound_type {}
 variable peer_network_id {}
 variable private_cluster_enabled {
-  type        = bool
-}
-variable rbac_enabled {
   type        = bool
 }
 variable resource_group_id {}

@@ -99,8 +99,6 @@ module aks_agents {
   peer_network_id              = var.peer_network_id
   node_subnet_id               = var.deploy_network ? module.network.0.aks_node_pool_subnet_id : null
   private_cluster_enabled      = var.aks_private_cluster_enabled
-  # rbac_enabled                 = false
-  rbac_enabled                 = true
   resource_group_id            = azurerm_resource_group.rg.id
   tags                         = azurerm_resource_group.rg.tags
   user_assigned_identity_id    = local.agent_identity_resource_id
