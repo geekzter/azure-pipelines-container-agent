@@ -24,7 +24,7 @@ resource azurerm_role_assignment spn_identity_operator {
   role_definition_name         = "Managed Identity Operator"
   principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
 
-  count                        = var.configure_access_control && startswith(var.user_assigned_identity_id,var.resource_group_id) ? 1 : 0
+  count                        = var.configure_access_control && !var.user_assigned_identity_is_precreated ? 1 : 0
 }
 
 resource azurerm_role_assignment spn_metrics_publisher {

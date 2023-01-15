@@ -25,3 +25,6 @@ variable tags {
   type        = map
 }
 variable user_assigned_identity_id {}
+variable user_assigned_identity_is_precreated {
+  type        = bool
+}

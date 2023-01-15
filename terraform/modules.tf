@@ -102,6 +102,7 @@ module aks_agents {
   resource_group_id            = azurerm_resource_group.rg.id
   tags                         = azurerm_resource_group.rg.tags
   user_assigned_identity_id    = local.agent_identity_resource_id
+  user_assigned_identity_is_precreated=local.agent_identity_is_precreated
 
   count                        = var.deploy_aks ? 1 : 0
   depends_on                   = [module.network]
