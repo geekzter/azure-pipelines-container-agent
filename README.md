@@ -1,3 +1,8 @@
+[![Build Status](https://dev.azure.com/ericvan/PipelineAgents/_apis/build/status/container/azure-pipelines-container-terraform-ci?branchName=main&terraform-ci)](https://dev.azure.com/ericvan/PipelineAgents/_build/latest?definitionId=171&branchName=main)
+[![Build Status](https://dev.azure.com/ericvan/PipelineAgents/_apis/build/status/container/build-container-image?branchName=main&label=build-image)](https://dev.azure.com/ericvan/PipelineAgents/_build/latest?definitionId=169&branchName=main)
+[![Build Status](https://dev.azure.com/ericvan/PipelineAgents/_apis/build/status/container/container-image-info?branchName=main&label=pool-test)](https://dev.azure.com/ericvan/PipelineAgents/_build/latest?definitionId=170&branchName=main)
+[![Build Status](https://dev.azure.com/ericvan/PipelineAgents/_apis/build/status/container/deploy-container-agents?branchName=main&label=e2e-ci)](https://dev.azure.com/ericvan/PipelineAgents/_build/latest?definitionId=172&branchName=iam)
+
 # Azure Pipeline Agent Container App
 This repo contains an __experiment__ to run [Azure Pipeline Agents](https://learn.microsoft.com/azure/devops/pipelines/agents/docker?view=azure-devops) in [Azure Container Apps](https://azure.microsoft.com/products/container-apps). For __production__ use, consider [Scale set agents](https://learn.microsoft.com/azure/devops/pipelines/agents/scale-set-agents?view=azure-devops) ([sample repo](https://github.com/geekzter/azure-pipeline-agents)).
 
