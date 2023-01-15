@@ -76,6 +76,7 @@ resource azurerm_user_assigned_identity agent_identity {
   count                        = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null ? 0 : 1
   tags                         = local.tags
 }
+
 data azurerm_user_assigned_identity pre_created_agent_identity {
   name                         = element(split("/",var.agent_identity_resource_id),length(split("/",var.agent_identity_resource_id))-1)
   resource_group_name          = element(split("/",var.agent_identity_resource_id),length(split("/",var.agent_identity_resource_id))-5)

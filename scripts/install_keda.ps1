@@ -42,7 +42,7 @@ if (!$currentContext.StartsWith($aksClusterName)) {
 
 # Install KEDA
 # https://keda.sh/docs/2.9/deploy/
-Write-Host "Configuring KEDA..."
+Write-Host "`nConfiguring KEDA..."
 helm repo add kedacore https://kedacore.github.io/charts
 helm repo update
 kubectl create namespace keda

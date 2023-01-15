@@ -18,7 +18,16 @@ data azurerm_user_assigned_identity aks_identity {
   resource_group_name          = element(split("/",var.user_assigned_identity_id),length(split("/",var.user_assigned_identity_id))-5)
 }
 
-resource azurerm_role_assignment spn_metrics_publisher_permission {
+# Required to manage identity on kubelets
+resource azurerm_role_assignment spn_identity_operator {
+  scope                        = var.user_assigned_identity_id
+  role_definition_name         = "Managed Identity Operator"
+  principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
+
+  count                        = var.configure_access_control && startswith(var.user_assigned_identity_id,var.resource_group_id) ? 1 : 0
+}
+
+resource azurerm_role_assignment spn_metrics_publisher {
   scope                        = var.resource_group_id
   role_definition_name         = "Monitoring Metrics Publisher"
   principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
@@ -27,7 +36,7 @@ resource azurerm_role_assignment spn_metrics_publisher_permission {
 }
 
 # AKS needs permission to make changes for kubelet networking mode
-resource azurerm_role_assignment spn_network_permission {
+resource azurerm_role_assignment spn_network_contributor {
   scope                        = var.resource_group_id
   role_definition_name         = "Network Contributor"
   principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
@@ -36,7 +45,7 @@ resource azurerm_role_assignment spn_network_permission {
 }
 
 # AKS needs permission for BYO DNS
-resource azurerm_role_assignment spn_dns_permission {
+resource azurerm_role_assignment spn_dns_contributor {
   scope                        = var.resource_group_id
   role_definition_name         = "Private DNS Zone Contributor"
   principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
@@ -45,7 +54,7 @@ resource azurerm_role_assignment spn_dns_permission {
 }
 
 # Requires Terraform owner access to resource group, in order to be able to perform access management
-resource azurerm_role_assignment spn_permission {
+resource azurerm_role_assignment spn_vm_contributor {
   scope                        = var.resource_group_id
   role_definition_name         = "Virtual Machine Contributor"
   principal_id                 = data.azurerm_user_assigned_identity.aks_identity.principal_id
@@ -54,9 +63,16 @@ resource azurerm_role_assignment spn_permission {
 }
 
 # Grant Terraform user Cluster Admin role
-resource azurerm_role_assignment terraform_cluster_permission {
+resource azurerm_role_assignment terraform_cluster_admin {
   scope                        = var.resource_group_id
   role_definition_name         = "Azure Kubernetes Service Cluster Admin Role"
+  principal_id                 = var.client_object_id
+
+  count                        = var.configure_access_control ? 1 : 0
+}
+resource azurerm_role_assignment terraform_cluster_user {
+  scope                        = var.resource_group_id
+  role_definition_name         = "Azure Kubernetes Service Cluster User Role"
   principal_id                 = var.client_object_id
 
   count                        = var.configure_access_control ? 1 : 0
@@ -120,7 +136,13 @@ resource azurerm_kubernetes_cluster aks {
     identity_ids               = [var.user_assigned_identity_id]
   }
 
-  # local_account_disabled       = true # Will become default in 1.24
+  kubelet_identity {
+    client_id                  = data.azurerm_user_assigned_identity.aks_identity.client_id
+    object_id                  = data.azurerm_user_assigned_identity.aks_identity.principal_id
+    user_assigned_identity_id  = var.user_assigned_identity_id
+  }
+
+  # local_account_disabled       = true
 
   network_profile {
     network_plugin             = var.network_plugin
@@ -152,11 +174,13 @@ resource azurerm_kubernetes_cluster aks {
 
   depends_on                   = [
     # azurerm_resource_provider_registration.keda,
-    azurerm_role_assignment.spn_metrics_publisher_permission,
-    azurerm_role_assignment.spn_permission,
-    azurerm_role_assignment.spn_dns_permission,
-    azurerm_role_assignment.spn_network_permission,
-    azurerm_role_assignment.terraform_cluster_permission
+    azurerm_role_assignment.spn_dns_contributor,
+    azurerm_role_assignment.spn_identity_operator,
+    azurerm_role_assignment.spn_metrics_publisher,
+    azurerm_role_assignment.spn_network_contributor,
+    azurerm_role_assignment.spn_vm_contributor,
+    azurerm_role_assignment.terraform_cluster_admin,
+    azurerm_role_assignment.terraform_cluster_user
   ]
 }
 
