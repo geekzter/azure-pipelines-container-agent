@@ -108,6 +108,14 @@ variable kubernetes_version {
   default                      = ""
 }
 
+variable kubernetes_node_min_count {
+  default                      = 1
+  type                         = number
+}
+variable kubernetes_node_max_count {
+  default                      = 10
+  type                         = number
+}
 variable kubernetes_node_size {
   default                      = "Standard_B4ms"
 }

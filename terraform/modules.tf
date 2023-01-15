@@ -98,6 +98,8 @@ module aks_agents {
   node_size                    = var.kubernetes_node_size
   peer_network_id              = var.peer_network_id
   node_subnet_id               = var.deploy_network ? module.network.0.aks_node_pool_subnet_id : null
+  node_min_count               = var.kubernetes_node_min_count
+  node_max_count               = var.kubernetes_node_max_count
   private_cluster_enabled      = var.aks_private_cluster_enabled
   resource_group_id            = azurerm_resource_group.rg.id
   tags                         = azurerm_resource_group.rg.tags

@@ -11,6 +11,12 @@ variable kube_config_path {}
 variable kubernetes_version {}
 variable location {}
 variable log_analytics_workspace_id {}
+variable node_min_count {
+  type        = number
+}
+variable node_max_count {
+  type        = number
+}
 variable node_size {}
 variable node_subnet_id {}
 variable network_plugin {}

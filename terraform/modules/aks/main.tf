@@ -119,10 +119,10 @@ resource azurerm_kubernetes_cluster aks {
     enable_auto_scaling        = true
     enable_host_encryption     = false # Requires 'Microsoft.Compute/EncryptionAtHost' feature
     enable_node_public_ip      = var.enable_node_public_ip
-    min_count                  = 3
-    max_count                  = 10
+    min_count                  = var.node_min_count
+    max_count                  = var.node_max_count
     name                       = "default"
-    node_count                 = 3
+    node_count                 = var.node_min_count
     tags                       = var.tags
     # https://docs.microsoft.com/en-us/azure/virtual-machines/disk-encryption#supported-vm-sizes
     vm_size                    = var.node_size
@@ -160,9 +160,9 @@ resource azurerm_kubernetes_cluster aks {
 
   role_based_access_control_enabled = true
 
-  # workload_autoscaler_profile {
-  #   keda_enabled               = true
-  # }
+  workload_autoscaler_profile {
+    keda_enabled               = true
+  }
 
   lifecycle {
     ignore_changes             = [
