@@ -1,3 +1,6 @@
+# Kubernetes
+**/.kube/*
+
 #  Terraform
 **/.terraform/*
 *.plan
@@ -17,6 +20,7 @@ backend.tf
 *.DS_Store
 
 # Ignore temp files
+**/tmp**/*
 tmp*.*
 *.tmp
 err.out
