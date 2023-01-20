@@ -102,6 +102,13 @@ resource azurerm_monitor_diagnostic_setting agent_container_environment {
       enabled                  = false
     }
   }
+  metric {
+    category                   = "AllMetrics"
+
+    retention_policy {
+      enabled                  = false
+    }
+  }
 }
 
 resource azapi_resource agent_container_environment_share {
