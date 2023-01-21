@@ -39,3 +39,17 @@ if (!$currentContext.StartsWith($aksClusterName)) {
     Write-Host "Setting kubectl context to $aksClusterName"
     az aks get-credentials --resource-group $aksResourceGroup --name $aksClusterName --subscription $aksSubscription -a
 }
+
+# Install KEDA
+# https://keda.sh/docs/2.9/deploy/
+Write-Host "`nConfiguring KEDA..."
+helm repo add kedacore https://kedacore.github.io/charts
+helm repo update
+kubectl create namespace keda 2>$null
+helm install keda kedacore/keda --namespace keda
+
+$helmDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) helm pipeline-keda-agents)
+
+Push-Location $helmDirectory
+helm upgrade --install azure-pipeline-keda-agents . -f ./values.yaml,./__local/values.yaml
+Pop-Location

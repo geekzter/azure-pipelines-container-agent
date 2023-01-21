@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azdevops-deployment
+  labels:
+    app: azdevops-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azdevops-agent
+  template:
+    metadata:
+      labels:
+        app: azdevops-agent
+    spec:
+      containers:
+      - name: azdevops-agent
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        env:
+        {{- if .Values.env.values -}}
+        {{- range .Values.env.values }}
+          - name: {{ .name }}
+            value: {{ .value | quote }}
+        {{- end -}}
+        {{- end }}
