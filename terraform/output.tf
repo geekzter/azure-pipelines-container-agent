@@ -56,10 +56,6 @@ output kube_config {
   value                        = var.deploy_aks ? module.aks_agents.0.kube_config : null
 }
 
-output kubernetes_api_server_ip_address {
-  value                        = var.deploy_aks ? module.aks_agents.0.kubernetes_api_server_ip_address : null
-}
-
 output kubernetes_version {
   value                        = var.deploy_aks ? module.aks_agents.0.kubernetes_version : null
 }

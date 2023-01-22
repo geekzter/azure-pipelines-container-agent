@@ -40,13 +40,13 @@ locals {
   tags                         = merge(
     {
       application              = var.application_name
-      github-repo              = "https://github.com/geekzter/azure-pipelines-container-agent"
+      githubRepo               = "https://github.com/geekzter/azure-pipelines-container-agent"
       owner                    = local.owner
       provisioner              = "terraform"
-      provisionerclientid      = data.azurerm_client_config.default.client_id
-      provisionerobjectid      = data.azurerm_client_config.default.object_id
+      provisionerClientId      = data.azurerm_client_config.default.client_id
+      provisionerObjectId      = data.azurerm_client_config.default.object_id
       repository               = "azure-pipelines-container-agent"
-      runid                    = var.run_id
+      runId                    = var.run_id
       suffix                   = local.suffix
       workspace                = terraform.workspace
     },

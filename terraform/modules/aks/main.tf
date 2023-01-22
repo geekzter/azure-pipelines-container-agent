@@ -1,6 +1,4 @@
 locals {
-  api_server_domain            = join(".",slice(split(".",local.api_server_host),1,length(split(".",local.api_server_host))))
-  api_server_host              = regex("^(?:(?P<scheme>[^:/?#]+):)?(?://(?P<host>[^:/?#]*))?", azurerm_kubernetes_cluster.aks.kube_admin_config.0.host).host
   kubernetes_version           = var.kubernetes_version != null && var.kubernetes_version != "" ? var.kubernetes_version : data.azurerm_kubernetes_service_versions.current.latest_version
   resource_group_name          = element(split("/",var.resource_group_id),length(split("/",var.resource_group_id))-1)
 }
@@ -196,7 +194,6 @@ data azurerm_private_endpoint_connection api_server_endpoint {
   count                        = var.private_cluster_enabled ? 1 : 0
 }
 
-
 data azurerm_resources scale_sets {
   resource_group_name          = azurerm_kubernetes_cluster.aks.node_resource_group
   type                         = "Microsoft.Compute/virtualMachineScaleSets"
@@ -208,11 +205,4 @@ data azurerm_resources scale_sets {
 resource local_file kube_config {
   filename                     = var.kube_config_path
   content                      = azurerm_kubernetes_cluster.aks.kube_admin_config_raw
-}
-
-data azurerm_private_dns_zone api_server_domain {
-  name                         = local.api_server_domain
-  resource_group_name          = azurerm_kubernetes_cluster.aks.node_resource_group
-
-  count                        = var.private_cluster_enabled ? 1 : 0
 }
