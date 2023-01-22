@@ -195,7 +195,12 @@ jobs:
 - job: provision
   ${{ if parameters.buildImage }}:
     dependsOn: buildImage
-  displayName: 'Provision Container App infrastructure'
+  ${{ if eq(parameters.containerEngine, 'Container App') }}:
+    displayName: 'Provision Container App infrastructure'
+  ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+    displayName: 'Provision Kubernetes (AKS) infrastructure'
+  ${{ if eq(parameters.containerEngine, 'Both') }}:
+    displayName: 'Provision Container App and Kubernetes (AKS) infrastructure'
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
   pool:
@@ -329,6 +334,7 @@ jobs:
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Add KEDA Helm repo"
+      continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscription: '$(subscriptionConnection)'
@@ -377,7 +383,7 @@ jobs:
         chartType: FilePath
         chartPath: "helm/pipeline-keda-agents"
         releaseName: "pipeline-keda-agents"
-        valueFile: "helm/pipeline-keda-agents/values.yml"
+        valueFile: "helm/pipeline-keda-agents/values.yaml"
         overrideValues: |
           image.repository=$(apply.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
