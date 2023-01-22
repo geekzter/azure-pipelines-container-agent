@@ -15,7 +15,7 @@ spec:
           - "--once"
           env:
           - name: AZP_URL
-            value: "{{ .Values.linux.azureDevOps.orgUrl }}"
+            value: "{{ regexReplaceAll "\\/$" .Values.linux.azureDevOps.orgUrl "" }}"
           - name: AZP_POOL
             value: "{{ .Values.linux.azureDevOps.poolName }}"
           - name: AZP_TOKEN

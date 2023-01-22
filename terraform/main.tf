@@ -13,6 +13,8 @@ locals {
   agent_identity_principal_id  = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.principal_id : azurerm_user_assigned_identity.agent_identity.0.principal_id
   agent_identity_resource_id   = local.agent_identity_is_precreated ? var.agent_identity_resource_id : azurerm_user_assigned_identity.agent_identity.0.id
   agent_identity_is_precreated = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null
+  devops_url                   = replace(var.devops_url,"/\\/$/","")
+
   environment_variables        = merge(
     {
       AGENT_DIAGNOSTIC                                          = tostring(var.pipeline_agent_diagnostics)

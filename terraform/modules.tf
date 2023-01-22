@@ -47,7 +47,7 @@ module container_app_agents {
 
   container_registry_id        = module.container_registry.container_registry_id
   container_repository         = var.container_repository
-  devops_url                   = var.devops_url
+  devops_url                   = local.devops_url
   devops_pat                   = var.devops_pat
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
   diagnostics_storage_share_name= module.diagnostics_storage.diagnostics_storage_name

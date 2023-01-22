@@ -17,7 +17,7 @@ terraform {
 
 # provider azuredevops {
 #   features {
-#     org_service_url            = var.devops_url
+#     org_service_url            = local.devops_url
 #     personal_access_token      = var.devops_pat
 #   }
 # }
