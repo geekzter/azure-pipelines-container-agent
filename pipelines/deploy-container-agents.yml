@@ -370,9 +370,9 @@ jobs:
     - task: HelmDeploy@0
       displayName: "Deploy agent to AKS"
       inputs:
-        azureSubscription: "${{ parameters.subscription }}"
-        azureResourceGroup: "${{ parameters.aksResourceGroup }}"
-        kubernetesCluster: "${{ parameters.aksClusterName }}"
+        azureSubscription: '$(subscriptionConnection)'
+        azureResourceGroup: '$(apply.resource_group_name)'
+        kubernetesCluster: '$(apply.aks_name)'
         command: upgrade
         chartType: FilePath
         chartPath: "helm/pipeline-keda-agents"
