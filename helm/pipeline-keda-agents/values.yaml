@@ -16,10 +16,10 @@ linux:
     name: pipelineagent/ubuntu
     tag: latest
 
-  # secret:
-  #   # THIS IS A CREDENTIAL - BE SURE NOT TO COMMIT TO REPO
-  #   azpToken: ""
-  #   azpUrl: ""
+  azureDevOps: {}
+    # poolName: "Default"
+    # # THIS IS A CREDENTIAL - BE SURE NOT TO COMMIT TO REPO
+    # accessToken
 
   # job:
   #   poolName: linux-agent-pool #name of pool for Azure DevOps Agents

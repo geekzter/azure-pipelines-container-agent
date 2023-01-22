@@ -18,9 +18,17 @@ spec:
       - name: azdevops-agent
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         env:
-        {{- if .Values.env.values -}}
-        {{- range .Values.env.values }}
-          - name: {{ .name }}
-            value: {{ .value | quote }}
-        {{- end -}}
-        {{- end }}
+        - name: AZP_URL
+          value: "{{ .Values.linux.azureDevOps.orgUrl }}"
+        - name: AZP_POOL
+          value: "{{ .Values.linux.azureDevOps.poolName }}"
+        - name: AZP_TOKEN
+          value: "{{ .Values.linux.azureDevOps.accessToken }}"
+        - name: PIPELINE_DEMO_JOB_CAPABILITY
+          value: "{{ .Values.linux.azureDevOps.capability }}"
+        # {{- if .Values.env.values -}}
+        # {{- range .Values.env.values }}
+        #   - name: {{ .name }}
+        #     value: {{ .value | quote }}
+        # {{- end -}}
+        # {{- end }}

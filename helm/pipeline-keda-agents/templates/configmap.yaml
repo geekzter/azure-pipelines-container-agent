@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: azdevops-keda
 data:
-  AZP_URL: ""
-  AZP_POOL: ""
+  AZP_URL: "{{ .Values.linux.azureDevOps.orgUrl }}"
+  AZP_POOL: "{{ .Values.linux.azureDevOps.poolName }}"

@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <# 
 .SYNOPSIS 
-    Install KEDA
+    Configure kubectl context to the AKS cluster
 #> 
 #Requires -Version 7.2
 

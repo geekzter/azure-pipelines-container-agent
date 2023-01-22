@@ -29,7 +29,12 @@ output container_app_name {
 output container_environment_id {
   value                        = var.deploy_container_app ? module.container_app_agents.0.container_environment_id : null
 }
-
+output container_registry_id {
+  value                        = module.container_registry.container_registry_id
+}
+output container_registry_name {
+  value                        = module.container_registry.container_registry_name
+}
 output diagnostics_storage_account_name {
   value                        = module.diagnostics_storage.diagnostics_storage_name
 }

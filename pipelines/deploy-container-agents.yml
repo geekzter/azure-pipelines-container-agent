@@ -31,6 +31,14 @@ parameters:
   displayName: Deploy network
   type: boolean
   default: true
+- name: containerEngine
+  displayName: Container Engine (ACA/AKS)
+  type: string
+  default: Both
+  values:
+  - Container App
+  - Kubernetes 
+  - Both
 - name: gatewayType
   displayName: Gateway type
   type: string
@@ -98,8 +106,10 @@ variables:
   value: 'true'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
   value: 'yes_without_prompt'
-- name: 'correlationCapability'
-  value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)'
+- name: 'correlationCapabilityACA'
+  value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aca'
+- name: 'correlationCapabilityAKS'
+  value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aks'
 - name: 'jobTimeOutMinutes'
   value: 60
 - name: date
@@ -122,8 +132,12 @@ variables:
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_container_repository'
   value: 'pipelineagent/ubuntu'
+- name: 'TF_VAR_deploy_aks'
+  value: ${{ lower(or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'TF_VAR_deploy_bastion'
   value: '${{ lower(parameters.deployBastion) }}'
+- name: 'TF_VAR_deploy_container_app'
+  value: ${{ lower(or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'TF_VAR_deploy_network'
   value: '${{ lower(parameters.deployNetwork) }}'
 - name: 'TF_VAR_devops_url'
@@ -131,7 +145,7 @@ variables:
 - name: 'TF_VAR_gateway_type'
   value: '${{ parameters.gatewayType }}'
 - name: 'TF_VAR_environment_variables'
-  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapability)"}'
+  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapabilityACA)"}'
 - name: 'TF_VAR_pipeline_agent_pool_id'
   value: 1
 - name: 'TF_VAR_pipeline_agent_pool_name'
@@ -311,14 +325,88 @@ jobs:
       failOnStandardError: true
       workingDirectory: '$(scriptDirectory)'      
 
-  - pwsh: |
-      ./wait_for_agents.ps1 -CapabilityValue $(correlationCapability) `
-                            -OrganizationUrl $(System.CollectionUri) `
-                            -PoolId $(TF_VAR_pipeline_agent_pool_id)
-    displayName: 'Wait for agents to come online'
-    workingDirectory: '$(scriptDirectory)'
-    env:
-      AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+  # https://keda.sh/docs/deploy/#helm
+  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+    - task: HelmDeploy@0
+      displayName: "Add KEDA Helm repo"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscription: '$(subscriptionConnection)'
+        azureResourceGroup: '$(apply.resource_group_name)'
+        kubernetesCluster: '$(apply.aks_name)'
+        useClusterAdmin: true
+        command: 'repo'
+        arguments: 'add kedacore https://kedacore.github.io/charts'
+
+  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+    - task: HelmDeploy@0
+      displayName: "Update KEDA Helm repo"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscription: '$(subscriptionConnection)'
+        azureResourceGroup: '$(apply.resource_group_name)'
+        kubernetesCluster: '$(apply.aks_name)'
+        useClusterAdmin: true
+        command: 'repo'
+        arguments: 'update'
+
+  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+    - task: HelmDeploy@0
+      displayName: "Install KEDA Helm chart"
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscription: '$(subscriptionConnection)'
+        azureResourceGroup: '$(apply.resource_group_name)'
+        kubernetesCluster: '$(apply.aks_name)'
+        useClusterAdmin: true
+        namespace: 'keda'
+        command: 'upgrade'
+        chartType: 'Name'
+        chartName: 'kedacore/keda'
+        releaseName: 'keda'
+        arguments: '--create-namespace'
+
+  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+    - task: HelmDeploy@0
+      displayName: "Deploy agent to AKS"
+      inputs:
+        azureSubscription: "${{ parameters.subscription }}"
+        azureResourceGroup: "${{ parameters.aksResourceGroup }}"
+        kubernetesCluster: "${{ parameters.aksClusterName }}"
+        command: upgrade
+        chartType: FilePath
+        chartPath: "helm/pipeline-keda-agents"
+        releaseName: "pipeline-keda-agents"
+        valueFile: "helm/pipeline-keda-agents/values.yml"
+        overrideValues: |
+          image.repository=$(apply.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
+          linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
+          linux.azureDevOps.orgUrl=$(System.CollectionUri)
+          linux.azureDevOps.capability=$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aks
+          linux.azureDevOps.poolName=$(TF_VAR_pipeline_agent_pool_name)
+          linux.image.acrLoginServer=$(apply.container_registry_name)
+          linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
+        waitForExecution: true
+
+  - ${{ if or(eq(parameters.containerEngine, 'ContainerApp'),eq(parameters.containerEngine, 'Both')) }}:
+    - pwsh: |
+        ./wait_for_agents.ps1 -CapabilityValue $(correlationCapabilityACA) `
+                              -OrganizationUrl $(System.CollectionUri) `
+                              -PoolId $(TF_VAR_pipeline_agent_pool_id)
+      displayName: 'Wait for Container App agents to come online'
+      workingDirectory: '$(scriptDirectory)'
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+
+  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+    - pwsh: |
+        ./wait_for_agents.ps1 -CapabilityValue $(correlationCapabilityAKS) `
+                              -OrganizationUrl $(System.CollectionUri) `
+                              -PoolId $(TF_VAR_pipeline_agent_pool_id)
+      displayName: 'Wait for Kubernetes agents to come online'
+      workingDirectory: '$(scriptDirectory)'
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
 
   - ${{ if not(eq(parameters.destroy, 'Never')) }}:
     - pwsh: |
@@ -327,50 +415,96 @@ jobs:
       displayName: 'Indicate provisioning success'
       condition: succeeded()
 
-- job: ubuntuContainer
-  dependsOn: provision
-  displayName: Test Container App Agent
-  pool:
-    name: '$(TF_VAR_pipeline_agent_pool_name)'
-    demands:
-    - agent.os -equals Linux
-    # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
-    # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
-    # Repeat capability expression as there is no nested variable expansion inside demands
-    - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
-  steps:
-  - checkout: self
-    retryCountOnTaskFailure: ${{ parameters.retryCount }}
+- ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
+  - job: acaAgent
+    dependsOn: provision
+    displayName: Test Container App Agent
+    pool:
+      name: '$(TF_VAR_pipeline_agent_pool_name)'
+      demands:
+      - agent.os -equals Linux
+      # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
+      # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapabilityACA)
+      # Repeat capability expression as there is no nested variable expansion inside demands
+      - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aca
 
-  - pwsh: |
-      Write-Host "`$PSVersionTable.OS"
-      $PSVersionTable.OS
-      Get-InstalledModule | Sort-Object -Property Name
+    steps:
+    - checkout: self
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
 
-      # List environment variables
-      Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
-    displayName: 'Display agent info'
-  - ${{ if not(eq(parameters.destroy, 'Never')) }}:
     - pwsh: |
-        Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
-      name: provisioningResult
-      displayName: 'Indicate deployment success'
-      condition: succeeded()
+        Write-Host "`$PSVersionTable.OS"
+        $PSVersionTable.OS
+        Get-InstalledModule | Sort-Object -Property Name
+
+        # List environment variables
+        Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
+      displayName: 'Display agent info'
+    - ${{ if not(eq(parameters.destroy, 'Never')) }}:
+      - pwsh: |
+          Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
+        name: provisioningResult
+        displayName: 'Indicate deployment success'
+        condition: succeeded()
+
+- ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+  - job: aksAgent
+    dependsOn: provision
+    displayName: Test Kubernetes Agent
+    pool:
+      name: '$(TF_VAR_pipeline_agent_pool_name)'
+      demands:
+      - agent.os -equals Linux
+      # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapabilityAKS)
+      # Repeat capability expression as there is no nested variable expansion inside demands
+      - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aks
+
+    steps:
+    - checkout: self
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
+
+    - pwsh: |
+        Write-Host "`$PSVersionTable.OS"
+        $PSVersionTable.OS
+        Get-InstalledModule | Sort-Object -Property Name
+
+        # List environment variables
+        Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
+      displayName: 'Display agent info'
+    - ${{ if not(eq(parameters.destroy, 'Never')) }}:
+      - pwsh: |
+          Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
+        name: provisioningResult
+        displayName: 'Indicate deployment success'
+        condition: succeeded()
    
 - ${{ if ne(parameters.destroy, 'Never') }}:
   - job: destroy
     dependsOn: 
       - provision
-      - ubuntuContainer
+      - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
+        - acaAgent
+      - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+        - aksAgent
     ${{ if eq(parameters.destroy, 'Always') }}:
       displayName: 'Destroy Container App infrastructure'
       condition: succeededOrFailed()
     ${{ if eq(parameters.destroy, 'On failure') }}:
       displayName: 'Destroy Container App (${{ lower(parameters.destroy) }}) infrastructure'
-      condition: not(eq(dependencies.ubuntuContainer.outputs['provisioningResult.result'],'success'))
+      ${{ if eq(parameters.containerEngine, 'Container App') }}:
+        condition: ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
+      ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+        condition: ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success')
+      ${{ if eq(parameters.containerEngine, 'Both') }}:
+        condition: or(ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
     ${{ if eq(parameters.destroy, 'On success') }}:
       displayName: 'Destroy Container App (${{ lower(parameters.destroy) }}) infrastructure'
-      condition: eq(dependencies.ubuntuContainer.outputs['provisioningResult.result'],'success')
+      ${{ if eq(parameters.containerEngine, 'Container App') }}:
+        condition: eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
+      ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+        condition: eq(dependencies.aksAgent.outputs['provisioningResult.result'],'success')
+      ${{ if eq(parameters.containerEngine, 'Both') }}:
+        condition: and(eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),eq(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
     timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
     pool:

@@ -160,9 +160,9 @@ resource azurerm_kubernetes_cluster aks {
 
   role_based_access_control_enabled = true
 
-  workload_autoscaler_profile {
-    keda_enabled               = true
-  }
+  # workload_autoscaler_profile {
+  #   keda_enabled               = true
+  # }
 
   lifecycle {
     ignore_changes             = [
