@@ -166,7 +166,11 @@ resource azurerm_kubernetes_cluster aks {
 
   lifecycle {
     ignore_changes             = [
-      default_node_pool.0.node_count # Ignore changes made by autoscaling
+      default_node_pool.0.node_count, # Ignore changes made by autoscaling
+
+      # BUG: kubelet_identity triggers replacement in azurerm 3.39.1
+      kubelet_identity.0.client_id,
+      kubelet_identity.0.object_id
     ]
   }
 
