@@ -493,10 +493,10 @@ jobs:
       - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
         - aksAgent
     ${{ if eq(parameters.destroy, 'Always') }}:
-      displayName: 'Destroy Container App infrastructure'
+      displayName: 'Destroy infrastructure'
       condition: succeededOrFailed()
     ${{ if eq(parameters.destroy, 'On failure') }}:
-      displayName: 'Destroy Container App (${{ lower(parameters.destroy) }}) infrastructure'
+      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
         condition: ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
       ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
@@ -504,7 +504,7 @@ jobs:
       ${{ if eq(parameters.containerEngine, 'Both') }}:
         condition: or(ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
     ${{ if eq(parameters.destroy, 'On success') }}:
-      displayName: 'Destroy Container App (${{ lower(parameters.destroy) }}) infrastructure'
+      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
         condition: eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
       ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
@@ -552,7 +552,7 @@ jobs:
         inlineScript: |
           $ErrorActionPreference = "Continue" # Continue to remove resources if remove by resource group fails
           # Build JMESPath expression
-          $tagQuery = "[?tags.repository == '$(TF_VAR_repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.runid == '$(Build.BuildId)' && properties.provisioningState != 'Deleting'].id"
+          $tagQuery = "[?tags.repository == '$(TF_VAR_repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.provisioner-client-id == '${env:servicePrincipalId}' && properties.provisioningState != 'Deleting'].id"
           Write-Host "Removing resources identified by `"$tagQuery`"..."
 
           # Remove resource groups

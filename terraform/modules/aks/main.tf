@@ -83,9 +83,9 @@ data azurerm_kubernetes_service_versions current {
   include_preview              = false
 }
 
+# Install KEDA with Helm chart instead
 # resource azurerm_resource_provider_registration keda {
 #   name                         = "Microsoft.ContainerService"
-
 #   feature {
 #     name                       = "AKS-KedaPreview"
 #     registered                 = true
@@ -160,6 +160,7 @@ resource azurerm_kubernetes_cluster aks {
 
   role_based_access_control_enabled = true
 
+  # Install KEDA with Helm chart instead
   # workload_autoscaler_profile {
   #   keda_enabled               = true
   # }

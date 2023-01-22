@@ -467,7 +467,7 @@ jobs:
           inlineScript: |
             $ErrorActionPreference = "Continue" # Continue to remove resources if remove by resource group fails
             # Build JMESPath expression
-            $tagQuery = "[?tags.repository == '$(TF_VAR_repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.runid == '$(Build.BuildId)' && properties.provisioningState != 'Deleting'].id"
+            $tagQuery = "[?tags.repository == '$(TF_VAR_repository)' && tags.workspace == '$(TF_WORKSPACE)' && tags.runid == '$(Build.BuildId)' && tags.provisioner-client-id == '${env:servicePrincipalId}' && properties.provisioningState != 'Deleting'].id"
             Write-Host "Removing resources identified by `"$tagQuery`"..."
 
             # Remove resource groups
