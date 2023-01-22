@@ -4,6 +4,9 @@ variable configure_access_control {
   type        = bool
 }
 variable dns_prefix {}
+variable enable_keda {
+  type        = bool
+}
 variable enable_node_public_ip {
   type        = bool
 }

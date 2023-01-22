@@ -87,6 +87,7 @@ module aks_agents {
   client_object_id             = data.azurerm_client_config.default.object_id
   configure_access_control     = var.configure_access_control
   dns_prefix                   = var.resource_prefix
+  enable_keda                  = false # Install KEDA with Helm chart instead
   enable_node_public_ip        = !var.deploy_network || var.gateway_type == "None"
   location                     = var.location
   kube_config_path             = local.kube_config_absolute_path

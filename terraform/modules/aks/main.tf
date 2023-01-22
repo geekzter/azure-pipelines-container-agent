@@ -81,14 +81,15 @@ data azurerm_kubernetes_service_versions current {
   include_preview              = false
 }
 
-# Install KEDA with Helm chart instead
-# resource azurerm_resource_provider_registration keda {
-#   name                         = "Microsoft.ContainerService"
-#   feature {
-#     name                       = "AKS-KedaPreview"
-#     registered                 = true
-#   }
-# }
+resource azurerm_resource_provider_registration keda {
+  name                         = "Microsoft.ContainerService"
+  feature {
+    name                       = "AKS-KedaPreview"
+    registered                 = true
+  }
+
+  count                        = var.enable_keda ? 1 : 0
+}
 
 resource azurerm_kubernetes_cluster aks {
   name                         = "${local.resource_group_name}-k8s"
@@ -158,10 +159,9 @@ resource azurerm_kubernetes_cluster aks {
 
   role_based_access_control_enabled = true
 
-  # Install KEDA with Helm chart instead
-  # workload_autoscaler_profile {
-  #   keda_enabled               = true
-  # }
+  workload_autoscaler_profile {
+    keda_enabled               = var.enable_keda
+  }
 
   lifecycle {
     ignore_changes             = [
@@ -169,7 +169,8 @@ resource azurerm_kubernetes_cluster aks {
 
       # BUG: kubelet_identity triggers replacement in azurerm 3.39.1
       kubelet_identity.0.client_id,
-      kubelet_identity.0.object_id
+      kubelet_identity.0.object_id,
+      workload_autoscaler_profile.0.keda_enabled # Can be configured post-provisioning
     ]
   }
 
