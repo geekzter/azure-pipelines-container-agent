@@ -395,7 +395,7 @@ jobs:
           linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
         waitForExecution: true
 
-  - ${{ if or(eq(parameters.containerEngine, 'ContainerApp'),eq(parameters.containerEngine, 'Both')) }}:
+  - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
     - pwsh: |
         ./wait_for_agents.ps1 -CapabilityValue $(correlationCapabilityACA) `
                               -OrganizationUrl $(System.CollectionUri) `
