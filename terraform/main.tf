@@ -43,8 +43,8 @@ locals {
       github-repo              = "https://github.com/geekzter/azure-pipelines-container-agent"
       owner                    = local.owner
       provisioner              = "terraform"
-      provisioner-client-id    = data.azurerm_client_config.default.client_id
-      provisioner-object-id    = data.azurerm_client_config.default.object_id
+      provisionerclientid      = data.azurerm_client_config.default.client_id
+      provisionerobjectid      = data.azurerm_client_config.default.object_id
       repository               = "azure-pipelines-container-agent"
       runid                    = var.run_id
       suffix                   = local.suffix
