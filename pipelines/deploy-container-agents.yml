@@ -519,7 +519,7 @@ jobs:
       ${{ if eq(parameters.containerEngine, 'Both') }}:
         condition: or(ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
     ${{ if eq(parameters.destroy, 'On success') }}:
-      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
+      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'ar
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
         condition: eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
       ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
@@ -611,6 +611,7 @@ jobs:
           $terraformState = (terraform state pull | ConvertFrom-Json)
           if ($terraformState.resources) {
             Write-Host "Clearing Terraform state in workspace ${env:TF_WORKSPACE}..."
+            $terraformState.check_results = $null
             $terraformState.outputs = New-Object PSObject # Empty output
             $terraformState.resources = @() # No resources
             $terraformState.serial++
