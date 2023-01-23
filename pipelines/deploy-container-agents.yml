@@ -58,9 +58,10 @@ parameters:
 - name: destroy
   displayName: Destroy Infrastructure
   type: string
-  default: Always
+  default: 'If no prior resources'
   values:
   - Always
+  - 'If no prior resources'
   - Never 
   - 'On failure'
   - 'On success'
@@ -324,6 +325,10 @@ jobs:
       scriptLocation: inlineScript
       inlineScript: |
         ./set_terraform_azurerm_vars.ps1
+
+        terraform -chdir='../terraform' show -json | ConvertFrom-Json -AsHashtable | Set-Variable tfState 
+        Write-Host "##vso[task.setvariable variable=preExistingResources;isOutput=true]$($tfState.ContainsKey('values').ToString().ToLower())"
+
         ./deploy.ps1 -apply -force
       addSpnToEnvironment: true
       useGlobalConfig: true
@@ -392,6 +397,7 @@ jobs:
           linux.azureDevOps.capability=$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aks
           linux.azureDevOps.poolName=$(TF_VAR_pipeline_agent_pool_name)
           linux.image.acrLoginServer=$(apply.container_registry_name)
+          linux.maxReplicaCount=$(TF_VAR_pipeline_agent_number_max)
           linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
         waitForExecution: true
 
@@ -496,6 +502,9 @@ jobs:
     ${{ if eq(parameters.destroy, 'Always') }}:
       displayName: 'Destroy infrastructure'
       condition: succeededOrFailed()
+    ${{ if eq(parameters.destroy, 'If no prior resources') }}:
+      displayName: 'Destroy infrastructure (If no prior resources)'
+      condition: eq(dependencies.provision.outputs['preExistingResources.result'],'false')
     ${{ if eq(parameters.destroy, 'On failure') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:

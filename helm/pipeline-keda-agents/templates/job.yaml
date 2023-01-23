@@ -38,7 +38,7 @@ spec:
   pollingInterval: 30
   successfulJobsHistoryLimit: 5
   failedJobsHistoryLimit: 5
-  maxReplicaCount: 3   
+  maxReplicaCount: {{ .Values.linux.maxReplicaCount | default 10 }}
   scalingStrategy:
     strategy: "default"               
   triggers:
@@ -47,3 +47,4 @@ spec:
       poolID: "{{ .Values.linux.trigger.poolId }}"
       organizationURLFromEnv: "AZP_URL"
       personalAccessTokenFromEnv: "AZP_TOKEN"
+      targetPipelinesQueueLength: "1" 

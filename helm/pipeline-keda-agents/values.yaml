@@ -25,6 +25,8 @@ linux:
   #   poolName: linux-agent-pool #name of pool for Azure DevOps Agents
   #   runOnce: "True" #make this true to run the agents as jobs instead of long-lived processes
 
+  maxReplicaCount: 10
+
   trigger: {}
     # poolId: 1
     # targetPipelinesQueueLength: 1
