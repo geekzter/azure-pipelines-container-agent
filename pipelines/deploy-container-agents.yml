@@ -327,8 +327,14 @@ jobs:
       inlineScript: |
         ./set_terraform_azurerm_vars.ps1
 
-        terraform -chdir='../terraform' show -json | ConvertFrom-Json -AsHashtable | Set-Variable tfState 
-        Write-Host "##vso[task.setvariable variable=preExistingResources;isOutput=true]$($tfState.ContainsKey('values').ToString().ToLower())"
+        terraform -chdir='$(terraformDirectory)' show -json | ConvertFrom-Json -AsHashtable | Set-Variable tfState 
+        $priorResourcesExist = $tfState.ContainsKey('values')
+        if ($priorResourcesExist) {
+          Write-Warning "Prior resources exist in workspace '${env:TF_WORKSPACE}'"
+        } else {
+          Write-Host "No prior resources exist in workspace '${env:TF_WORKSPACE}'"
+        }
+        Write-Host "##vso[task.setvariable variable=priorResourcesExist;isOutput=true]$($priorResourcesExist.ToString().ToLower())"
 
         ./deploy.ps1 -apply -force
       addSpnToEnvironment: true
@@ -505,7 +511,7 @@ jobs:
       condition: succeededOrFailed()
     ${{ if eq(parameters.destroy, 'If no prior resources exist') }}:
       displayName: 'Destroy infrastructure (If no prior resources exist)'
-      condition: eq(dependencies.provision.outputs['preExistingResources.result'],'false')
+      condition: eq(dependencies.provision.outputs['priorResourcesExist.result'],'false')
     ${{ if eq(parameters.destroy, 'On failure') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
