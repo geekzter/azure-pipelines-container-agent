@@ -403,7 +403,6 @@ jobs:
           linux.azureDevOps.capability=$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aks
           linux.azureDevOps.poolName=$(TF_VAR_pipeline_agent_pool_name)
           linux.image.acrLoginServer=$(apply.container_registry_name)
-          linux.maxReplicaCount=$(TF_VAR_pipeline_agent_number_max)
           linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
         waitForExecution: true
 
@@ -509,8 +508,8 @@ jobs:
       displayName: 'Destroy infrastructure'
       condition: succeededOrFailed()
     ${{ if eq(parameters.destroy, 'If no prior resources exist') }}:
-      displayName: 'Destroy infrastructure (If no prior resources exist)'
-      condition: eq(dependencies.provision.outputs['priorResourcesExist.result'],'false')
+      displayName: 'Destroy infrastructure (${{ lower(parameters.destroy) }})'
+      condition: eq(dependencies.provision.outputs['apply.priorResourcesExist'],'false')
     ${{ if eq(parameters.destroy, 'On failure') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
