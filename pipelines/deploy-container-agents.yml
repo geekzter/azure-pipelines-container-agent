@@ -27,10 +27,6 @@ parameters:
   displayName: Unpin Terraform version
   type: boolean
   default: false
-- name: deployNetwork
-  displayName: Deploy network
-  type: boolean
-  default: true
 - name: containerEngine
   displayName: Container Engine (ACA/AKS)
   type: string
@@ -40,14 +36,15 @@ parameters:
   - Container App
   - Kubernetes 
   - Both
-- name: gatewayType
-  displayName: Gateway type
+- name: networkType
+  displayName: Network type
   type: string
   default: NATGateway
   values:
   - None
-  - Firewall 
+  - NoGateway
   - NATGateway
+  - Firewall 
 - name: deployBastion
   displayName: Deploy bastion host
   type: boolean
@@ -141,12 +138,12 @@ variables:
 - name: 'TF_VAR_deploy_container_app'
   value: ${{ lower(or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'TF_VAR_deploy_network'
-  value: '${{ lower(parameters.deployNetwork) }}'
+  value: ${{ lower(ne(parameters.networkType, 'None')) }}
 - name: 'TF_VAR_devops_url'
   value: '$(System.CollectionUri)'
-- ${{ if ne(parameters.gatewayType, 'Default') }}:
+- ${{ if ne(parameters.networkType, 'Default') }}:
   - name: 'TF_VAR_gateway_type'
-    value: '${{ parameters.gatewayType }}'
+    value: '${{ parameters.networkType }}'
 - name: 'TF_VAR_environment_variables'
   value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapabilityACA)"}'
 - name: 'TF_VAR_pipeline_agent_pool_id'
