@@ -36,6 +36,7 @@ parameters:
   type: string
   default: Both
   values:
+  - None
   - Container App
   - Kubernetes 
   - Both
@@ -58,10 +59,10 @@ parameters:
 - name: destroy
   displayName: Destroy Infrastructure
   type: string
-  default: 'If no prior resources'
+  default: 'If no prior resources exist'
   values:
   - Always
-  - 'If no prior resources'
+  - 'If no prior resources exist'
   - Never 
   - 'On failure'
   - 'On success'
@@ -502,8 +503,8 @@ jobs:
     ${{ if eq(parameters.destroy, 'Always') }}:
       displayName: 'Destroy infrastructure'
       condition: succeededOrFailed()
-    ${{ if eq(parameters.destroy, 'If no prior resources') }}:
-      displayName: 'Destroy infrastructure (If no prior resources)'
+    ${{ if eq(parameters.destroy, 'If no prior resources exist') }}:
+      displayName: 'Destroy infrastructure (If no prior resources exist)'
       condition: eq(dependencies.provision.outputs['preExistingResources.result'],'false')
     ${{ if eq(parameters.destroy, 'On failure') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
