@@ -43,7 +43,7 @@ parameters:
 - name: gatewayType
   displayName: Gateway type
   type: string
-  default: None
+  default: NATGateway
   values:
   - None
   - Firewall 
@@ -144,8 +144,9 @@ variables:
   value: '${{ lower(parameters.deployNetwork) }}'
 - name: 'TF_VAR_devops_url'
   value: '$(System.CollectionUri)'
-- name: 'TF_VAR_gateway_type'
-  value: '${{ parameters.gatewayType }}'
+- ${{ if ne(parameters.gatewayType, 'Default') }}:
+  - name: 'TF_VAR_gateway_type'
+    value: '${{ parameters.gatewayType }}'
 - name: 'TF_VAR_environment_variables'
   value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapabilityACA)"}'
 - name: 'TF_VAR_pipeline_agent_pool_id'
