@@ -334,6 +334,7 @@ jobs:
         }
         Write-Host "##vso[task.setvariable variable=priorResourcesExist;isOutput=true]$($priorResourcesExist.ToString().ToLower())"
 
+        Write-Host ""
         ./deploy.ps1 -apply -force
       addSpnToEnvironment: true
       useGlobalConfig: true
