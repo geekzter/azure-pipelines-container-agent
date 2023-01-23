@@ -82,9 +82,21 @@ resource azurerm_network_security_rule inbound_agent_lb {
 resource azurerm_subnet_network_security_group_association aks_node_pool {
   subnet_id                    = azurerm_subnet.aks_node_pool.id
   network_security_group_id    = azurerm_network_security_group.agent_nsg.id
+
+  lifecycle {
+    ignore_changes             = [
+      network_security_group_id # Ignore changes made by policy
+    ]
+  }
 }
 
 resource azurerm_subnet_network_security_group_association container_apps_environment {
   subnet_id                    = azurerm_subnet.container_apps_environment.id
   network_security_group_id    = azurerm_network_security_group.agent_nsg.id
+
+  lifecycle {
+    ignore_changes             = [
+      network_security_group_id # Ignore changes made by policy
+    ]
+  }
 }
