@@ -141,7 +141,7 @@ variables:
   value: ${{ lower(ne(parameters.networkType, 'None')) }}
 - name: 'TF_VAR_devops_url'
   value: '$(System.CollectionUri)'
-- ${{ if ne(parameters.networkType, 'Default') }}:
+- ${{ if ne(parameters.networkType, 'None') }}:
   - name: 'TF_VAR_gateway_type'
     value: '${{ parameters.networkType }}'
 - name: 'TF_VAR_environment_variables'
