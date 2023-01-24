@@ -519,7 +519,7 @@ jobs:
       ${{ if eq(parameters.containerEngine, 'Both') }}:
         condition: or(ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
     ${{ if eq(parameters.destroy, 'On success') }}:
-      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'ar
+      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
         condition: eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
       ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
