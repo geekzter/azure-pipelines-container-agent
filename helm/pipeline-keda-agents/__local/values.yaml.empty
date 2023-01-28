@@ -23,6 +23,11 @@ linux:
     poolId: 1
     targetPipelinesQueueLength: 1
 
+storage:
+  accountName: ""
+  accountKey: ""
+  shareName: "diagnostics"
+
 env:
   values:
     - name: AZP_URL

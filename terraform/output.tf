@@ -38,6 +38,10 @@ output container_registry_name {
 output diagnostics_storage_account_name {
   value                        = module.diagnostics_storage.diagnostics_storage_name
 }
+output diagnostics_storage_key {
+  sensitive                    = true
+  value                        = module.diagnostics_storage.diagnostics_storage_key
+}
 output diagnostics_storage_sas {
   sensitive                    = true
   value                        = module.diagnostics_storage.diagnostics_storage_sas

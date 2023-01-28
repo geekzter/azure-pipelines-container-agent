@@ -404,6 +404,9 @@ jobs:
           linux.azureDevOps.poolName=$(TF_VAR_pipeline_agent_pool_name)
           linux.image.acrLoginServer=$(apply.container_registry_name)
           linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
+          storage.accountName=$(apply.diagnostics_storage_account_name)
+          storage.accountKey=$(apply.diagnostics_storage_key)
+          storage.resourceGroupName=$(apply.resource_group_name)
         waitForExecution: true
 
   - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
