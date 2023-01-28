@@ -10,8 +10,8 @@ variable diagnostics_storage_id {}
 variable gateway_type {
   type                         = string
   validation {
-    condition                  = var.gateway_type == "Firewall" || var.gateway_type == "NATGateway" || var.gateway_type == "None"
-    error_message              = "The gateway_type must be 'Firewall', 'NATGateway' or 'None'"
+    condition                  = var.gateway_type == "Firewall" || var.gateway_type == "NATGateway" || var.gateway_type == "NoGateway"
+    error_message              = "The gateway_type must be 'Firewall', 'NATGateway' or 'NoGateway'"
   }
 }
 variable location {}
