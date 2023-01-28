@@ -15,11 +15,20 @@ spec:
           - "--once"
           env:
           - name: AZP_URL
-            value: "{{ regexReplaceAll "\\/$" .Values.linux.azureDevOps.orgUrl "" }}"
+            valueFrom:
+              configMapKeyRef:
+                key: AZP_URL
+                name: azdevops-agent
           - name: AZP_POOL
-            value: "{{ .Values.linux.azureDevOps.poolName }}"
+            valueFrom:
+              configMapKeyRef:
+                key: AZP_POOL
+                name: azdevops-agent
           - name: AZP_TOKEN
-            value: "{{ .Values.linux.azureDevOps.accessToken }}"
+            valueFrom:
+              secretKeyRef:
+                name: azdevops-agent
+                key: AZP_TOKEN
           - name: PIPELINE_DEMO_JOB_CAPABILITY
             value: "{{ .Values.linux.azureDevOps.capability }}"
           # {{- if .Values.env.values -}}
@@ -40,7 +49,7 @@ spec:
         - name: azure
           persistentVolumeClaim:
             claimName: azurefile
-  pollingInterval: 30
+  pollingInterval: 15
   successfulJobsHistoryLimit: 5
   failedJobsHistoryLimit: 5
   maxReplicaCount: {{ .Values.linux.maxReplicaCount | default 10 }}

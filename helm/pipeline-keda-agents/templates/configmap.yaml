@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: azdevops-keda
+  name: azdevops-agent
 data:
-  AZP_URL: "{{ .Values.linux.azureDevOps.orgUrl }}"
+  AZP_URL: "{{ regexReplaceAll "\\/$" .Values.linux.azureDevOps.orgUrl "" }}"
   AZP_POOL: "{{ .Values.linux.azureDevOps.poolName }}"

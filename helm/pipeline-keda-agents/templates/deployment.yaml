@@ -19,11 +19,20 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         env:
         - name: AZP_URL
-          value: "{{ .Values.linux.azureDevOps.orgUrl }}"
+          valueFrom:
+            configMapKeyRef:
+              key: AZP_URL
+              name: azdevops-agent
         - name: AZP_POOL
-          value: "{{ .Values.linux.azureDevOps.poolName }}"
+          valueFrom:
+            configMapKeyRef:
+              key: AZP_POOL
+              name: azdevops-agent
         - name: AZP_TOKEN
-          value: "{{ .Values.linux.azureDevOps.accessToken }}"
+          valueFrom:
+            secretKeyRef:
+              name: azdevops-agent
+              key: AZP_TOKEN
         - name: PIPELINE_DEMO_JOB_CAPABILITY
           value: "{{ .Values.linux.azureDevOps.capability }}"
         # {{- if .Values.env.values -}}
@@ -32,3 +41,10 @@ spec:
         #     value: {{ .value | quote }}
         # {{- end -}}
         # {{- end }}
+        volumeMounts:
+        - mountPath: /mnt/diag
+          name: azure
+      volumes:
+      - name: azure
+        persistentVolumeClaim:
+          claimName: azurefile
