@@ -77,8 +77,6 @@ if ($InstallKeda) {
 
 $helmDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) helm pipeline-keda-agents)
 
-# /usr/local/bin/helm upgrade --install --values /home/vsts/work/1/s/helm/pipeline-keda-agents/values.yaml --set image.repository=ericvanimages.azurecr.io/pipelineagent/ubuntu,linux.azureDevOps.accessToken=dndspdevmrixmnugzbvx6xkhn77jvdgxyywanemwiorod6qltuoq,linux.azureDevOps.orgUrl=https://dev.azure.com/ericvan/,linux.azureDevOps.capability=https://dev.azure.com/ericvan/PipelineAgents#deploy-container-agents#cd#aks,linux.azureDevOps.poolName=Default,linux.image.acrLoginServer=ericvanimages,linux.trigger.poolId=1 --wait pipeline-keda-agents /home/vsts/work/1/s/helm/pipeline-keda-agents
-
 Push-Location $helmDirectory
 $psNativeCommandArgumentPassingBackup = $PSNativeCommandArgumentPassing
 try {
