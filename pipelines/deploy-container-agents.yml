@@ -398,7 +398,7 @@ jobs:
           image.repository=$(apply.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
           linux.azureDevOps.orgUrl=$(System.CollectionUri)
-          linux.azureDevOps.capability=$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aks
+          linux.azureDevOps.capability=$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
           linux.azureDevOps.poolName=$(TF_VAR_pipeline_agent_pool_name)
           linux.image.acrLoginServer=$(apply.container_registry_name)
           linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
@@ -409,7 +409,8 @@ jobs:
 
   - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
     - pwsh: |
-        ./wait_for_agents.ps1 -CapabilityValue $(correlationCapability) `
+        ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_ACA `
+                              -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
                               -PoolId $(TF_VAR_pipeline_agent_pool_id)
       displayName: 'Wait for Container App agents to come online'
@@ -419,7 +420,8 @@ jobs:
 
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - pwsh: |
-        ./wait_for_agents.ps1 -CapabilityValue $(correlationCapability) `
+        ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_AKS `
+                              -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
                               -PoolId $(TF_VAR_pipeline_agent_pool_id)
       displayName: 'Wait for Kubernetes agents to come online'
