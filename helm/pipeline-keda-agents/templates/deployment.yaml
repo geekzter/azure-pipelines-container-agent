@@ -33,14 +33,14 @@ spec:
             secretKeyRef:
               name: azdevops-agent
               key: AZP_TOKEN
-        - name: PIPELINE_DEMO_JOB_CAPABILITY
-          value: "{{ .Values.linux.azureDevOps.capability }}"
       {{- if .Values.env.values -}}
       {{- range .Values.env.values }}
         - name: {{ .name }}
           value: {{ .value | quote }}
       {{- end -}}
       {{- end }}
+        - name: PIPELINE_DEMO_JOB_CAPABILITY
+          value: "{{ .Values.linux.azureDevOps.capability }}"
         volumeMounts:
         - mountPath: /mnt/diag
           name: azure
