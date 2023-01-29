@@ -81,8 +81,21 @@ Push-Location $helmDirectory
 $psNativeCommandArgumentPassingBackup = $PSNativeCommandArgumentPassing
 try {
     $PSNativeCommandArgumentPassing = "Legacy"
+
+    Join-Path (Split-Path $PSScriptRoot -Parent) `
+              data `
+              $env:TF_WORKSPACE helm-env-vars-values.json `
+              | Set-Variable helmEnvVarsValuesFile
+    $valueFiles = "./values.yaml,./__local/values.yaml"
+    if (Test-Path $helmEnvVarsValuesFile) {
+        $valueFiles += ",${helmEnvVarsValuesFile}"
+    } else {
+        Write-Warning "No helm-env-vars-values.json file found at ${helmEnvVarsValuesFile}, skipping environment variable values"
+    }
+
+    Write-Debug "helm upgrade --install azure-pipeline-keda-agents . --values ${valueFiles} --set storage.accountName=${DiagnosticsShareAccountName},storage.accountKey=${DiagnosticsShareAccountKey},storage.resourceGroupName=${ResourceGroupName} ($DryRun ? '--dry-run' : '')"
     helm upgrade --install azure-pipeline-keda-agents . `
-                 --values ./values.yaml,./__local/values.yaml `
+                 --values ${valueFiles} `
                  --set storage.accountName=${DiagnosticsShareAccountName},storage.accountKey=${DiagnosticsShareAccountKey},storage.resourceGroupName=${ResourceGroupName} `
                  ($DryRun ? "--dry-run" : "")
 } finally {

@@ -51,6 +51,29 @@ output environment_variables {
   value                        = local.environment_variables
 }
 
+resource local_file helm_environment_values_file {
+  content                      = jsonencode(
+    {
+      env                      = {
+        values                 = [for key,value in local.environment_variables : {
+            name               = key
+            value              = value
+          }
+        ]
+      }
+    }
+  )
+  filename                     = "${path.root}/../data/${terraform.workspace}/helm-env-vars-values.json"
+}
+
+output helm_environment_values_file_abs_path {
+  value                        = abspath(local_file.helm_environment_values_file.filename)
+}
+
+output helm_environment_values_file {
+  value                        = local_file.helm_environment_values_file.filename
+}
+
 output gateway_id {
   value                        = var.deploy_network ? module.network.0.gateway_id : null
 }

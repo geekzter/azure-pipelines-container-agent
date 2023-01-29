@@ -108,11 +108,4 @@ tolerations: []
 affinity: {}
 
 env:
-  # configmap:
-  #   - name: APPLICATIONINSIGHTSIK
-  #   - name: CONNECTIONSTRING
-  #   - name: COUPON_COLLECTION
-  #   - name: URL_BASE
-  #   - name: ISSUER
-  #   - name: SECURITYKEY
   values: {}
