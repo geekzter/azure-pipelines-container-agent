@@ -55,7 +55,6 @@ resource local_file helm_environment_values_file {
   content                      = jsonencode(
     {
       env                      = {
-        # values                 = [for key,value in local.environment_variables : {
         values                 = [for key, value in { for k, v in local.environment_variables : k => v if k != "PIPELINE_DEMO_JOB_CAPABILITY_ACA" } : {
             name               = key
             value              = value
