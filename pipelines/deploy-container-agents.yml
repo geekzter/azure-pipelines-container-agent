@@ -395,7 +395,7 @@ jobs:
         chartType: FilePath
         chartPath: "helm/pipeline-keda-agents"
         releaseName: "pipeline-keda-agents"
-        valueFile: "helm/pipeline-keda-agents/values.yaml,(apply.helm_environment_values_file_abs_path)"
+        valueFile: "helm/pipeline-keda-agents/values.yaml,$(apply.helm_environment_values_file_abs_path)"
         overrideValues: |
           image.repository=$(apply.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
