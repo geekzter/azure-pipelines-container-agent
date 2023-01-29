@@ -444,6 +444,7 @@ jobs:
       name: '$(TF_VAR_pipeline_agent_pool_name)'
       demands:
       - agent.os -equals Linux
+      - CONTAINER_APP_NAME
       # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
       # - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(correlationCapability)
       # Repeat capability expression as there is no nested variable expansion inside demands

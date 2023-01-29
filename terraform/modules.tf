@@ -52,7 +52,7 @@ module container_app_agents {
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
   diagnostics_storage_share_name= module.diagnostics_storage.diagnostics_storage_name
   diagnostics_share_name       = module.diagnostics_storage.diagnostics_share_name
-  environment_variables        = local.environment_variables
+  environment_variables        = { for k, v in local.environment_variables : k => v if k != "PIPELINE_DEMO_JOB_CAPABILITY_AKS" }
   # gateway_id                   = var.deploy_network ? module.network.0.gateway_id : null # Requires upcoming Premium SKU
   gateway_id                   = null
   location                     = var.location
