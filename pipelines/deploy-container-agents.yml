@@ -398,7 +398,7 @@ jobs:
           image.repository=$(apply.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
           linux.azureDevOps.orgUrl=$(System.CollectionUri)
-          linux.azureDevOps.capability=$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+          linux.azureDevOps.capability=$(correlationCapability)
           linux.azureDevOps.poolName=$(TF_VAR_pipeline_agent_pool_name)
           linux.image.acrLoginServer=$(apply.container_registry_name)
           linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
@@ -476,9 +476,9 @@ jobs:
       name: '$(TF_VAR_pipeline_agent_pool_name)'
       demands:
       - agent.os -equals Linux
-      # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
+      # - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(correlationCapability)
       # Repeat capability expression as there is no nested variable expansion inside demands
-      - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+      - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
 
     steps:
     - checkout: self
