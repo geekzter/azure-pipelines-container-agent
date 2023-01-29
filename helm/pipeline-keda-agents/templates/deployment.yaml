@@ -39,7 +39,7 @@ spec:
           value: {{ .value | quote }}
       {{- end -}}
       {{- end }}
-        - name: PIPELINE_DEMO_JOB_CAPABILITY
+        - name: PIPELINE_DEMO_JOB_CAPABILITY_AKS
           value: "{{ .Values.linux.azureDevOps.capability }}"
         volumeMounts:
         - mountPath: /mnt/diag

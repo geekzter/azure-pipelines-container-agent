@@ -105,10 +105,8 @@ variables:
   value: 'true'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
   value: 'yes_without_prompt'
-- name: 'correlationCapabilityACA'
-  value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aca'
-- name: 'correlationCapabilityAKS'
-  value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aks'
+- name: 'correlationCapability'
+  value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)'
 - name: 'jobTimeOutMinutes'
   value: 60
 - name: date
@@ -145,7 +143,7 @@ variables:
   - name: 'TF_VAR_gateway_type'
     value: '${{ parameters.networkType }}'
 - name: 'TF_VAR_environment_variables'
-  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapabilityACA)"}'
+  value: '{PIPELINE_DEMO_JOB_CAPABILITY_ACA="$(correlationCapability)"}'
 - name: 'TF_VAR_pipeline_agent_pool_id'
   value: 1
 - name: 'TF_VAR_pipeline_agent_pool_name'
@@ -411,7 +409,7 @@ jobs:
 
   - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
     - pwsh: |
-        ./wait_for_agents.ps1 -CapabilityValue $(correlationCapabilityACA) `
+        ./wait_for_agents.ps1 -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
                               -PoolId $(TF_VAR_pipeline_agent_pool_id)
       displayName: 'Wait for Container App agents to come online'
@@ -421,7 +419,7 @@ jobs:
 
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - pwsh: |
-        ./wait_for_agents.ps1 -CapabilityValue $(correlationCapabilityAKS) `
+        ./wait_for_agents.ps1 -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
                               -PoolId $(TF_VAR_pipeline_agent_pool_id)
       displayName: 'Wait for Kubernetes agents to come online'
@@ -445,9 +443,9 @@ jobs:
       demands:
       - agent.os -equals Linux
       # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
-      # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapabilityACA)
+      # - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(correlationCapability)
       # Repeat capability expression as there is no nested variable expansion inside demands
-      - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aca
+      - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
 
     steps:
     - checkout: self
@@ -476,9 +474,9 @@ jobs:
       name: '$(TF_VAR_pipeline_agent_pool_name)'
       demands:
       - agent.os -equals Linux
-      # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapabilityAKS)
+      # - PIPELINE_DEMO_JOB_CAPABILITY -equals $(correlationCapability)
       # Repeat capability expression as there is no nested variable expansion inside demands
-      - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)#aks
+      - PIPELINE_DEMO_JOB_CAPABILITY -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
 
     steps:
     - checkout: self
