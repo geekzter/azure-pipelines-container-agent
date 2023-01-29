@@ -16,6 +16,9 @@ Features (see [limitations below](#Limitations)):
 ## Instructions
 There are a number of [scripts](./scripts) and [pipelines](./pipelines) you can use to get going. Below, I'll describe a local and pipeline approach, but you can blend these.
 
+### Pre-requisites
+- AKS: Register the [AKS-KedaPreview](https://learn.microsoft.com/en-us/azure/aks/keda-deploy-add-on-arm#register-the-aks-kedapreview-feature-flag) feature flag
+
 ### Local setup
 - You'll need [Azure CLI](http://aka.ms/azure-cli), Docker, [PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) and [Terraform](https://developer.hashicorp.com/terraform/downloads)
 - You can use an existing Azure Container Registry (if you already have a shared registry) or let Terraform create one. In case Terraform creates the ACR, there is no opportunity to build and push the container image to the ACR before the Container App will use it.   

@@ -19,6 +19,13 @@ backend.tf
 # macOS
 *.DS_Store
 
+# Ignore generated files
+**/data/*
+data/
+data/*
+data/**
+*/data/**
+
 # Ignore temp files
 **/tmp**/*
 tmp*.*
@@ -27,3 +34,7 @@ err.out
 *.~*
 ~*.*
 *.log
+
+# Ignore local Helm chart values
+helm/*/__local/*
+!helm/*/__local/values.yaml.empty

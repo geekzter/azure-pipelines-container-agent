@@ -7,6 +7,11 @@ variable agent_identity_resource_id {
   default                      = ""
 }
 
+variable aks_private_cluster_enabled {
+  default                      = false
+  type                         = bool
+}
+
 variable application_name {
   description                  = "Value of 'application' resource tag"
   default                      = "Container Agents"
@@ -44,6 +49,12 @@ variable create_files_share {
   type                         = bool
 }
 
+variable deploy_aks {
+  description                  = "Deploys AKS"
+  default                      = false
+  type                         = bool
+}
+
 variable deploy_bastion {
   description                  = "Deploys managed bastion host"
   default                      = false
@@ -74,16 +85,12 @@ variable environment_variables {
   default                      = {}  
 } 
 
-variable firewall_sku_tier {
-  default                      = "Basic"
-}
-
 variable gateway_type {
   type                         = string
-  default                      = "None"
+  default                      = "NoGateway"
   validation {
-    condition                  = var.gateway_type == "Firewall" || var.gateway_type == "NATGateway" || var.gateway_type == "None"
-    error_message              = "The gateway_type must be 'Firewall', 'NATGateway' or 'None'"
+    condition                  = var.gateway_type == "Firewall" || var.gateway_type == "NATGateway" || var.gateway_type == "NoGateway"
+    error_message              = "The gateway_type must be 'Firewall', 'NATGateway' or 'NoGateway'"
   }
 }
 
@@ -92,12 +99,42 @@ variable github_repo_access_token {
   default                      = null
 }
 
+variable kube_config_path {
+  description                  = "Path to the kube config file (e.g. ~/.kube/config)"
+  default                      = ""
+}
+
+variable kubernetes_version {
+  default                      = ""
+}
+
+variable kubernetes_node_min_count {
+  default                      = 1
+  type                         = number
+}
+variable kubernetes_node_max_count {
+  default                      = 10
+  type                         = number
+}
+variable kubernetes_node_size {
+  default                      = "Standard_B4ms"
+}
 variable location {
   default                      = "centralus"
 }
 
 variable log_analytics_workspace_resource_id {
   description                  = "Specify a pre-existing Log Analytics workspace. The workspace needs to have the Security, SecurityCenterFree, ServiceMap, Updates, VMInsights solutions provisioned"
+  default                      = ""
+}
+
+variable peer_network_has_gateway {
+  type                         = bool
+  default                      = false
+}
+
+variable peer_network_id {
+  description                  = "Virtual network to be peered with. This is usefull to run Terraform from and be able to access a private API server."
   default                      = ""
 }
 
@@ -171,6 +208,11 @@ variable service_connection_id {
 variable service_connection_project {
   description                  = "The Azure DevOps project where the Service Connection GUID to join the scale set agents resides"
   default                      = ""
+}
+
+variable ssh_public_key_file {
+  type                         = string
+  default                      = "~/.ssh/id_rsa.pub"
 }
 
 variable tags {

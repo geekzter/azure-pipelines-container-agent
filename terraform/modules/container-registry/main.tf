@@ -19,17 +19,15 @@ resource azurerm_monitor_diagnostic_setting image_registry {
   target_resource_id           = azurerm_container_registry.image_registry.0.id
   log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
 
-  log {
+  enabled_log {
     category                   = "ContainerRegistryRepositoryEvents"
-    enabled                    = true
 
     retention_policy {
       enabled                  = false
     }
   }
-  log {
+  enabled_log {
     category                   = "ContainerRegistryLoginEvents"
-    enabled                    = true
 
     retention_policy {
       enabled                  = false

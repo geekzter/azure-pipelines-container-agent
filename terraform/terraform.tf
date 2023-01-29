@@ -8,7 +8,8 @@ terraform {
     #   source                   = "microsoft/azuredevops"
     #   version                  = "~> 0.3"
     # }
-    azurerm                    = "~> 3.37"
+    azurerm                    = "~> 3.39"
+    local                      = "~> 2.3"
     random                     = "~> 3.4"
     time                       = "~> 0.9"
   }
@@ -17,7 +18,7 @@ terraform {
 
 # provider azuredevops {
 #   features {
-#     org_service_url            = var.devops_url
+#     org_service_url            = local.devops_url
 #     personal_access_token      = var.devops_pat
 #   }
 # }
@@ -27,6 +28,8 @@ provider azurerm {
       prevent_deletion_if_contains_resources = false
     }
   }
+
+  # skip_provider_registration   = true
 }
 
 data azurerm_client_config default {}

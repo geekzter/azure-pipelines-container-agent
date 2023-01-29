@@ -12,18 +12,35 @@ output agent_identity_principal_id {
   value                        = local.agent_identity_principal_id
 }
 
-output container_app_id {
-  value                        = var.deploy_container_app ? module.container_agents.0.container_app_id : null
-}
-output container_app_name {
-  value                        = var.deploy_container_app ? module.container_agents.0.container_app_name : null
-}
-output container_environment_id {
-  value                        = var.deploy_container_app ? module.container_agents.0.container_environment_id : null
+output aks_id {
+  value                        = var.deploy_aks ? module.aks_agents.0.aks_id : null
 }
 
+output aks_name {
+  value                        = var.deploy_aks ? module.aks_agents.0.aks_name : null
+}
+
+output container_app_id {
+  value                        = var.deploy_container_app ? module.container_app_agents.0.container_app_id : null
+}
+output container_app_name {
+  value                        = var.deploy_container_app ? module.container_app_agents.0.container_app_name : null
+}
+output container_environment_id {
+  value                        = var.deploy_container_app ? module.container_app_agents.0.container_environment_id : null
+}
+output container_registry_id {
+  value                        = module.container_registry.container_registry_id
+}
+output container_registry_name {
+  value                        = module.container_registry.container_registry_name
+}
 output diagnostics_storage_account_name {
   value                        = module.diagnostics_storage.diagnostics_storage_name
+}
+output diagnostics_storage_key {
+  sensitive                    = true
+  value                        = module.diagnostics_storage.diagnostics_storage_key
 }
 output diagnostics_storage_sas {
   sensitive                    = true
@@ -34,8 +51,40 @@ output environment_variables {
   value                        = local.environment_variables
 }
 
+resource local_file helm_environment_values_file {
+  content                      = jsonencode(
+    {
+      env                      = {
+        values                 = [for key, value in { for k, v in local.environment_variables : k => v if k != "PIPELINE_DEMO_JOB_CAPABILITY_ACA" } : {
+            name               = key
+            value              = value
+          }
+        ]
+      }
+    }
+  )
+  filename                     = "${path.root}/../data/${terraform.workspace}/helm-env-vars-values.json"
+}
+
+output helm_environment_values_file_abs_path {
+  value                        = abspath(local_file.helm_environment_values_file.filename)
+}
+
+output helm_environment_values_file {
+  value                        = local_file.helm_environment_values_file.filename
+}
+
 output gateway_id {
   value                        = var.deploy_network ? module.network.0.gateway_id : null
+}
+
+output kube_config {
+  sensitive                    = true
+  value                        = var.deploy_aks ? module.aks_agents.0.kube_config : null
+}
+
+output kubernetes_version {
+  value                        = var.deploy_aks ? module.aks_agents.0.kubernetes_version : null
 }
 
 output log_analytics_workspace_resource_id {

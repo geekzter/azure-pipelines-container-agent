@@ -1,0 +1,38 @@
+image:
+  repository: "<ACR>.azurecr.io/pipelineagent/ubuntu"
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+linux:
+  image:
+    acrLoginServer: "<ACR>"
+    # name: pipelineagent/ubuntu
+    # tag: latest
+
+  # secret:
+  #   # THIS IS A CREDENTIAL - BE SURE NOT TO COMMIT TO REPO
+  #   azpToken: ""
+  #   azpUrl: ""
+
+  # job:
+  #   poolName: linux-agent-pool #name of pool for Azure DevOps Agents
+  #   runOnce: "True" #make this true to run the agents as jobs instead of long-lived processes
+
+  trigger:
+    poolId: 1
+    targetPipelinesQueueLength: 1
+
+storage:
+  accountName: ""
+  accountKey: ""
+  shareName: "diagnostics"
+
+env:
+  values:
+    - name: AZP_URL
+      value: "<REDACTED>"
+    - name: AZP_POOL
+      value: "<REDACTED>"
+    - name: AZP_TOKEN
+      value: "<REDACTED>"

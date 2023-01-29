@@ -1,0 +1,64 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: azdevops-scaledjob
+spec:
+  jobTargetRef:
+    template:
+      spec:
+        containers:
+        - name: azdevops-agent-job
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: Always
+          # Terminate automatically when build job exits
+          args:
+          - "--once"
+          env:
+          - name: AZP_URL
+            valueFrom:
+              configMapKeyRef:
+                key: AZP_URL
+                name: azdevops-agent
+          - name: AZP_POOL
+            valueFrom:
+              configMapKeyRef:
+                key: AZP_POOL
+                name: azdevops-agent
+          - name: AZP_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: azdevops-agent
+                key: AZP_TOKEN
+        {{- if .Values.env.values -}}
+        {{- range .Values.env.values }}
+          - name: {{ .name }}
+            value: {{ .value | quote }}
+        {{- end -}}
+        {{- end }}
+          - name: PIPELINE_DEMO_JOB_CAPABILITY_AKS
+            value: "{{ .Values.linux.azureDevOps.capability }}"
+          volumeMounts:
+          - mountPath: /var/run/docker.sock
+            name: docker-volume
+          - mountPath: /mnt/diag
+            name: azure
+        volumes:
+        - name: docker-volume
+          hostPath:
+            path: /var/run/docker.sock
+        - name: azure
+          persistentVolumeClaim:
+            claimName: azurefile
+  pollingInterval: 15
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  maxReplicaCount: {{ .Values.linux.maxReplicaCount | default 10 }}
+  scalingStrategy:
+    strategy: "default"               
+  triggers:
+  - type: azure-pipelines
+    metadata:
+      poolID: "{{ .Values.linux.trigger.poolId }}"
+      organizationURLFromEnv: "AZP_URL"
+      personalAccessTokenFromEnv: "AZP_TOKEN"
+      targetPipelinesQueueLength: "1" 

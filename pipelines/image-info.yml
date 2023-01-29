@@ -1,4 +1,11 @@
 parameters:
+- name: containerEngine
+  displayName: Container Engine
+  type: string
+  default: 'Container App'
+  values:
+  - 'Container App'
+  - Kubernetes
 # Test auto-scaling by setting sleep time
 - name: numberOfJobs
   displayName: Number of parallel jobs to create
@@ -44,7 +51,9 @@ jobs:
     name: $[coalesce(variables.pool,'Default')]
     demands:
     - agent.os -equals Linux
-    - CONTAINER_APP_NAME
+    - KUBERNETES_SERVICE_HOST
+    - ${{ if eq(parameters.containerEngine, 'Container App') }}:
+      - CONTAINER_APP_NAME
   steps:
   - bash: |
       echo Hello from Ubuntu

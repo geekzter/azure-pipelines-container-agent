@@ -8,10 +8,13 @@ resource random_string suffix {
 }
 
 locals {
-  agent_identity_client_id     = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.client_id : azurerm_user_assigned_identity.agent_identity.0.client_id
-  agent_identity_name          = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.name : azurerm_user_assigned_identity.agent_identity.0.name
-  agent_identity_principal_id  = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.principal_id : azurerm_user_assigned_identity.agent_identity.0.principal_id
-  agent_identity_resource_id   = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null ? var.agent_identity_resource_id : azurerm_user_assigned_identity.agent_identity.0.id
+  agent_identity_client_id     = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.client_id : azurerm_user_assigned_identity.agent_identity.0.client_id
+  agent_identity_name          = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.name : azurerm_user_assigned_identity.agent_identity.0.name
+  agent_identity_principal_id  = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.principal_id : azurerm_user_assigned_identity.agent_identity.0.principal_id
+  agent_identity_resource_id   = local.agent_identity_is_precreated ? var.agent_identity_resource_id : azurerm_user_assigned_identity.agent_identity.0.id
+  agent_identity_is_precreated = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null
+  devops_url                   = replace(var.devops_url,"/\\/$/","")
+
   environment_variables        = merge(
     {
       AGENT_DIAGNOSTIC                                          = tostring(var.pipeline_agent_diagnostics)
@@ -31,24 +34,27 @@ locals {
     },
     var.environment_variables
   )
+  kube_config_relative_path    = var.kube_config_path != "" ? var.kube_config_path : "../.kube/${local.workspace_moniker}config"
+  kube_config_absolute_path    = var.kube_config_path != "" ? var.kube_config_path : "${path.root}/../.kube/${local.workspace_moniker}config"
   log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
   owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
   suffix                       = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
   tags                         = merge(
     {
       application              = var.application_name
-      github-repo              = "https://github.com/geekzter/azure-pipelines-container-agent"
+      githubRepo               = "https://github.com/geekzter/azure-pipelines-container-agent"
       owner                    = local.owner
       provisioner              = "terraform"
-      provisioner-client-id    = data.azurerm_client_config.default.client_id
-      provisioner-object-id    = data.azurerm_client_config.default.object_id
+      provisionerClientId      = data.azurerm_client_config.default.client_id
+      provisionerObjectId      = data.azurerm_client_config.default.object_id
       repository               = "azure-pipelines-container-agent"
-      runid                    = var.run_id
+      runId                    = var.run_id
       suffix                   = local.suffix
       workspace                = terraform.workspace
     },
     var.tags
   )  
+  workspace_moniker            = terraform.workspace == "default" ? "" : terraform.workspace
 }
 
 resource azurerm_resource_group rg {
@@ -73,6 +79,7 @@ resource azurerm_user_assigned_identity agent_identity {
   count                        = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null ? 0 : 1
   tags                         = local.tags
 }
+
 data azurerm_user_assigned_identity pre_created_agent_identity {
   name                         = element(split("/",var.agent_identity_resource_id),length(split("/",var.agent_identity_resource_id))-1)
   resource_group_name          = element(split("/",var.agent_identity_resource_id),length(split("/",var.agent_identity_resource_id))-5)

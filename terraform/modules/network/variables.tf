@@ -7,16 +7,17 @@ variable deploy_bastion {
   type                         = bool
 }
 variable diagnostics_storage_id {}
-variable firewall_sku_tier {}
 variable gateway_type {
   type                         = string
   validation {
-    condition                  = var.gateway_type == "Firewall" || var.gateway_type == "NATGateway" || var.gateway_type == "None"
-    error_message              = "The gateway_type must be 'Firewall', 'NATGateway' or 'None'"
+    condition                  = var.gateway_type == "Firewall" || var.gateway_type == "NATGateway" || var.gateway_type == "NoGateway"
+    error_message              = "The gateway_type must be 'Firewall', 'NATGateway' or 'NoGateway'"
   }
 }
 variable location {}
 variable log_analytics_workspace_resource_id {}
+variable peer_network_id {}
+variable peer_network_has_gateway {}
 variable resource_group_name {}
 variable tags {
   type                         = map
