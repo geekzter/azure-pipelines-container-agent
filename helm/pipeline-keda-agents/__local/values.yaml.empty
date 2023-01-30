@@ -10,14 +10,12 @@ linux:
     # name: pipelineagent/ubuntu
     # tag: latest
 
-  # secret:
-  #   # THIS IS A CREDENTIAL - BE SURE NOT TO COMMIT TO REPO
-  #   azpToken: ""
-  #   azpUrl: ""
-
-  # job:
-  #   poolName: linux-agent-pool #name of pool for Azure DevOps Agents
-  #   runOnce: "True" #make this true to run the agents as jobs instead of long-lived processes
+  azureDevOps:
+    capability: ""
+    poolName: "Default"
+    # THIS IS A CREDENTIAL - BE SURE NOT TO COMMIT TO REPO
+    accessToken: ""
+    orgUrl: ""
 
   trigger:
     poolId: 1
@@ -26,13 +24,12 @@ linux:
 storage:
   accountName: ""
   accountKey: ""
+  resourceGroupName: ""
   shareName: "diagnostics"
 
 env:
   values:
-    - name: AZP_URL
+    - name: FOO
       value: "<REDACTED>"
-    - name: AZP_POOL
-      value: "<REDACTED>"
-    - name: AZP_TOKEN
+    - name: BAR
       value: "<REDACTED>"
