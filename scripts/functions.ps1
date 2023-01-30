@@ -1,3 +1,29 @@
+function Create-RequestHeaders()
+{
+    $base64AuthInfo = [Convert]::ToBase64String([System.Text.ASCIIEncoding]::ASCII.GetBytes(":${Token}"))
+    $authHeader = "Basic $base64AuthInfo"
+    Write-Debug "Authorization: $authHeader"
+    $requestHeaders = @{
+        Accept = "application/json"
+        Authorization = $authHeader
+        "Content-Type" = "application/json"
+    }
+
+    return $requestHeaders
+}
+
+function Get-Agents(
+    [parameter(Mandatory=$true)][int]$PoolId
+) {
+    az pipelines agent list --pool-id $poolId `
+                            --org $OrganizationUrl `
+                            --query "[?status=='offline'].id" `
+                            -o tsv `
+                            | Set-Variable offlineAgentIds
+
+    return $offlineAgentIds
+}
+
 function Get-TerraformDirectory {
     return (Join-Path (Split-Path $PSScriptRoot -Parent) "terraform")
 }
@@ -63,6 +89,10 @@ function Login-Az (
         }
     }
 
+    if ($env:ARM_SUBSCRIPTION_ID) {
+        az account set -s $env:ARM_SUBSCRIPTION_ID -o none
+    }
+
     if ($DisplayMessages) {
         if ($env:ARM_SUBSCRIPTION_ID -or ($(az account list --query "length([])" -o tsv) -eq 1)) {
             Write-Host "Using subscription '$(az account show --query "name" -o tsv)'"
@@ -88,10 +118,6 @@ function Login-Az (
         }
     }
 
-    if ($env:ARM_SUBSCRIPTION_ID) {
-        az account set -s $env:ARM_SUBSCRIPTION_ID -o none
-    }
-
     # Populate Terraform azurerm variables where possible
     if ($userType -ine "user") {
         # Pass on pipeline service principal credentials to Terraform
@@ -108,6 +134,31 @@ function Login-Az (
             $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_VAR_backend_storage_container --as-user --auth-mode login --account-name $env:TF_VAR_backend_storage_account --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
         }
     }
+}
+
+function Remove-OfflineAgent(
+    [parameter(Mandatory=$true)][int]$AgentId,
+    [parameter(Mandatory=$true)][int]$PoolId
+)
+{
+    $apiVersion = "7.1-preview.1"
+    "Removing agent ${AgentId} from '$PoolName'..." | Write-Host
+    Write-Debug "PoolName: $PoolName"
+
+    $apiUrl = "${OrganizationUrl}/_apis/distributedtask/pools/${poolId}/agents/${AgentId}?api-version=${apiVersion}"
+    Write-Verbose "REST API Url: $apiUrl"
+
+    $requestHeaders = Create-RequestHeaders -Token $Token
+
+    Write-Debug "Request JSON: $RequestJson"
+    try {
+        Invoke-RestMethod -Uri $apiUrl -Headers $requestHeaders -Method Delete
+    } catch {
+        Write-RestError
+        exit 1
+    }
+
+    "Removed agent ${AgentId} from '$PoolName'..." | Write-Host
 }
 
 function Set-PipelineVariablesFromTerraform () {
@@ -166,5 +217,22 @@ function Validate-ExitCode (
     if ($exitCode -ne 0) {
         Write-Warning "'$cmd' exited with status $exitCode"
         exit $exitCode
+    }
+}
+
+function Write-RestError() {
+    if ($_.ErrorDetails.Message) {
+        try {
+            $_.ErrorDetails.Message | ConvertFrom-Json | Set-Variable restError
+            $restError | Format-List | Out-String | Write-Debug
+            $message = $restError.message
+        } catch {
+            $message = $_.ErrorDetails.Message
+        }
+    } else {
+        $message = $_.Exception.Message
+    }
+    if ($message) {
+        Write-Warning $message
     }
 }
