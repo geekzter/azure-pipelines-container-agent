@@ -26,6 +26,8 @@ param (
     [string]
     $ResourceGroupName,
 
+    $Suffix,
+
     [switch]
     $InstallKeda,
 
@@ -93,10 +95,10 @@ try {
         Write-Warning "No helm-env-vars-values.json file found at ${helmEnvVarsValuesFile}, skipping environment variable values"
     }
 
-    Write-Debug "helm upgrade --install azure-pipeline-keda-agents . --values ${valueFiles} --set storage.accountName=${DiagnosticsShareAccountName},storage.accountKey=${DiagnosticsShareAccountKey},storage.resourceGroupName=${ResourceGroupName} ($DryRun ? '--dry-run' : '')"
+    Write-Debug "helm upgrade --install azure-pipeline-keda-agents . --values ${valueFiles} --set linux.podPrefix=aks-${env:TF_WORKSPACE}-${Suffix},storage.accountName=${DiagnosticsShareAccountName},storage.accountKey=${DiagnosticsShareAccountKey},storage.resourceGroupName=${ResourceGroupName} ($DryRun ? '--dry-run' : '')"
     helm upgrade --install azure-pipeline-keda-agents . `
                  --values ${valueFiles} `
-                 --set storage.accountName=${DiagnosticsShareAccountName},storage.accountKey=${DiagnosticsShareAccountKey},storage.resourceGroupName=${ResourceGroupName} `
+                 --set linux.podPrefix=aks-${env:TF_WORKSPACE}-${Suffix},storage.accountName=${DiagnosticsShareAccountName},storage.accountKey=${DiagnosticsShareAccountKey},storage.resourceGroupName=${ResourceGroupName} `
                  ($DryRun ? "--dry-run" : "")
 } finally {
     $PSNativeCommandArgumentPassing = $psNativeCommandArgumentPassingBackup

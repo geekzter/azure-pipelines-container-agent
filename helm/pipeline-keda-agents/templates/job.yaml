@@ -1,13 +1,13 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:
-  name: azdevops-scaledjob
+  name:  {{ .Values.linux.podPrefix | default "azure-devops" }}-scaledjob
 spec:
   jobTargetRef:
     template:
       spec:
         containers:
-        - name: azdevops-agent-job
+        - name: azure-devops-agent-job
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: Always
           # Terminate automatically when build job exits
@@ -18,16 +18,16 @@ spec:
             valueFrom:
               configMapKeyRef:
                 key: AZP_URL
-                name: azdevops-agent
+                name: azure-devops-agent
           - name: AZP_POOL
             valueFrom:
               configMapKeyRef:
                 key: AZP_POOL
-                name: azdevops-agent
+                name: azure-devops-agent
           - name: AZP_TOKEN
             valueFrom:
               secretKeyRef:
-                name: azdevops-agent
+                name: azure-devops-agent
                 key: AZP_TOKEN
         {{- if .Values.env.values -}}
         {{- range .Values.env.values }}
@@ -48,7 +48,7 @@ spec:
             path: /var/run/docker.sock
         - name: azure
           persistentVolumeClaim:
-            claimName: azurefile
+            claimName: azure-files
   pollingInterval: 15
   successfulJobsHistoryLimit: 5
   failedJobsHistoryLimit: 5

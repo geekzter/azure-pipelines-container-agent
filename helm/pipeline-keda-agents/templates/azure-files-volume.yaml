@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: azurefile
+  name: azure-files
 spec:
   capacity:
     storage: 5Gi
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: azurefile-csi
+  storageClassName: azure-files-csi
   csi:
     driver: file.csi.azure.com
     readOnly: false
@@ -17,7 +17,7 @@ spec:
       resourceGroup: "{{ .Values.storage.resourceGroupName }}"
       shareName: "{{ .Values.storage.shareName }}"
     nodeStageSecretRef:
-      name: azure-secret
+      name: azure-files-secret
       namespace: default
   mountOptions:
     - dir_mode=0777

@@ -131,7 +131,7 @@ resource azapi_resource agent_container_environment_share {
 
 # Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
 resource azapi_resource agent_container_app {
-  name                         = "${replace(var.resource_group_name,"-container","")}-app"
+  name                         = "aca-${terraform.workspace}-${var.suffix}-deployment"
   location                     = var.location
   parent_id                    = var.resource_group_id
   type                         = "Microsoft.App/containerApps@2022-03-01"
