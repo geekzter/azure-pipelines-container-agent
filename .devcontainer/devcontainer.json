@@ -1,4 +1,5 @@
 {
+  "dockerFile": "..images/ubuntu/Dockerfile",
   // Install extensions
   "extensions": [
     "4ops.terraform",
