@@ -1,0 +1,19 @@
+{
+  // Install extensions
+  "extensions": [
+    "4ops.terraform",
+    "ms-azuretools.vscode-azureterraform",
+    "ms-vscode.azurecli",
+    "ms-vscode.PowerShell",
+    "ms-kubernetes-tools.vscode-kubernetes-tools"
+  ],
+
+  // VSCode settings
+  "settings": {
+    // "terminal.integrated.cwd": "/home/codespace/workspace,
+    "terminal.integrated.shell.linux": "/usr/bin/pwsh"
+  },
+
+  // Run bash script in .devcontainer directory
+  "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log"
+}
