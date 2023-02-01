@@ -9,10 +9,10 @@
   ],
 
   // VSCode settings
-  "settings": {
-    // "terminal.integrated.cwd": "/home/codespace/workspace,
-    // "terminal.integrated.shell.linux": "/usr/bin/pwsh"
-  },
+  // "settings": {
+  //   // "terminal.integrated.cwd": "/home/codespace/workspace,
+  //   // "terminal.integrated.shell.linux": "/usr/bin/pwsh"
+  // },
 
   // Run bash script in .devcontainer directory
   // "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log"
