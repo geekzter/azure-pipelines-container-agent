@@ -1,12 +1,13 @@
 {
+  // "context": "..",
   "dockerFile": "../images/ubuntu/Dockerfile",
   // Install extensions
   "extensions": [
     "4ops.terraform",
     "ms-azuretools.vscode-azureterraform",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
     "ms-vscode.azurecli",
-    "ms-vscode.PowerShell",
-    "ms-kubernetes-tools.vscode-kubernetes-tools"
+    "ms-vscode.PowerShell"
   ],
 
   // VSCode settings
