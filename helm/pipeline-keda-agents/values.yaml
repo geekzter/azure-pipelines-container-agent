@@ -9,6 +9,7 @@ image:
   tag: "latest"
 
 linux:
+  podPrefix: "azure-devops"
   image: 
     # acrLoginServer: ""
     name: pipelineagent/ubuntu

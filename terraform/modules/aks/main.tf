@@ -128,7 +128,7 @@ resource azurerm_kubernetes_cluster aks {
     vnet_subnet_id             = var.node_subnet_id
   }
 
-  http_application_routing_enabled = true
+  http_application_routing_enabled = false
 
   identity {
     type                       = "UserAssigned"

@@ -1,37 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: azdevops-deployment
+  name:  {{ .Values.linux.podPrefix | default "azure-devops" }}-deployment
   labels:
-    app: azdevops-agent
+    app: azure-devops-agent
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: azdevops-agent
+      app: azure-devops-agent
   template:
     metadata:
       labels:
-        app: azdevops-agent
+        app: azure-devops-agent
     spec:
       containers:
-      - name: azdevops-agent
+      - name: azure-devops-agent
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         env:
         - name: AZP_URL
           valueFrom:
             configMapKeyRef:
               key: AZP_URL
-              name: azdevops-agent
+              name: azure-devops-agent
         - name: AZP_POOL
           valueFrom:
             configMapKeyRef:
               key: AZP_POOL
-              name: azdevops-agent
+              name: azure-devops-agent
         - name: AZP_TOKEN
           valueFrom:
             secretKeyRef:
-              name: azdevops-agent
+              name: azure-devops-agent
               key: AZP_TOKEN
       {{- if .Values.env.values -}}
       {{- range .Values.env.values }}
@@ -47,4 +47,4 @@ spec:
       volumes:
       - name: azure
         persistentVolumeClaim:
-          claimName: azurefile
+          claimName: azure-files
