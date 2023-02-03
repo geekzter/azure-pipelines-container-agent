@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name:  {{ .Values.linux.podPrefix | default "azure-devops" }}-deployment
+  namespace: azdo
   labels:
     app: azure-devops-agent
 spec:
