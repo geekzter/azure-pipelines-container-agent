@@ -1,0 +1,522 @@
+{
+  "id": "${resource_group_id}/providers/Microsoft.Portal/dashboards/${resource_group}-dashboard",
+  "lenses": {
+    "0": {
+      "metadata": null,
+      "order": 0,
+      "parts": {
+        "0": {
+          "metadata": {
+            "inputs": [
+              {
+                "name": "queryParams",
+                "value": {
+                  "clusterName": "${resource_group}-k8s",
+                  "clusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                  "cpuFilterSelection": "total",
+                  "memoryFilterSelection": "total_memoryrss",
+                  "metricQueryId": "pod-count",
+                  "timeRange": {
+                    "options": {},
+                    "relative": {
+                      "duration": 1800000
+                    }
+                  },
+                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
+                }
+              },
+              {
+                "name": "bladeName",
+                "value": "SingleCluster.ReactView"
+              },
+              {
+                "name": "extensionName",
+                "value": "Microsoft_Azure_ContainerInsightsExt"
+              },
+              {
+                "name": "bladeParams",
+                "value": {
+                  "armClusterPath": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                  "armWorkspacePath": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics",
+                  "clusterIdentityType": "UserAssigned",
+                  "clusterRegion": "${location}",
+                  "containerClusterName": "${resource_group}-k8s",
+                  "containerClusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                  "initiator": "ManagedClusterAsset.getMenuConfig",
+                  "useAADAuth": false,
+                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
+                }
+              },
+              {
+                "name": "defaultOptionPicks",
+                "value": [
+                  {
+                    "displayName": "Total",
+                    "id": "all",
+                    "isSelected": false
+                  },
+                  {
+                    "displayName": "Pending",
+                    "id": "pending",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Running",
+                    "id": "running",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Unknown",
+                    "id": "unknown",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Succeeded",
+                    "id": "succeeded",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Failed",
+                    "id": "failed",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Terminating",
+                    "id": "terminating",
+                    "isSelected": true
+                  }
+                ]
+              },
+              {
+                "name": "showOptionPicker",
+                "value": true
+              }
+            ],
+            "type": "Extension/Microsoft_Azure_ContainerInsightsExt/PartType/ChartPart"
+          },
+          "position": {
+            "colSpan": 9,
+            "metadata": null,
+            "rowSpan": 4,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "1": {
+          "metadata": {
+            "filters": {
+              "MsPortalFx_TimeRange": {
+                "model": {
+                  "format": "local",
+                  "granularity": "auto",
+                  "relative": "1440m"
+                }
+              }
+            },
+            "inputs": [
+              {
+                "isOptional": true,
+                "name": "sharedTimeRange"
+              },
+              {
+                "isOptional": true,
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "Replica Count"
+                        },
+                        "name": "Replicas",
+                        "namespace": "microsoft.app/containerapps",
+                        "resourceMetadata": {
+                          "id": "${resource_group_id}/providers/Microsoft.App/containerApps/aca-${workspace}-${suffix}-deployment",
+                          "resourceGroup": "${resource_group}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "Avg Replica Count for aca-${workspace}-${suffix}-deployment",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "Replica Count"
+                        },
+                        "name": "Replicas",
+                        "namespace": "microsoft.app/containerapps",
+                        "resourceMetadata": {
+                          "id": "${resource_group_id}/providers/Microsoft.App/containerApps/aca-${workspace}-${suffix}-deployment",
+                          "resourceGroup": "${resource_group}"
+                        }
+                      }
+                    ],
+                    "title": "Avg Replica Count for aca-${workspace}-${suffix}-deployment",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart"
+          },
+          "position": {
+            "colSpan": 6,
+            "metadata": null,
+            "rowSpan": 4,
+            "x": 9,
+            "y": 0
+          }
+        },
+        "2": {
+          "metadata": {
+            "filters": {
+              "Kubernetes namespace": {
+                "model": {
+                  "operator": "equals",
+                  "values": [
+                    "azdo"
+                  ]
+                }
+              },
+              "MsPortalFx_TimeRange": {
+                "model": {
+                  "format": "local",
+                  "granularity": "1m",
+                  "relative": "30m"
+                }
+              }
+            },
+            "inputs": [
+              {
+                "isOptional": true,
+                "name": "sharedTimeRange"
+              },
+              {
+                "isOptional": true,
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "filterCollection": {
+                      "filters": [
+                        {
+                          "key": "Kubernetes namespace",
+                          "operator": 0,
+                          "values": [
+                            "azdo"
+                          ]
+                        }
+                      ]
+                    },
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "podCount"
+                        },
+                        "name": "podCount",
+                        "namespace": "insights.container/pods",
+                        "resourceMetadata": {
+                          "id": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                          "resourceGroup": "${resource_group}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 2,
+                      "relative": {
+                        "duration": 1800000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "Avg podCount for ${resource_group}-k8s where Kubernetes namespace = 'azdo'",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "podCount"
+                        },
+                        "name": "podCount",
+                        "namespace": "insights.container/pods",
+                        "resourceMetadata": {
+                          "id": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                          "resourceGroup": "${resource_group}"
+                        }
+                      }
+                    ],
+                    "title": "Avg podCount for ${resource_group}-k8s where Kubernetes namespace = 'azdo'",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart"
+          },
+          "position": {
+            "colSpan": 9,
+            "metadata": null,
+            "rowSpan": 4,
+            "x": 0,
+            "y": 4
+          }
+        },
+        "3": {
+          "metadata": {
+            "inputs": [
+              {
+                "isOptional": true,
+                "name": "resourceTypeMode"
+              },
+              {
+                "isOptional": true,
+                "name": "ComponentId"
+              },
+              {
+                "isOptional": true,
+                "name": "Scope",
+                "value": {
+                  "resourceIds": [
+                    "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s"
+                  ]
+                }
+              },
+              {
+                "isOptional": true,
+                "name": "PartId",
+                "value": "39dab8fe-353c-40cf-b610-f5db6d798e61"
+              },
+              {
+                "isOptional": true,
+                "name": "Version",
+                "value": "2.0"
+              },
+              {
+                "isOptional": true,
+                "name": "TimeRange",
+                "value": "P1D"
+              },
+              {
+                "isOptional": true,
+                "name": "DashboardId"
+              },
+              {
+                "isOptional": true,
+                "name": "DraftRequestParameters",
+                "value": {
+                  "scope": "hierarchy"
+                }
+              },
+              {
+                "isOptional": true,
+                "name": "Query",
+                "value": "// List all the pods count with phase \n// View pod phase counts based on all phases: Failed, Pending, Unknown, Running, or Succeeded. \n// To create an alert for this query, click '+ New alert rule'\n//Customize endDateTime, startDateTime to select different time range\n   let endDateTime = now();\n    let startDateTime = ago(1h);\n    let trendBinSize = 1m;\n    KubePodInventory\n    | where Namespace == \"azdo\"\n    | where TimeGenerated < endDateTime\n    | where TimeGenerated >= startDateTime\n    | distinct ClusterName, TimeGenerated, _ResourceId\n    | summarize ClusterSnapshotCount = count() by bin(TimeGenerated, trendBinSize), ClusterName, _ResourceId\n    | join hint.strategy=broadcast (\n        KubePodInventory\n        | where Namespace == \"azdo\"\n        | where TimeGenerated < endDateTime\n        | where TimeGenerated >= startDateTime\n        | distinct ClusterName, Computer, PodUid, TimeGenerated, PodStatus, _ResourceId\n        | summarize TotalCount = count(), //Calculating count for per pod status\n                    PendingCount = sumif(1, PodStatus =~ 'Pending'),\n                    RunningCount = sumif(1, PodStatus =~ 'Running'),\n                    SucceededCount = sumif(1, PodStatus =~ 'Succeeded'),\n                    FailedCount = sumif(1, PodStatus =~ 'Failed')\n                 by ClusterName, bin(TimeGenerated, trendBinSize), _ResourceId\n    ) on ClusterName, TimeGenerated, _ResourceId\n    | extend UnknownCount = TotalCount - PendingCount - RunningCount - SucceededCount - FailedCount\n    | project TimeGenerated, _ResourceId,\n    TotalCount = todouble(TotalCount) / ClusterSnapshotCount,\n              PendingCount = todouble(PendingCount) / ClusterSnapshotCount,\n              RunningCount = todouble(RunningCount) / ClusterSnapshotCount,\n              SucceededCount = todouble(SucceededCount) / ClusterSnapshotCount,\n              FailedCount = todouble(FailedCount) / ClusterSnapshotCount,\n              UnknownCount = todouble(UnknownCount) / ClusterSnapshotCount\n    | order by TimeGenerated desc\n"
+              },
+              {
+                "isOptional": true,
+                "name": "ControlType",
+                "value": "FrameControlChart"
+              },
+              {
+                "isOptional": true,
+                "name": "SpecificChart",
+                "value": "Line"
+              },
+              {
+                "isOptional": true,
+                "name": "PartTitle",
+                "value": "Analytics"
+              },
+              {
+                "isOptional": true,
+                "name": "PartSubTitle",
+                "value": "${resource_group}-k8s"
+              },
+              {
+                "isOptional": true,
+                "name": "Dimensions",
+                "value": {
+                  "aggregation": "Sum",
+                  "splitBy": [
+                    {
+                      "name": "_ResourceId",
+                      "type": "string"
+                    }
+                  ],
+                  "xAxis": {
+                    "name": "TimeGenerated",
+                    "type": "datetime"
+                  },
+                  "yAxis": [
+                    {
+                      "name": "TotalCount",
+                      "type": "real"
+                    }
+                  ]
+                }
+              },
+              {
+                "isOptional": true,
+                "name": "LegendOptions",
+                "value": {
+                  "isEnabled": true,
+                  "position": "Bottom"
+                }
+              },
+              {
+                "isOptional": true,
+                "name": "IsQueryContainTimeRange",
+                "value": false
+              }
+            ],
+            "settings": {},
+            "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+          },
+          "position": {
+            "colSpan": 6,
+            "metadata": null,
+            "rowSpan": 4,
+            "x": 9,
+            "y": 4
+          }
+        }
+      }
+    }
+  },
+  "location": "${location}",
+  "metadata": {
+    "model": {
+      "filterLocale": {
+        "value": "en-us"
+      },
+      "filters": {
+        "value": {
+          "MsPortalFx_TimeRange": {
+            "displayCache": {
+              "name": "UTC Time",
+              "value": "Past 30 minutes"
+            },
+            "filteredPartIds": [
+              "StartboardPart-ChartPart-110b6dc5-119c-4c5d-8043-4752487940a8",
+              "StartboardPart-MonitorChartPart-110b6dc5-119c-4c5d-8043-47524879419b",
+              "StartboardPart-LogsDashboardPart-110b6dc5-119c-4c5d-8043-475248794217",
+              "StartboardPart-MonitorChartPart-065908ba-ed0b-45d3-9c0b-6b3e4f0e4125"
+            ],
+            "model": {
+              "format": "utc",
+              "granularity": "auto",
+              "relative": "30m"
+            }
+          }
+        }
+      },
+      "timeRange": {
+        "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange",
+        "value": {
+          "relative": {
+            "duration": 24,
+            "timeUnit": 1
+          }
+        }
+      }
+    }
+  }
+}

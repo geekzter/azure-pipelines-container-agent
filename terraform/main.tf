@@ -94,3 +94,27 @@ resource azurerm_role_assignment agent_registry_access {
 
   count                        = (var.agent_identity_resource_id == null || var.agent_identity_resource_id == "") && var.configure_access_control ? 1 : 0
 }
+
+resource azurerm_portal_dashboard dashboard {
+  name                         = "${azurerm_resource_group.rg.name}-dashboard"
+  resource_group_name          = azurerm_resource_group.rg.name
+  location                     = azurerm_resource_group.rg.location
+  dashboard_properties         = templatefile("dashboard.template.json",merge(
+    local.tags,
+    {
+      location                 = azurerm_resource_group.rg.location
+      resource_group           = azurerm_resource_group.rg.name
+      resource_group_id        = azurerm_resource_group.rg.id
+      subscription_id          = data.azurerm_subscription.default.id
+      subscription_guid        = data.azurerm_subscription.default.subscription_id
+      suffix                   = local.suffix
+      workspace                = terraform.workspace
+  }))
+
+  tags                         = merge(
+    local.tags,
+    {
+      hidden-title             = "Container Agents (${terraform.workspace})"
+    }
+  )
+}

@@ -35,6 +35,11 @@ output container_registry_id {
 output container_registry_name {
   value                        = module.container_registry.container_registry_name
 }
+
+output dashboard_id {
+  value                        = azurerm_portal_dashboard.dashboard.id
+}
+
 output diagnostics_storage_account_name {
   value                        = module.diagnostics_storage.diagnostics_storage_name
 }
@@ -87,13 +92,30 @@ output kubernetes_version {
   value                        = var.deploy_aks ? module.aks_agents.0.kubernetes_version : null
 }
 
+output location {
+  value                        = azurerm_resource_group.rg.location
+}
+
 output log_analytics_workspace_resource_id {
   value                        = local.log_analytics_workspace_resource_id
 }
 
+output resource_group_id {
+  value                        = azurerm_resource_group.rg.id
+}
 output resource_group_name {
   value                        = azurerm_resource_group.rg.name
 }
 output resource_suffix {
   value                        = local.suffix
+}
+output subscription_id {
+  value                        = data.azurerm_subscription.default.id
+}
+output subscription_guid {
+  value                        = data.azurerm_subscription.default.subscription_id
+}
+
+output workspace {
+  value                        = terraform.workspace
 }
