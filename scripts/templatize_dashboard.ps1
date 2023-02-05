@@ -34,14 +34,16 @@ if (!(Test-Path $inputFilePath)) {
 try {
     Push-Location $tfdirectory
 
-    $dashboardID        = (Get-TerraformOutput "dashboard_id")
-    $location           = (Get-TerraformOutput "location")
-    $pipelinePoolUrl    = (Get-TerraformOutput "pipeline_agent_pool_url")
-    $resourceGroupID    = (Get-TerraformOutput "resource_group_id")
-    $suffix             = (Get-TerraformOutput "resource_suffix")
-    $storageAccountName = (Get-TerraformOutput "diagnostics_storage_account_name")
-    $subscriptionGUID   = (Get-TerraformOutput "subscription_guid")
-    $workspace          = (Get-TerraformOutput "workspace")
+    $containerRegistryID = (Get-TerraformOutput "container_registry_id")
+    $dashboardID         = (Get-TerraformOutput "portal_dashboard_id")
+    $location            = (Get-TerraformOutput "location")
+    $logAnalyticsID      = (Get-TerraformOutput "log_analytics_workspace_resource_id")
+    $pipelinePoolUrl     = (Get-TerraformOutput "pipeline_agent_pool_url")
+    $resourceGroupID     = (Get-TerraformOutput "resource_group_id")
+    $suffix              = (Get-TerraformOutput "resource_suffix")
+    $storageAccountName  = (Get-TerraformOutput "diagnostics_storage_account_name")
+    $subscriptionGUID    = (Get-TerraformOutput "subscription_guid")
+    $workspace           = (Get-TerraformOutput "workspace")
 
     if ([string]::IsNullOrEmpty($dashboardID) -or [string]::IsNullOrEmpty($subscriptionGUID) -or [string]::IsNullOrEmpty($suffix)) {
         Write-Warning "Resources have not yet been, or are being created. Nothing to do"
@@ -68,6 +70,12 @@ if ($InputFile) {
     $template = (az portal dashboard show -n $dashboardName -g $resourceGroupName -o json --subscription $subscriptionGUID)
 }
 
+if ($containerRegistryID) {
+    $template = $template -Replace "${containerRegistryID}", "`$`{container_registry_id`}" 
+}
+if ($logAnalyticsID) {
+    $template = $template -Replace "${logAnalyticsID}", "`$`{log_analytics_workspace_resource_id`}" 
+}
 if ($pipelinePoolUrl) {
     $template = $template -Replace "https://dev.azure.com[^`']*_settings/agentpools[^`']*`'", "`$`{pipeline_agent_pool_url`}`'"
 }
@@ -116,7 +124,6 @@ if ($suffixMatches) {
     Write-Warning "Suffix value '$suffix' found in output:"
     $suffixMatches
 }
-# $workspaceMatches = $template -match $workspace
 $workspaceMatches = $template -match "${workspace}[^\w]"
 if ($workspaceMatches) {
     Write-Warning "Workspace name value '$workspace' found in output:"
@@ -129,6 +136,14 @@ if ($subscriptionGUIDMatches -or $suffixMatches -or $workspaceMatches) {
     Write-Host "Aborting" -ForegroundColor Red
     exit 1
 }
+
+# Remove metadata provided by Terraform azurerm at provisioning time
+$template | ConvertFrom-Json -Depth 100 -AsHashtable | Set-Variable templateObject
+$templateObject.Remove("name")
+$templateObject.Remove("resourceGroup")
+$templateObject.Remove("tags")
+$templateObject.Remove("type")
+$templateObject | ConvertTo-Json -Depth 100 | Set-Variable template
 
 if ($SkipWrite) {
     Write-Warning "Skipped writing template" -ForegroundColor Yellow

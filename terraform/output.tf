@@ -36,10 +36,6 @@ output container_registry_name {
   value                        = module.container_registry.container_registry_name
 }
 
-output dashboard_id {
-  value                        = azurerm_portal_dashboard.dashboard.id
-}
-
 output diagnostics_storage_account_name {
   value                        = module.diagnostics_storage.diagnostics_storage_name
 }
@@ -112,6 +108,14 @@ output pipeline_agent_pool_name {
 }
 output pipeline_agent_pool_url {
   value                        = local.pipeline_agent_pool_url
+}
+
+output portal_dashboard_id {
+  value                        = azurerm_portal_dashboard.dashboard.id
+}
+
+output portal_dashboard_url {
+  value                        = "https://portal.azure.com/#@/dashboard/arm/${azurerm_portal_dashboard.dashboard.id}"
 }
 
 output resource_group_id {

@@ -103,7 +103,9 @@ resource azurerm_portal_dashboard dashboard {
   dashboard_properties         = templatefile("dashboard.template.json",merge(
     local.tags,
     {
+      container_registry_id    = module.container_registry.container_registry_id
       location                 = azurerm_resource_group.rg.location
+      log_analytics_workspace_resource_id = local.log_analytics_workspace_resource_id
       pipeline_agent_pool_url  = local.pipeline_agent_pool_url
       resource_group           = azurerm_resource_group.rg.name
       resource_group_id        = azurerm_resource_group.rg.id
