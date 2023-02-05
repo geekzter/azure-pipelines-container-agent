@@ -38,6 +38,7 @@ locals {
   kube_config_absolute_path    = var.kube_config_path != "" ? var.kube_config_path : "${path.root}/../.kube/${local.workspace_moniker}config"
   log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
   owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
+  pipeline_agent_pool_url      = "${local.devops_url}/_settings/agentpools?poolId=${var.pipeline_agent_pool_id}&view=agents"
   suffix                       = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
   tags                         = merge(
     {
@@ -103,6 +104,7 @@ resource azurerm_portal_dashboard dashboard {
     local.tags,
     {
       location                 = azurerm_resource_group.rg.location
+      pipeline_agent_pool_url  = local.pipeline_agent_pool_url
       resource_group           = azurerm_resource_group.rg.name
       resource_group_id        = azurerm_resource_group.rg.id
       storage_account_name     = module.diagnostics_storage.diagnostics_storage_name

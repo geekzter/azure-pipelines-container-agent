@@ -111,7 +111,7 @@ output pipeline_agent_pool_name {
   value                        = var.pipeline_agent_pool_name
 }
 output pipeline_agent_pool_url {
-  value                        = "${local.devops_url}/_settings/agentpools?poolId=${var.pipeline_agent_pool_id}&view=agents"
+  value                        = local.pipeline_agent_pool_url
 }
 
 output resource_group_id {

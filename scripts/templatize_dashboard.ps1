@@ -36,6 +36,7 @@ try {
 
     $dashboardID        = (Get-TerraformOutput "dashboard_id")
     $location           = (Get-TerraformOutput "location")
+    $pipelinePoolUrl    = (Get-TerraformOutput "pipeline_agent_pool_url")
     $resourceGroupID    = (Get-TerraformOutput "resource_group_id")
     $suffix             = (Get-TerraformOutput "resource_suffix")
     $storageAccountName = (Get-TerraformOutput "diagnostics_storage_account_name")
@@ -67,6 +68,9 @@ if ($InputFile) {
     $template = (az portal dashboard show -n $dashboardName -g $resourceGroupName -o json --subscription $subscriptionGUID)
 }
 
+if ($pipelinePoolUrl) {
+    $template = $template -Replace "https://dev.azure.com[^`']*_settings/agentpools[^`']*`'", "`$`{pipeline_agent_pool_url`}`'"
+}
 if ($resourceGroupID) {
     $template = $template -Replace "${resourceGroupID}", "`$`{resource_group_id`}"
 }
