@@ -51,6 +51,13 @@ output diagnostics_storage_sas {
   sensitive                    = true
   value                        = module.diagnostics_storage.diagnostics_storage_sas
 }
+output diagnostics_share_url {
+  value                        = module.diagnostics_storage.diagnostics_share_url
+}
+output diagnostics_share_url_with_sas {
+  sensitive                    = true
+  value                        = "${module.diagnostics_storage.diagnostics_share_url}${module.diagnostics_storage.diagnostics_storage_sas}"
+}
 
 output environment_variables {
   value                        = local.environment_variables
@@ -98,6 +105,13 @@ output location {
 
 output log_analytics_workspace_resource_id {
   value                        = local.log_analytics_workspace_resource_id
+}
+
+output pipeline_agent_pool_name {
+  value                        = var.pipeline_agent_pool_name
+}
+output pipeline_agent_pool_url {
+  value                        = "${local.devops_url}/_settings/agentpools?poolId=${var.pipeline_agent_pool_id}&view=agents"
 }
 
 output resource_group_id {

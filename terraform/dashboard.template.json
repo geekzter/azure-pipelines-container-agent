@@ -7,102 +7,61 @@
       "parts": {
         "0": {
           "metadata": {
-            "inputs": [
-              {
-                "name": "queryParams",
-                "value": {
-                  "clusterName": "${resource_group}-k8s",
-                  "clusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
-                  "cpuFilterSelection": "total",
-                  "memoryFilterSelection": "total_memoryrss",
-                  "metricQueryId": "pod-count",
-                  "timeRange": {
-                    "options": {},
-                    "relative": {
-                      "duration": 1800000
-                    }
-                  },
-                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
+            "inputs": [],
+            "partHeader": {
+              "subtitle": "Resumes charges",
+              "title": "Start AKS"
+            },
+            "settings": {
+              "content": {
+                "settings": {
+                  "data": "",
+                  "name": "Start",
+                  "subtitle": "${resource_group}-k8s",
+                  "title": "Start AKS",
+                  "uri": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s/start?api-version=2022-11-01"
                 }
-              },
-              {
-                "name": "bladeName",
-                "value": "SingleCluster.ReactView"
-              },
-              {
-                "name": "extensionName",
-                "value": "Microsoft_Azure_ContainerInsightsExt"
-              },
-              {
-                "name": "bladeParams",
-                "value": {
-                  "armClusterPath": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
-                  "armWorkspacePath": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics",
-                  "clusterIdentityType": "UserAssigned",
-                  "clusterRegion": "${location}",
-                  "containerClusterName": "${resource_group}-k8s",
-                  "containerClusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
-                  "initiator": "ManagedClusterAsset.getMenuConfig",
-                  "useAADAuth": false,
-                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
-                }
-              },
-              {
-                "name": "(${workspace})OptionPicks",
-                "value": [
-                  {
-                    "displayName": "Total",
-                    "id": "all",
-                    "isSelected": false
-                  },
-                  {
-                    "displayName": "Pending",
-                    "id": "pending",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Running",
-                    "id": "running",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Unknown",
-                    "id": "unknown",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Succeeded",
-                    "id": "succeeded",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Failed",
-                    "id": "failed",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Terminating",
-                    "id": "terminating",
-                    "isSelected": true
-                  }
-                ]
-              },
-              {
-                "name": "showOptionPicker",
-                "value": true
               }
-            ],
-            "type": "Extension/Microsoft_Azure_ContainerInsightsExt/PartType/ChartPart"
+            },
+            "type": "Extension/HubsExtension/PartType/ArmActions"
           },
           "position": {
-            "colSpan": 9,
+            "colSpan": 2,
             "metadata": null,
-            "rowSpan": 4,
-            "x": 0,
+            "rowSpan": 2,
+            "x": 6,
             "y": 0
           }
         },
         "1": {
+          "metadata": {
+            "inputs": [],
+            "partHeader": {
+              "subtitle": "Pauses charges",
+              "title": "Stop AKS"
+            },
+            "settings": {
+              "content": {
+                "settings": {
+                  "data": "",
+                  "name": "Stop",
+                  "subtitle": "${resource_group}-k8s",
+                  "title": "Stop AKS",
+                  "uri": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s/stop?api-version=2022-11-01"
+                }
+              }
+            },
+            "type": "Extension/HubsExtension/PartType/ArmActions"
+          },
+          "position": {
+            "colSpan": 2,
+            "metadata": null,
+            "rowSpan": 2,
+            "x": 8,
+            "y": 0
+          }
+        },
+        "2": {
           "metadata": {
             "filters": {
               "MsPortalFx_TimeRange": {
@@ -217,11 +176,11 @@
             "colSpan": 6,
             "metadata": null,
             "rowSpan": 4,
-            "x": 9,
-            "y": 0
+            "x": 0,
+            "y": 2
           }
         },
-        "2": {
+        "3": {
           "metadata": {
             "filters": {
               "Kubernetes namespace": {
@@ -355,11 +314,11 @@
             "colSpan": 9,
             "metadata": null,
             "rowSpan": 4,
-            "x": 0,
-            "y": 4
+            "x": 6,
+            "y": 2
           }
         },
-        "3": {
+        "4": {
           "metadata": {
             "inputs": [
               {
@@ -474,8 +433,105 @@
             "colSpan": 6,
             "metadata": null,
             "rowSpan": 4,
-            "x": 9,
-            "y": 4
+            "x": 0,
+            "y": 6
+          }
+        },
+        "5": {
+          "metadata": {
+            "inputs": [
+              {
+                "name": "queryParams",
+                "value": {
+                  "clusterName": "${resource_group}-k8s",
+                  "clusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                  "cpuFilterSelection": "total",
+                  "memoryFilterSelection": "total_memoryrss",
+                  "metricQueryId": "pod-count",
+                  "timeRange": {
+                    "options": {},
+                    "relative": {
+                      "duration": 1800000
+                    }
+                  },
+                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
+                }
+              },
+              {
+                "name": "bladeName",
+                "value": "SingleCluster.ReactView"
+              },
+              {
+                "name": "extensionName",
+                "value": "Microsoft_Azure_ContainerInsightsExt"
+              },
+              {
+                "name": "bladeParams",
+                "value": {
+                  "armClusterPath": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                  "armWorkspacePath": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics",
+                  "clusterIdentityType": "UserAssigned",
+                  "clusterRegion": "${location}",
+                  "containerClusterName": "${resource_group}-k8s",
+                  "containerClusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                  "initiator": "ManagedClusterAsset.getMenuConfig",
+                  "useAADAuth": false,
+                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
+                }
+              },
+              {
+                "name": "(${workspace})OptionPicks",
+                "value": [
+                  {
+                    "displayName": "Total",
+                    "id": "all",
+                    "isSelected": false
+                  },
+                  {
+                    "displayName": "Pending",
+                    "id": "pending",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Running",
+                    "id": "running",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Unknown",
+                    "id": "unknown",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Succeeded",
+                    "id": "succeeded",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Failed",
+                    "id": "failed",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Terminating",
+                    "id": "terminating",
+                    "isSelected": true
+                  }
+                ]
+              },
+              {
+                "name": "showOptionPicker",
+                "value": true
+              }
+            ],
+            "type": "Extension/Microsoft_Azure_ContainerInsightsExt/PartType/ChartPart"
+          },
+          "position": {
+            "colSpan": 9,
+            "metadata": null,
+            "rowSpan": 4,
+            "x": 6,
+            "y": 6
           }
         }
       }
@@ -495,10 +551,10 @@
               "value": "Past 30 minutes"
             },
             "filteredPartIds": [
-              "StartboardPart-ChartPart-110b6dc5-119c-4c5d-8043-4752487940a8",
-              "StartboardPart-MonitorChartPart-110b6dc5-119c-4c5d-8043-47524879419b",
-              "StartboardPart-LogsDashboardPart-110b6dc5-119c-4c5d-8043-475248794217",
-              "StartboardPart-MonitorChartPart-065908ba-ed0b-45d3-9c0b-6b3e4f0e4125"
+              "StartboardPart-ChartPart-99a290be-1464-4e57-a349-64bd6cb3e10a",
+              "StartboardPart-MonitorChartPart-99a290be-1464-4e57-a349-64bd6cb3e10c",
+              "StartboardPart-MonitorChartPart-99a290be-1464-4e57-a349-64bd6cb3e10e",
+              "StartboardPart-LogsDashboardPart-99a290be-1464-4e57-a349-64bd6cb3e110"
             ],
             "model": {
               "format": "utc",
