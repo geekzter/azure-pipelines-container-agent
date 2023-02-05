@@ -144,7 +144,7 @@
                       },
                       "showUTCTime": false
                     },
-                    "title": "Avg Replica Count for aca-${workspace}-${suffix}-deployment",
+                    "title": "Agent count for ACA aca-${workspace}-${suffix}-deployment",
                     "titleKind": 1,
                     "visualization": {
                       "axisVisualization": {
@@ -186,7 +186,7 @@
                         }
                       }
                     ],
-                    "title": "Avg Replica Count for aca-${workspace}-${suffix}-deployment",
+                    "title": "Agent count for ACA aca-${workspace}-${suffix}-deployment",
                     "titleKind": 1,
                     "visualization": {
                       "axisVisualization": {
@@ -282,7 +282,7 @@
                       },
                       "showUTCTime": false
                     },
-                    "title": "Avg podCount for ${resource_group}-k8s where Kubernetes namespace = 'azdo'",
+                    "title": "Agent count for AKS ${resource_group}-k8s (metrics)",
                     "titleKind": 1,
                     "visualization": {
                       "axisVisualization": {
@@ -324,7 +324,7 @@
                         }
                       }
                     ],
-                    "title": "Avg podCount for ${resource_group}-k8s where Kubernetes namespace = 'azdo'",
+                    "title": "Agent count for AKS ${resource_group}-k8s (metrics)",
                     "titleKind": 1,
                     "visualization": {
                       "axisVisualization": {
@@ -423,7 +423,7 @@
               {
                 "isOptional": true,
                 "name": "PartTitle",
-                "value": "Analytics"
+                "value": "Agent count for AKS ${resource_group}-k8s (logs)"
               },
               {
                 "isOptional": true,
