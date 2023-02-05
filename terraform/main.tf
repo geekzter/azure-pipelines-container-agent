@@ -105,6 +105,7 @@ resource azurerm_portal_dashboard dashboard {
       location                 = azurerm_resource_group.rg.location
       resource_group           = azurerm_resource_group.rg.name
       resource_group_id        = azurerm_resource_group.rg.id
+      storage_account_name     = module.diagnostics_storage.diagnostics_storage_name
       subscription_id          = data.azurerm_subscription.default.id
       subscription_guid        = data.azurerm_subscription.default.subscription_id
       suffix                   = local.suffix

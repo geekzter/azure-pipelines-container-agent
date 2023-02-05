@@ -34,12 +34,13 @@ if (!(Test-Path $inputFilePath)) {
 try {
     Push-Location $tfdirectory
 
-    $dashboardID      = (Get-TerraformOutput "dashboard_id")
-    $location         = (Get-TerraformOutput "location")
-    $resourceGroupID  = (Get-TerraformOutput "resource_group_id")
-    $suffix           = (Get-TerraformOutput "resource_suffix")
-    $subscriptionGUID = (Get-TerraformOutput "subscription_guid")
-    $workspace        = (Get-TerraformOutput "workspace")
+    $dashboardID        = (Get-TerraformOutput "dashboard_id")
+    $location           = (Get-TerraformOutput "location")
+    $resourceGroupID    = (Get-TerraformOutput "resource_group_id")
+    $suffix             = (Get-TerraformOutput "resource_suffix")
+    $storageAccountName = (Get-TerraformOutput "diagnostics_storage_account_name")
+    $subscriptionGUID   = (Get-TerraformOutput "subscription_guid")
+    $workspace          = (Get-TerraformOutput "workspace")
 
     if ([string]::IsNullOrEmpty($dashboardID) -or [string]::IsNullOrEmpty($subscriptionGUID) -or [string]::IsNullOrEmpty($suffix)) {
         Write-Warning "Resources have not yet been, or are being created. Nothing to do"
@@ -78,6 +79,9 @@ if ($subscriptionGUID) {
 }
 if ($location) {
     $template = $template -Replace "${location}", "`$`{location`}"
+}
+if ($storageAccountName) {
+    $template = $template -Replace "${storageAccountName}", "`$`{storage_account_name`}"
 }
 if ($suffix) {
     $template = $template -Replace "-${suffix}", "-`$`{suffix`}"

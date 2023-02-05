@@ -8,6 +8,28 @@
         "0": {
           "metadata": {
             "inputs": [],
+            "settings": {
+              "content": {
+                "content": "__My data__\n\n- <a href='https://portal.azure.com/#@/resource${resource_group_id}/providers/Microsoft.App/containerApps/aca-${workspace}-${suffix}-deployment/containers' target='_blank'>Pipeline Agent configuration (ACA)</a>\n- <a href='https://portal.azure.com/#view/Microsoft_Azure_ContainerService/AksK8ResourceMenuBlade/~/overview-ConfigMap/aksClusterId/%2Fsubscriptions%2F${subscription_guid}%2FresourceGroups%2F${resource_group}%2Fproviders%2FMicrosoft.ContainerService%2FmanagedClusters%2F${resource_group}-k8s/resource~/%7B%22kind%22%3A%22ConfigMap%22%2C%22metadata%22%3A%7B%22name%22%3A%22azure-devops-agent%22%2C%22namespace%22%3A%22azdo%22%2C%22uid%22%3A%22199f5175-d0bb-49d4-be32-4d0da9e440e0%22%7D%7D' target='_blank'>Pipeline Agent configuration (AKS)</a>\n- <a href='https://portal.azure.com/#@/resource${resource_group_id}/providers/Microsoft.App/containerApps/aca-${workspace}-${suffix}-deployment/logstream' target='_blank'>Pipeline Agent log stream (ACA)</a>\n- <a href='https://portal.azure.com/#view/Microsoft_Azure_FileStorage/FileShareMenuBlade/~/browse/storageAccountId/%2Fsubscriptions%2F${subscription_guid}%2FresourceGroups%2F${resource_group}%2Fproviders%2FMicrosoft.Storage%2FstorageAccounts%2F${storage_account_name}/path/diagnostics/protocol/SMB' target='_blank'>Pipeline Agent diagnostics logs</a>\n- <a href='https://portal.azure.com/#@/resource${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s/infrainsights' target='_blank'>AKS Insights</a>\n- <a href='https://portal.azure.com/#@/resource${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s/infrainsights' target='_blank'>AKS Insights</a>\n",
+                "markdownSource": 1,
+                "markdownUri": "",
+                "subtitle": "${resource_group}",
+                "title": "Container Agents"
+              }
+            },
+            "type": "Extension/HubsExtension/PartType/MarkdownPart"
+          },
+          "position": {
+            "colSpan": 6,
+            "metadata": null,
+            "rowSpan": 4,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "1": {
+          "metadata": {
+            "inputs": [],
             "partHeader": {
               "subtitle": "Resumes charges",
               "title": "Start AKS"
@@ -33,7 +55,7 @@
             "y": 0
           }
         },
-        "1": {
+        "2": {
           "metadata": {
             "inputs": [],
             "partHeader": {
@@ -59,125 +81,6 @@
             "rowSpan": 2,
             "x": 8,
             "y": 0
-          }
-        },
-        "2": {
-          "metadata": {
-            "filters": {
-              "MsPortalFx_TimeRange": {
-                "model": {
-                  "format": "local",
-                  "granularity": "auto",
-                  "relative": "1440m"
-                }
-              }
-            },
-            "inputs": [
-              {
-                "isOptional": true,
-                "name": "sharedTimeRange"
-              },
-              {
-                "isOptional": true,
-                "name": "options",
-                "value": {
-                  "chart": {
-                    "metrics": [
-                      {
-                        "aggregationType": 4,
-                        "metricVisualization": {
-                          "displayName": "Replica Count"
-                        },
-                        "name": "Replicas",
-                        "namespace": "microsoft.app/containerapps",
-                        "resourceMetadata": {
-                          "id": "${resource_group_id}/providers/Microsoft.App/containerApps/aca-${workspace}-${suffix}-deployment",
-                          "resourceGroup": "${resource_group}"
-                        }
-                      }
-                    ],
-                    "timespan": {
-                      "grain": 1,
-                      "relative": {
-                        "duration": 86400000
-                      },
-                      "showUTCTime": false
-                    },
-                    "title": "Agent count for ACA aca-${workspace}-${suffix}-deployment",
-                    "titleKind": 1,
-                    "visualization": {
-                      "axisVisualization": {
-                        "x": {
-                          "axisType": 2,
-                          "isVisible": true
-                        },
-                        "y": {
-                          "axisType": 1,
-                          "isVisible": true
-                        }
-                      },
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
-                    }
-                  }
-                }
-              }
-            ],
-            "settings": {
-              "content": {
-                "options": {
-                  "chart": {
-                    "metrics": [
-                      {
-                        "aggregationType": 4,
-                        "metricVisualization": {
-                          "displayName": "Replica Count"
-                        },
-                        "name": "Replicas",
-                        "namespace": "microsoft.app/containerapps",
-                        "resourceMetadata": {
-                          "id": "${resource_group_id}/providers/Microsoft.App/containerApps/aca-${workspace}-${suffix}-deployment",
-                          "resourceGroup": "${resource_group}"
-                        }
-                      }
-                    ],
-                    "title": "Agent count for ACA aca-${workspace}-${suffix}-deployment",
-                    "titleKind": 1,
-                    "visualization": {
-                      "axisVisualization": {
-                        "x": {
-                          "axisType": 2,
-                          "isVisible": true
-                        },
-                        "y": {
-                          "axisType": 1,
-                          "isVisible": true
-                        }
-                      },
-                      "chartType": 2,
-                      "disablePinning": true,
-                      "legendVisualization": {
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "type": "Extension/HubsExtension/PartType/MonitorChartPart"
-          },
-          "position": {
-            "colSpan": 6,
-            "metadata": null,
-            "rowSpan": 4,
-            "x": 0,
-            "y": 2
           }
         },
         "3": {
@@ -320,6 +223,225 @@
         },
         "4": {
           "metadata": {
+            "filters": {
+              "MsPortalFx_TimeRange": {
+                "model": {
+                  "format": "local",
+                  "granularity": "auto",
+                  "relative": "1440m"
+                }
+              }
+            },
+            "inputs": [
+              {
+                "isOptional": true,
+                "name": "sharedTimeRange"
+              },
+              {
+                "isOptional": true,
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "Replica Count"
+                        },
+                        "name": "Replicas",
+                        "namespace": "microsoft.app/containerapps",
+                        "resourceMetadata": {
+                          "id": "${resource_group_id}/providers/Microsoft.App/containerApps/aca-${workspace}-${suffix}-deployment",
+                          "resourceGroup": "${resource_group}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "Agent count for ACA aca-${workspace}-${suffix}-deployment",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "Replica Count"
+                        },
+                        "name": "Replicas",
+                        "namespace": "microsoft.app/containerapps",
+                        "resourceMetadata": {
+                          "id": "${resource_group_id}/providers/Microsoft.App/containerApps/aca-${workspace}-${suffix}-deployment",
+                          "resourceGroup": "${resource_group}"
+                        }
+                      }
+                    ],
+                    "title": "Agent count for ACA aca-${workspace}-${suffix}-deployment",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart"
+          },
+          "position": {
+            "colSpan": 6,
+            "metadata": null,
+            "rowSpan": 4,
+            "x": 0,
+            "y": 4
+          }
+        },
+        "5": {
+          "metadata": {
+            "inputs": [
+              {
+                "name": "queryParams",
+                "value": {
+                  "clusterName": "${resource_group}-k8s",
+                  "clusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                  "cpuFilterSelection": "total",
+                  "memoryFilterSelection": "total_memoryrss",
+                  "metricQueryId": "pod-count",
+                  "timeRange": {
+                    "options": {},
+                    "relative": {
+                      "duration": 1800000
+                    }
+                  },
+                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
+                }
+              },
+              {
+                "name": "bladeName",
+                "value": "SingleCluster.ReactView"
+              },
+              {
+                "name": "extensionName",
+                "value": "Microsoft_Azure_ContainerInsightsExt"
+              },
+              {
+                "name": "bladeParams",
+                "value": {
+                  "armClusterPath": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                  "armWorkspacePath": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics",
+                  "clusterIdentityType": "UserAssigned",
+                  "clusterRegion": "${location}",
+                  "containerClusterName": "${resource_group}-k8s",
+                  "containerClusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
+                  "initiator": "ManagedClusterAsset.getMenuConfig",
+                  "useAADAuth": false,
+                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
+                }
+              },
+              {
+                "name": "((${workspace}))OptionPicks",
+                "value": [
+                  {
+                    "displayName": "Total",
+                    "id": "all",
+                    "isSelected": false
+                  },
+                  {
+                    "displayName": "Pending",
+                    "id": "pending",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Running",
+                    "id": "running",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Unknown",
+                    "id": "unknown",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Succeeded",
+                    "id": "succeeded",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Failed",
+                    "id": "failed",
+                    "isSelected": true
+                  },
+                  {
+                    "displayName": "Terminating",
+                    "id": "terminating",
+                    "isSelected": true
+                  }
+                ]
+              },
+              {
+                "name": "showOptionPicker",
+                "value": true
+              },
+              {
+                "name": "(${workspace})OptionPicks"
+              }
+            ],
+            "type": "Extension/Microsoft_Azure_ContainerInsightsExt/PartType/ChartPart"
+          },
+          "position": {
+            "colSpan": 9,
+            "metadata": null,
+            "rowSpan": 4,
+            "x": 6,
+            "y": 6
+          }
+        },
+        "6": {
+          "metadata": {
             "inputs": [
               {
                 "isOptional": true,
@@ -434,104 +556,7 @@
             "metadata": null,
             "rowSpan": 4,
             "x": 0,
-            "y": 6
-          }
-        },
-        "5": {
-          "metadata": {
-            "inputs": [
-              {
-                "name": "queryParams",
-                "value": {
-                  "clusterName": "${resource_group}-k8s",
-                  "clusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
-                  "cpuFilterSelection": "total",
-                  "memoryFilterSelection": "total_memoryrss",
-                  "metricQueryId": "pod-count",
-                  "timeRange": {
-                    "options": {},
-                    "relative": {
-                      "duration": 1800000
-                    }
-                  },
-                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
-                }
-              },
-              {
-                "name": "bladeName",
-                "value": "SingleCluster.ReactView"
-              },
-              {
-                "name": "extensionName",
-                "value": "Microsoft_Azure_ContainerInsightsExt"
-              },
-              {
-                "name": "bladeParams",
-                "value": {
-                  "armClusterPath": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
-                  "armWorkspacePath": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics",
-                  "clusterIdentityType": "UserAssigned",
-                  "clusterRegion": "${location}",
-                  "containerClusterName": "${resource_group}-k8s",
-                  "containerClusterResourceId": "${resource_group_id}/providers/Microsoft.ContainerService/managedClusters/${resource_group}-k8s",
-                  "initiator": "ManagedClusterAsset.getMenuConfig",
-                  "useAADAuth": false,
-                  "workspaceResourceId": "${resource_group_id}/providers/Microsoft.OperationalInsights/workspaces/${resource_group}-loganalytics"
-                }
-              },
-              {
-                "name": "(${workspace})OptionPicks",
-                "value": [
-                  {
-                    "displayName": "Total",
-                    "id": "all",
-                    "isSelected": false
-                  },
-                  {
-                    "displayName": "Pending",
-                    "id": "pending",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Running",
-                    "id": "running",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Unknown",
-                    "id": "unknown",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Succeeded",
-                    "id": "succeeded",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Failed",
-                    "id": "failed",
-                    "isSelected": true
-                  },
-                  {
-                    "displayName": "Terminating",
-                    "id": "terminating",
-                    "isSelected": true
-                  }
-                ]
-              },
-              {
-                "name": "showOptionPicker",
-                "value": true
-              }
-            ],
-            "type": "Extension/Microsoft_Azure_ContainerInsightsExt/PartType/ChartPart"
-          },
-          "position": {
-            "colSpan": 9,
-            "metadata": null,
-            "rowSpan": 4,
-            "x": 6,
-            "y": 6
+            "y": 8
           }
         }
       }
@@ -551,10 +576,10 @@
               "value": "Past 30 minutes"
             },
             "filteredPartIds": [
-              "StartboardPart-ChartPart-99a290be-1464-4e57-a349-64bd6cb3e10a",
-              "StartboardPart-MonitorChartPart-99a290be-1464-4e57-a349-64bd6cb3e10c",
-              "StartboardPart-MonitorChartPart-99a290be-1464-4e57-a349-64bd6cb3e10e",
-              "StartboardPart-LogsDashboardPart-99a290be-1464-4e57-a349-64bd6cb3e110"
+              "StartboardPart-MonitorChartPart-5163c9ac-db2f-4785-afc4-d154b9a8a156",
+              "StartboardPart-MonitorChartPart-5163c9ac-db2f-4785-afc4-d154b9a8a158",
+              "StartboardPart-ChartPart-5163c9ac-db2f-4785-afc4-d154b9a8a15a",
+              "StartboardPart-LogsDashboardPart-5163c9ac-db2f-4785-afc4-d154b9a8a15c"
             ],
             "model": {
               "format": "utc",
