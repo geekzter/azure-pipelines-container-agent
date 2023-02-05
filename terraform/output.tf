@@ -35,6 +35,7 @@ output container_registry_id {
 output container_registry_name {
   value                        = module.container_registry.container_registry_name
 }
+
 output diagnostics_storage_account_name {
   value                        = module.diagnostics_storage.diagnostics_storage_name
 }
@@ -45,6 +46,13 @@ output diagnostics_storage_key {
 output diagnostics_storage_sas {
   sensitive                    = true
   value                        = module.diagnostics_storage.diagnostics_storage_sas
+}
+output diagnostics_share_url {
+  value                        = module.diagnostics_storage.diagnostics_share_url
+}
+output diagnostics_share_url_with_sas {
+  sensitive                    = true
+  value                        = "${module.diagnostics_storage.diagnostics_share_url}${module.diagnostics_storage.diagnostics_storage_sas}"
 }
 
 output environment_variables {
@@ -87,13 +95,45 @@ output kubernetes_version {
   value                        = var.deploy_aks ? module.aks_agents.0.kubernetes_version : null
 }
 
+output location {
+  value                        = azurerm_resource_group.rg.location
+}
+
 output log_analytics_workspace_resource_id {
   value                        = local.log_analytics_workspace_resource_id
 }
 
+output pipeline_agent_pool_name {
+  value                        = var.pipeline_agent_pool_name
+}
+output pipeline_agent_pool_url {
+  value                        = local.pipeline_agent_pool_url
+}
+
+output portal_dashboard_id {
+  value                        = azurerm_portal_dashboard.dashboard.id
+}
+
+output portal_dashboard_url {
+  value                        = "https://portal.azure.com/#@/dashboard/arm/${azurerm_portal_dashboard.dashboard.id}"
+}
+
+output resource_group_id {
+  value                        = azurerm_resource_group.rg.id
+}
 output resource_group_name {
   value                        = azurerm_resource_group.rg.name
 }
 output resource_suffix {
   value                        = local.suffix
+}
+output subscription_id {
+  value                        = data.azurerm_subscription.default.id
+}
+output subscription_guid {
+  value                        = data.azurerm_subscription.default.subscription_id
+}
+
+output workspace {
+  value                        = terraform.workspace
 }

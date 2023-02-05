@@ -141,7 +141,9 @@ resource azurerm_kubernetes_cluster aks {
     user_assigned_identity_id  = var.user_assigned_identity_id
   }
 
-  # local_account_disabled       = true
+  # local_account_disabled       = var.configure_access_control
+
+  monitor_metrics {}
 
   network_profile {
     network_plugin             = var.network_plugin

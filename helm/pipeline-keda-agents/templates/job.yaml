@@ -2,6 +2,7 @@ apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:
   name:  {{ .Values.linux.podPrefix | default "azure-devops" }}-scaledjob
+  namespace: azdo
 spec:
   jobTargetRef:
     template:

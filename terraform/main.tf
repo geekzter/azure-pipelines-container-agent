@@ -38,6 +38,7 @@ locals {
   kube_config_absolute_path    = var.kube_config_path != "" ? var.kube_config_path : "${path.root}/../.kube/${local.workspace_moniker}config"
   log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
   owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
+  pipeline_agent_pool_url      = "${local.devops_url}/_settings/agentpools?poolId=${var.pipeline_agent_pool_id}&view=agents"
   suffix                       = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
   tags                         = merge(
     {
@@ -93,4 +94,32 @@ resource azurerm_role_assignment agent_registry_access {
   principal_id                 = azurerm_user_assigned_identity.agent_identity.0.principal_id
 
   count                        = (var.agent_identity_resource_id == null || var.agent_identity_resource_id == "") && var.configure_access_control ? 1 : 0
+}
+
+resource azurerm_portal_dashboard dashboard {
+  name                         = "${azurerm_resource_group.rg.name}-dashboard"
+  resource_group_name          = azurerm_resource_group.rg.name
+  location                     = azurerm_resource_group.rg.location
+  dashboard_properties         = templatefile("dashboard.template.json",merge(
+    local.tags,
+    {
+      container_registry_id    = module.container_registry.container_registry_id
+      location                 = azurerm_resource_group.rg.location
+      log_analytics_workspace_resource_id = local.log_analytics_workspace_resource_id
+      pipeline_agent_pool_url  = local.pipeline_agent_pool_url
+      resource_group           = azurerm_resource_group.rg.name
+      resource_group_id        = azurerm_resource_group.rg.id
+      storage_account_name     = module.diagnostics_storage.diagnostics_storage_name
+      subscription_id          = data.azurerm_subscription.default.id
+      subscription_guid        = data.azurerm_subscription.default.subscription_id
+      suffix                   = local.suffix
+      workspace                = terraform.workspace
+  }))
+
+  tags                         = merge(
+    local.tags,
+    {
+      hidden-title             = "Container Agents (${terraform.workspace})"
+    }
+  )
 }
