@@ -88,6 +88,7 @@ if ($suffix) {
 if ($workspace) {
     $template = $template -Replace "-${workspace}-", "-`$`{workspace`}-"
     $template = $template -Replace "\`"${workspace}\`"", "`"`$`{workspace`}`""
+    $template = $template -Replace "(${workspace})", "(`$`{workspace`})"
 }
 if ($workspace -and $suffix) {
     $template = $template -Replace "${workspace}${suffix}", "`$`{workspace`}`$`{suffix`}"

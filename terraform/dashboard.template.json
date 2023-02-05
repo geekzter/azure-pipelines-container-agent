@@ -48,7 +48,7 @@
                 }
               },
               {
-                "name": "defaultOptionPicks",
+                "name": "(${workspace})OptionPicks",
                 "value": [
                   {
                     "displayName": "Total",
@@ -518,5 +518,21 @@
         }
       }
     }
-  }
+  },
+  "name": "${resource_group}-dashboard",
+  "resourceGroup": "${resource_group}",
+  "tags": {
+    "application": "Pipeline Container Agents (ericvan)",
+    "githubRepo": "https://github.com/geekzter/azure-pipelines-container-agent",
+    "hidden-title": "Container Agents ((${workspace}))",
+    "owner": "ericvan@microsoft.com",
+    "provisioner": "terraform",
+    "provisionerClientId": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+    "provisionerObjectId": "115c3ab3-943b-4e0c-96ed-1a1763fbaa44",
+    "repository": "azure-pipelines-container-agent",
+    "runId": "",
+    "suffix": "${suffix}",
+    "workspace": "${workspace}"
+  },
+  "type": "Microsoft.Portal/dashboards"
 }
