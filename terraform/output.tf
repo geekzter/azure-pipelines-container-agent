@@ -1,3 +1,13 @@
+output aca_agent_pool_id {
+  value                        = var.create_agent_pools ? local.aca_agent_pool_id : var.pipeline_agent_pool_id
+}
+output aca_agent_pool_name {
+  value                        = var.create_agent_pools ? local.aca_agent_pool_name : var.pipeline_agent_pool_name
+}
+output aca_agent_pool_url {
+  value                        = var.create_agent_pools ? local.aca_agent_pool_url : local.pipeline_agent_pool_url
+}
+
 output agent_diagnostics_file_share_url {
   value                        = module.diagnostics_storage.diagnostics_share_url
 }
@@ -10,6 +20,16 @@ output agent_identity_name {
 }
 output agent_identity_principal_id {
   value                        = local.agent_identity_principal_id
+}
+
+output aks_agent_pool_id {
+  value                        = var.create_agent_pools ? local.aks_agent_pool_id : var.pipeline_agent_pool_id
+}
+output aks_agent_pool_name {
+  value                        = var.create_agent_pools ? local.aks_agent_pool_name : var.pipeline_agent_pool_name
+}
+output aks_agent_pool_url {
+  value                        = var.create_agent_pools ? local.aks_agent_pool_url : local.pipeline_agent_pool_url
 }
 
 output aks_id {
@@ -103,19 +123,12 @@ output log_analytics_workspace_resource_id {
   value                        = local.log_analytics_workspace_resource_id
 }
 
-output pipeline_agent_pool_name {
-  value                        = var.pipeline_agent_pool_name
-}
-output pipeline_agent_pool_url {
-  value                        = local.pipeline_agent_pool_url
-}
-
 output portal_dashboard_id {
-  value                        = azurerm_portal_dashboard.dashboard.id
+  value                        = var.create_portal_dashboard ? azurerm_portal_dashboard.dashboard.0.id : null
 }
 
 output portal_dashboard_url {
-  value                        = "https://portal.azure.com/#@/dashboard/arm/${azurerm_portal_dashboard.dashboard.id}"
+  value                        = var.create_portal_dashboard ? "https://portal.azure.com/#@/dashboard/arm${azurerm_portal_dashboard.dashboard.0.id}" : null
 }
 
 output resource_group_id {

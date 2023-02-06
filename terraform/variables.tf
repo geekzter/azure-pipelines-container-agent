@@ -43,8 +43,19 @@ variable container_repository {
   default                      = "pipelineagent/ubuntu"
 }
 
+variable create_agent_pools {
+  description                  = "Create specific agent pools for ACA & AKS"
+  default                      = false
+  type                         = bool
+}
+
 variable create_files_share {
   description                  = "Deploys files share (e.g. for agent diagnostics)"
+  default                      = true
+  type                         = bool
+}
+
+variable create_portal_dashboard {
   default                      = true
   type                         = bool
 }

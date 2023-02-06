@@ -394,15 +394,27 @@ jobs:
         chartPath: "helm/pipeline-keda-agents"
         releaseName: "pipeline-keda-agents"
         valueFile: "helm/pipeline-keda-agents/values.yaml,$(apply.helm_environment_values_file_abs_path)"
+        # overrideValues: |
+        #   image.repository=$(apply.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
+        #   linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
+        #   linux.azureDevOps.orgUrl=$(System.CollectionUri)
+        #   linux.azureDevOps.capability=$(correlationCapability)
+        #   linux.azureDevOps.poolName=$(TF_VAR_pipeline_agent_pool_name)
+        #   linux.image.acrLoginServer=$(apply.container_registry_name)
+        #   linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
+        #   linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
+        #   storage.accountName=$(apply.diagnostics_storage_account_name)
+        #   storage.accountKey=$(apply.diagnostics_storage_key)
+        #   storage.resourceGroupName=$(apply.resource_group_name)
         overrideValues: |
           image.repository=$(apply.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
           linux.azureDevOps.orgUrl=$(System.CollectionUri)
           linux.azureDevOps.capability=$(correlationCapability)
-          linux.azureDevOps.poolName=$(TF_VAR_pipeline_agent_pool_name)
+          linux.azureDevOps.poolName=$(apply.aks_agent_pool_name)
           linux.image.acrLoginServer=$(apply.container_registry_name)
           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
-          linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
+          linux.trigger.poolId=$(apply.aks_agent_pool_id)
           storage.accountName=$(apply.diagnostics_storage_account_name)
           storage.accountKey=$(apply.diagnostics_storage_key)
           storage.resourceGroupName=$(apply.resource_group_name)

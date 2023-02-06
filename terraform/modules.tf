@@ -1,3 +1,21 @@
+module aca_agent_pool {
+  source                       = "./modules/agent-pool"
+
+  pool_name                    = local.aca_agent_pool_name
+  authorize_queues             = false
+
+  count                        = var.create_agent_pools ? 1 : 0
+}
+
+module aks_agent_pool {
+  source                       = "./modules/agent-pool"
+
+  pool_name                    = local.aks_agent_pool_name
+  authorize_queues             = false
+
+  count                        = var.create_agent_pools ? 1 : 0
+}
+
 module diagnostics_storage {
   source                       = "./modules/diagnostics-storage"
 
@@ -18,7 +36,7 @@ module network {
   diagnostics_storage_id       = module.diagnostics_storage.diagnostics_storage_id
   gateway_type                 = var.gateway_type
   location                     = var.location
-  log_analytics_workspace_resource_id   = local.log_analytics_workspace_resource_id
+  log_analytics_workspace_resource_id = local.log_analytics_workspace_resource_id
   peer_network_has_gateway     = var.peer_network_has_gateway
   peer_network_id              = var.peer_network_id
   resource_group_name          = azurerm_resource_group.rg.name
@@ -61,8 +79,8 @@ module container_app_agents {
   pipeline_agent_memory        = var.pipeline_agent_memory
   pipeline_agent_number_max    = var.pipeline_agent_number_max
   pipeline_agent_number_min    = var.pipeline_agent_number_min
-  pipeline_agent_pool_id       = var.pipeline_agent_pool_id
-  pipeline_agent_pool_name     = var.pipeline_agent_pool_name
+  pipeline_agent_pool_id       = var.create_agent_pools ? module.aca_agent_pool.0.pool_id : var.pipeline_agent_pool_id
+  pipeline_agent_pool_name     = var.create_agent_pools ? local.aca_agent_pool_name : var.pipeline_agent_pool_name
   pipeline_agent_run_once      = var.pipeline_agent_run_once
   pipeline_agent_version_id    = var.pipeline_agent_version_id
   resource_group_id            = azurerm_resource_group.rg.id

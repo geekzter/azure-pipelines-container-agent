@@ -6,25 +6,35 @@
 #Requires -Version 7.2
 
 param ( 
-    [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true)]
     [ValidateNotNull()]
     [string]
     $AksId,
 
-    [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true)]
     [ValidateNotNull()]
     [string]
     $DiagnosticsShareAccountName,
 
-    [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true)]
     [ValidateNotNull()]
     [string]
     $DiagnosticsShareAccountKey,
 
-    [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true)]
     [ValidateNotNull()]
     [string]
     $ResourceGroupName,
+
+    [Parameter(Mandatory=$true)]
+    [ValidateNotNull()]
+    [int]
+    $PoolId,
+
+    [Parameter(Mandatory=$true)]
+    [ValidateNotNull()]
+    [string]
+    $PoolName,
 
     $Suffix,
 
@@ -95,10 +105,9 @@ try {
         Write-Warning "No helm-env-vars-values.json file found at ${helmEnvVarsValuesFile}, skipping environment variable values"
     }
 
-    Write-Debug "helm upgrade --install azure-pipeline-keda-agents . --values ${valueFiles} --set linux.podPrefix=aks-${env:TF_WORKSPACE}-${Suffix},storage.accountName=${DiagnosticsShareAccountName},storage.accountKey=${DiagnosticsShareAccountKey},storage.resourceGroupName=${ResourceGroupName} ($DryRun ? '--dry-run' : '')"
     helm upgrade --install azure-pipeline-keda-agents . `
                  --values ${valueFiles} `
-                 --set linux.podPrefix=aks-${env:TF_WORKSPACE}-${Suffix},storage.accountName=${DiagnosticsShareAccountName},storage.accountKey=${DiagnosticsShareAccountKey},storage.resourceGroupName=${ResourceGroupName} `
+                 --set linux.azureDevOps.poolName=${PoolName},linux.podPrefix=aks-${env:TF_WORKSPACE}-${Suffix},linux.trigger.poolId=${PoolId},storage.accountName=${DiagnosticsShareAccountName},storage.accountKey=${DiagnosticsShareAccountKey},storage.resourceGroupName=${ResourceGroupName} `
                  ($DryRun ? "--dry-run" : "")
 } finally {
     $PSNativeCommandArgumentPassing = $psNativeCommandArgumentPassingBackup
