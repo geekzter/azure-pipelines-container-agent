@@ -84,11 +84,15 @@ variable deploy_network {
   type                         = bool
 }
 
-variable devops_url {
-  description                  = "The Azure DevOps organization url to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
-}
 variable devops_pat {
   description                  = "A Personal Access Token to access the Azure DevOps organization. Requires Agent Pools read & manage scope."
+}
+variable devops_project {
+  description                  = "The Azure DevOps project to authorize agent pools for. Requires 'Read & execute' permission on Build (queue a build) scope)"
+  default                      = null
+}
+variable devops_url {
+  description                  = "The Azure DevOps organization url to join self-hosted agents to (default pool: 'Default', see linux_pipeline_agent_pool/windows_pipeline_agent_pool)"
 }
 
 variable environment_variables {
