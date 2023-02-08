@@ -42,6 +42,11 @@ variable application_owner {
   default                      = "" # Empty string takes objectId of current user
 }
 
+variable authorize_agent_queues {
+  default                      = true
+  type                         = bool
+}
+
 variable bastion_tags {
   description                  = "A map of the tags to use for the bastion resources that are deployed"
   type                         = map

@@ -1,9 +1,10 @@
 module aca_agent_pool {
   source                       = "./modules/agent-pool"
 
+  authorize_queues             = var.authorize_agent_queues # Requires 'Read & execute' permission on Build (queue a build) scope
+  create_queue_for_all_projects= false
+  create_queue_for_project     = var.devops_project
   pool_name                    = local.aca_agent_pool_name
-  authorize_all_projects       = false              # Requires 'Read & execute' permission on Build (queue a build) scope
-  authorize_project            = var.devops_project # Requires 'Read & execute' permission on Build (queue a build) scope
 
   count                        = var.create_agent_pools ? 1 : 0
 }
@@ -11,9 +12,10 @@ module aca_agent_pool {
 module aks_agent_pool {
   source                       = "./modules/agent-pool"
 
+  authorize_queues             = var.authorize_agent_queues # Requires 'Read & execute' permission on Build (queue a build) scope
+  create_queue_for_all_projects= false
+  create_queue_for_project     = var.devops_project
   pool_name                    = local.aks_agent_pool_name
-  authorize_all_projects       = false              # Requires 'Read & execute' permission on Build (queue a build) scope
-  authorize_project            = var.devops_project # Requires 'Read & execute' permission on Build (queue a build) scope
 
   count                        = var.create_agent_pools ? 1 : 0
 }

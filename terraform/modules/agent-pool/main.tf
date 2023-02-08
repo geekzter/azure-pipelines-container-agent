@@ -4,14 +4,14 @@ locals {
 
 resource azuredevops_agent_pool pool {
   name                         = var.pool_name
-  auto_provision               = !var.authorize_all_projects
+  auto_provision               = false
 }
 
 data azuredevops_projects all_projects {
   state                        = "wellFormed"
 }
 resource azuredevops_agent_queue all_project_queues {
-  for_each                     = var.authorize_all_projects ? local.projects_ids : {}
+  for_each                     = var.create_queue_for_all_projects ? local.projects_ids : {}
 
   project_id                   = each.value
   agent_pool_id                = azuredevops_agent_pool.pool.id
@@ -24,7 +24,7 @@ resource azuredevops_agent_queue all_project_queues {
 }
 # Requires 'Read & execute' permission on Build (queue a build) scope
 resource azuredevops_resource_authorization all_project_queues {
-  for_each                     = var.authorize_all_projects ? local.projects_ids : {}
+  for_each                     = var.create_queue_for_all_projects && var.authorize_queues ? local.projects_ids : {}
 
   project_id                   = each.value
   resource_id                  = azuredevops_agent_queue.all_project_queues[each.key].id
@@ -33,25 +33,22 @@ resource azuredevops_resource_authorization all_project_queues {
 }
 
 data azuredevops_project single_project {
-  name                         = var.authorize_project
+  name                         = var.create_queue_for_project
 
-  count                        = !var.authorize_all_projects && var.authorize_project != null  && var.authorize_project != "" ? 1 : 0
+  count                        = !var.create_queue_for_all_projects && var.create_queue_for_project != null  && var.create_queue_for_project != "" ? 1 : 0
 }
-data azuredevops_agent_queue single_project_queue {
+resource azuredevops_agent_queue single_project_queue {
   project_id                   = data.azuredevops_project.single_project.0.project_id
-  name                         = azuredevops_agent_pool.pool.name
+  agent_pool_id                = azuredevops_agent_pool.pool.id
 
-  count                        = !var.authorize_all_projects && var.authorize_project != null  && var.authorize_project != "" ? 1 : 0
-  depends_on                   = [
-    azuredevops_agent_pool.pool
-  ]
+  count                        = !var.create_queue_for_all_projects && var.create_queue_for_project != null  && var.create_queue_for_project != "" ? 1 : 0
 }
 # Requires 'Read & execute' permission on Build (queue a build) scope
 resource azuredevops_resource_authorization single_project_queue {
   project_id                   = data.azuredevops_project.single_project.0.project_id
-  resource_id                  = data.azuredevops_agent_queue.single_project_queue.0.id
+  resource_id                  = azuredevops_agent_queue.single_project_queue.0.id
   type                         = "queue"
   authorized                   = true
 
-  count                        = !var.authorize_all_projects && var.authorize_project != null  && var.authorize_project != "" ? 1 : 0
+  count                        = !var.create_queue_for_all_projects && var.authorize_queues && var.create_queue_for_project != null  && var.create_queue_for_project != "" ? 1 : 0
 }

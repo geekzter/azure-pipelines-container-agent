@@ -152,10 +152,6 @@ variables:
     value: '${{ parameters.networkType }}'
 - name: 'TF_VAR_environment_variables'
   value: '{PIPELINE_DEMO_JOB_CAPABILITY_ACA="$(correlationCapability)"}'
-- name: 'TF_VAR_pipeline_agent_pool_id'
-  value: 1
-- name: 'TF_VAR_pipeline_agent_pool_name'
-  value: 'Default'
 - name: 'TF_VAR_repository'
   value: 'azure-pipelines-container-agent'
 - name: 'TF_VAR_resource_suffix'
