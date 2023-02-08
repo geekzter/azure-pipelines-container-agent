@@ -448,8 +448,7 @@ jobs:
     dependsOn: provision
     displayName: Test Container App Agent
     pool:
-      # name: '$(TF_VAR_pipeline_agent_pool_name)'
-      name: $[ dependencies.provision.outputs['apply.aca_agent_pool_name'] ]
+      name: '$(TF_VAR_aca_agent_pool_name)'
       demands:
       - agent.os -equals Linux
       - CONTAINER_APP_NAME
@@ -482,8 +481,7 @@ jobs:
     dependsOn: provision
     displayName: Test Kubernetes Agent
     pool:
-      # name: '$(TF_VAR_pipeline_agent_pool_name)'
-      name: $[ dependencies.provision.outputs['apply.aks_agent_pool_name'] ]
+      name: '$(TF_VAR_aks_agent_pool_name)'
       demands:
       - agent.os -equals Linux
       # - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(correlationCapability)
