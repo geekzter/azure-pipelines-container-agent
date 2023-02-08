@@ -39,7 +39,7 @@ data azuredevops_project single_project {
 }
 data azuredevops_agent_queue single_project_queue {
   project_id                   = data.azuredevops_project.single_project.0.project_id
-  name                         = var.pool_name
+  name                         = azuredevops_agent_pool.pool.name
 
   count                        = !var.authorize_all_projects && var.authorize_project != null  && var.authorize_project != "" ? 1 : 0
 }
