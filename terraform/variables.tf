@@ -1,3 +1,13 @@
+variable aca_agent_pool_id {
+  description                  = "Name of the agent pool to create for Azure Container Apps (ACA) agents"
+  default                      = 1
+  type                         = number
+}
+variable aca_agent_pool_name {
+  description                  = "ID of the agent pool to create for Azure Container Apps (ACA) agents"
+  default                      = "Default"
+}
+
 variable address_space {
   default                      = "10.201.0.0/22"
 }
@@ -5,6 +15,16 @@ variable address_space {
 variable agent_identity_resource_id {
   description                  = "Resource id of pre-created User-assigned Managed Identity used to access Container Registry"
   default                      = ""
+}
+
+variable aks_agent_pool_id {
+  description                  = "Name of the agent pool to create for Azure Kubernetes Service (AKS) agents"
+  default                      = 1
+  type                         = number
+}
+variable aks_agent_pool_name {
+  description                  = "ID of the agent pool to create for Azure Kubernetes Service (AKS) agents"
+  default                      = "Default"
 }
 
 variable aks_private_cluster_enabled {
@@ -175,15 +195,6 @@ variable pipeline_agent_number_max {
 variable pipeline_agent_number_min {
   type                         = number
   default                      = 1
-}
-
-variable pipeline_agent_pool_id {
-  type                         = number
-  default                      = 1
-}
-
-variable pipeline_agent_pool_name {
-  default                      = "Default"
 }
 
 variable pipeline_agent_run_once {

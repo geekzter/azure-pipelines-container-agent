@@ -8,17 +8,17 @@ resource random_string suffix {
 }
 
 locals {
-  aca_agent_pool_id            = var.create_agent_pools ? module.aca_agent_pool.0.pool_id : null
-  aca_agent_pool_name          = "aca-container-agents-${terraform.workspace}-${local.suffix}"
-  aca_agent_pool_url           = var.create_agent_pools ? "${local.devops_url}/_settings/agentpools?poolId=${module.aca_agent_pool.0.pool_id}&view=agents" : null
+  aca_agent_pool_id            = var.create_agent_pools ? module.aca_agent_pool.0.pool_id : var.aca_agent_pool_id
+  aca_agent_pool_name          = var.create_agent_pools ? "aca-container-agents-${terraform.workspace}-${local.suffix}" : var.aca_agent_pool_name
+  aca_agent_pool_url           = var.create_agent_pools ? "${local.devops_url}/_settings/agentpools?poolId=${local.aca_agent_pool_id}&view=agents" : null
   agent_identity_client_id     = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.client_id : azurerm_user_assigned_identity.agent_identity.0.client_id
   agent_identity_name          = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.name : azurerm_user_assigned_identity.agent_identity.0.name
   agent_identity_principal_id  = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.principal_id : azurerm_user_assigned_identity.agent_identity.0.principal_id
   agent_identity_resource_id   = local.agent_identity_is_precreated ? var.agent_identity_resource_id : azurerm_user_assigned_identity.agent_identity.0.id
   agent_identity_is_precreated = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null
-  aks_agent_pool_id            = var.create_agent_pools ? module.aks_agent_pool.0.pool_id : null
-  aks_agent_pool_name          = "aks-container-agents-${terraform.workspace}-${local.suffix}"
-  aks_agent_pool_url           = var.create_agent_pools ? "${local.devops_url}/_settings/agentpools?poolId=${module.aks_agent_pool.0.pool_id}&view=agents" : null
+  aks_agent_pool_id            = var.create_agent_pools ? module.aks_agent_pool.0.pool_id : var.aks_agent_pool_id
+  aks_agent_pool_name          = var.create_agent_pools ? "aca-container-agents-${terraform.workspace}-${local.suffix}" : var.aks_agent_pool_name
+  aks_agent_pool_url           = var.create_agent_pools ? "${local.devops_url}/_settings/agentpools?poolId=${local.aks_agent_pool_id}&view=agents" : null
   devops_url                   = replace(var.devops_url,"/\\/$/","")
 
   environment_variables        = merge(
@@ -44,7 +44,6 @@ locals {
   kube_config_absolute_path    = var.kube_config_path != "" ? var.kube_config_path : "${path.root}/../.kube/${local.workspace_moniker}config"
   log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
   owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
-  pipeline_agent_pool_url      = "${local.devops_url}/_settings/agentpools?poolId=${var.pipeline_agent_pool_id}&view=agents"
   suffix                       = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
   tags                         = merge(
     {
@@ -109,10 +108,12 @@ resource azurerm_portal_dashboard dashboard {
   dashboard_properties         = templatefile("dashboard.template.json",merge(
     local.tags,
     {
+      aca_agent_pool_url       = local.aca_agent_pool_url
+      aks_agent_pool_url       = local.aks_agent_pool_url
       container_registry_id    = module.container_registry.container_registry_id
       location                 = azurerm_resource_group.rg.location
       log_analytics_workspace_resource_id = local.log_analytics_workspace_resource_id
-      pipeline_agent_pool_url  = local.pipeline_agent_pool_url
+      pipeline_agent_pool_url  = local.aca_agent_pool_url
       resource_group           = azurerm_resource_group.rg.name
       resource_group_id        = azurerm_resource_group.rg.id
       storage_account_name     = module.diagnostics_storage.diagnostics_storage_name

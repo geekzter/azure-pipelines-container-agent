@@ -42,6 +42,9 @@ data azuredevops_agent_queue single_project_queue {
   name                         = azuredevops_agent_pool.pool.name
 
   count                        = !var.authorize_all_projects && var.authorize_project != null  && var.authorize_project != "" ? 1 : 0
+  depends_on                   = [
+    azuredevops_agent_pool.pool
+  ]
 }
 # Requires 'Read & execute' permission on Build (queue a build) scope
 resource azuredevops_resource_authorization single_project_queue {

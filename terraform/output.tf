@@ -1,11 +1,11 @@
 output aca_agent_pool_id {
-  value                        = var.create_agent_pools ? local.aca_agent_pool_id : var.pipeline_agent_pool_id
+  value                        = local.aca_agent_pool_id
 }
 output aca_agent_pool_name {
-  value                        = var.create_agent_pools ? local.aca_agent_pool_name : var.pipeline_agent_pool_name
+  value                        = local.aca_agent_pool_name
 }
 output aca_agent_pool_url {
-  value                        = var.create_agent_pools ? local.aca_agent_pool_url : local.pipeline_agent_pool_url
+  value                        = local.aca_agent_pool_url
 }
 
 output agent_diagnostics_file_share_url {
@@ -23,13 +23,13 @@ output agent_identity_principal_id {
 }
 
 output aks_agent_pool_id {
-  value                        = var.create_agent_pools ? local.aks_agent_pool_id : var.pipeline_agent_pool_id
+  value                        = local.aks_agent_pool_id
 }
 output aks_agent_pool_name {
-  value                        = var.create_agent_pools ? local.aks_agent_pool_name : var.pipeline_agent_pool_name
+  value                        = local.aks_agent_pool_name
 }
 output aks_agent_pool_url {
-  value                        = var.create_agent_pools ? local.aks_agent_pool_url : local.pipeline_agent_pool_url
+  value                        = local.aks_agent_pool_url
 }
 
 output aks_id {

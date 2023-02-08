@@ -81,8 +81,8 @@ module container_app_agents {
   pipeline_agent_memory        = var.pipeline_agent_memory
   pipeline_agent_number_max    = var.pipeline_agent_number_max
   pipeline_agent_number_min    = var.pipeline_agent_number_min
-  pipeline_agent_pool_id       = var.create_agent_pools ? module.aca_agent_pool.0.pool_id : var.pipeline_agent_pool_id
-  pipeline_agent_pool_name     = var.create_agent_pools ? local.aca_agent_pool_name : var.pipeline_agent_pool_name
+  pipeline_agent_pool_id       = local.aca_agent_pool_id
+  pipeline_agent_pool_name     = local.aca_agent_pool_name
   pipeline_agent_run_once      = var.pipeline_agent_run_once
   pipeline_agent_version_id    = var.pipeline_agent_version_id
   resource_group_id            = azurerm_resource_group.rg.id
