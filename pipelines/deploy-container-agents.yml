@@ -415,7 +415,7 @@ jobs:
         ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_ACA `
                               -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(TF_VAR_pipeline_agent_pool_id)
+                              -PoolId $(apply.aca_agent_pool_id)
       displayName: 'Wait for Container App agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
@@ -426,7 +426,7 @@ jobs:
         ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_AKS `
                               -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(TF_VAR_pipeline_agent_pool_id)
+                              -PoolId $(apply.aks_agent_pool_id)
       displayName: 'Wait for Kubernetes agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
