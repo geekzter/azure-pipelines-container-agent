@@ -40,12 +40,8 @@ locals {
     },
     var.environment_variables
   )
-  kube_config_relative_path    = var.kube_config_path != "" ? var.kube_config_path : "../.kube/${local.workspace_moniker}config"
-  kube_config_absolute_path    = var.kube_config_path != "" ? var.kube_config_path : "${path.root}/../.kube/${local.workspace_moniker}config"
-  log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
-  owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
-  suffix                       = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
-  tags                         = merge(
+  initial_suffix               = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
+  initial_tags                 = merge(
     {
       application              = var.application_name
       githubRepo               = "https://github.com/geekzter/azure-pipelines-container-agent"
@@ -55,19 +51,32 @@ locals {
       provisionerObjectId      = data.azurerm_client_config.default.object_id
       repository               = "azure-pipelines-container-agent"
       runId                    = var.run_id
-      suffix                   = local.suffix
+      suffix                   = local.initial_suffix
       workspace                = terraform.workspace
     },
     var.tags
-  )  
+  )
+  kube_config_relative_path    = var.kube_config_path != "" ? var.kube_config_path : "../.kube/${local.workspace_moniker}config"
+  kube_config_absolute_path    = var.kube_config_path != "" ? var.kube_config_path : "${path.root}/../.kube/${local.workspace_moniker}config"
+  log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
+  owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
+  suffix                       = azurerm_resource_group.rg.tags["suffix"] # Ignores updates to var.resource_suffix
+  tags                         = azurerm_resource_group.rg.tags           # Ignores updates to var.resource_suffix
   workspace_moniker            = terraform.workspace == "default" ? "" : terraform.workspace
 }
 
 resource azurerm_resource_group rg {
-  name                         = terraform.workspace == "default" ? "${var.resource_prefix}-container-agents-${local.suffix}" : "${var.resource_prefix}-${terraform.workspace}-container-agents-${local.suffix}"
+  name                         = terraform.workspace == "default" ? "${var.resource_prefix}-container-agents-${local.initial_suffix}" : "${var.resource_prefix}-${terraform.workspace}-container-agents-${local.initial_suffix}"
   location                     = var.location
 
-  tags                         = local.tags
+  tags                         = local.initial_tags
+
+  lifecycle {
+    ignore_changes             = [
+      name,
+      tags["suffix"]
+    ]
+  }  
 }
 
 resource azurerm_user_assigned_identity agent_identity {

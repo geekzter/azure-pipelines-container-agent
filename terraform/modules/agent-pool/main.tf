@@ -5,6 +5,12 @@ locals {
 resource azuredevops_agent_pool pool {
   name                         = var.pool_name
   auto_provision               = false
+
+  lifecycle {
+    ignore_changes             = [
+      name
+    ]
+  }
 }
 
 data azuredevops_projects all_projects {

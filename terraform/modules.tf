@@ -100,6 +100,7 @@ module container_app_agents {
   ]
 
   count                        = var.deploy_container_app ? 1 : 0
+  # count                        = 0
 }
 
 module aks_agents {

@@ -213,11 +213,11 @@ variable pipeline_agent_version_id {
 }
 
 variable resource_prefix {
-  description                  = "The prefix to put at the of resource names created"
+  description                  = "The prefix to put at the end of resource names created"
   default                      = "pipelines"
 }
 variable resource_suffix {
-  description                  = "The suffix to put at the of resource names created"
+  description                  = "The suffix to put at the start of resource names created"
   default                      = "" # Empty string triggers a random suffix
 }
 
