@@ -1,4 +1,8 @@
-function Create-RequestHeaders()
+$apiVersion = "7.1-preview.1"
+
+function Create-RequestHeaders (
+    [parameter(Mandatory=$true)][string]$Token
+)
 {
     $base64AuthInfo = [Convert]::ToBase64String([System.Text.ASCIIEncoding]::ASCII.GetBytes(":${Token}"))
     $authHeader = "Basic $base64AuthInfo"
@@ -136,14 +140,15 @@ function Login-Az (
     }
 }
 
-function Remove-OfflineAgent(
+function Remove-OfflineAgent (
     [parameter(Mandatory=$true)][int]$AgentId,
-    [parameter(Mandatory=$true)][int]$PoolId
+    [parameter(Mandatory=$true)][int]$PoolId,
+    [parameter(Mandatory=$true)][string]$OrganizationUrl,
+    [parameter(Mandatory=$true)][string]$Token
 )
 {
-    $apiVersion = "7.1-preview.1"
-    "Removing agent ${AgentId} from '$PoolName'..." | Write-Host
-    Write-Debug "PoolName: $PoolName"
+    "Removing agent ${AgentId} from pool $PoolId..." | Write-Host
+    Write-Debug "PoolId: $PoolId"
 
     $apiUrl = "${OrganizationUrl}/_apis/distributedtask/pools/${poolId}/agents/${AgentId}?api-version=${apiVersion}"
     Write-Verbose "REST API Url: $apiUrl"
@@ -158,7 +163,32 @@ function Remove-OfflineAgent(
         exit 1
     }
 
-    "Removed agent ${AgentId} from '$PoolName'..." | Write-Host
+    "Removed agent ${AgentId} from pool $PoolId" | Write-Host
+}
+
+function Remove-AgentPool (
+    [parameter(Mandatory=$true)][int]$PoolId,
+    [parameter(Mandatory=$true)][string]$OrganizationUrl,
+    [parameter(Mandatory=$true)][string]$Token
+)
+{
+    "Removing pool $PoolId..." | Write-Host
+    Write-Debug "PoolId: $PoolId"
+
+    $apiUrl = "${OrganizationUrl}/_apis/distributedtask/pools/${poolId}?api-version=${apiVersion}"
+    Write-Verbose "REST API Url: $apiUrl"
+
+    $requestHeaders = Create-RequestHeaders -Token $Token
+
+    Write-Debug "Request JSON: $RequestJson"
+    try {
+        Invoke-RestMethod -Uri $apiUrl -Headers $requestHeaders -Method Delete
+    } catch {
+        Write-RestError
+        exit 1
+    }
+
+    "Removed pool $PoolId" | Write-Host
 }
 
 function Set-PipelineVariablesFromTerraform () {

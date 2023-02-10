@@ -126,9 +126,9 @@ variables:
 - name: 'TF_INPUT'
   value: 0
 - name: 'TF_VAR_aca_agent_pool_name'
-  value: 'aca-container-agents-${{ parameters.workspace }}-$(Build.BuildId)'
+  value: 'aca-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_aks_agent_pool_name'
-  value: 'aks-container-agents-${{ parameters.workspace }}-$(Build.BuildId)'
+  value: 'aks-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_container_repository'
@@ -568,7 +568,7 @@ jobs:
 
     - task: AzureCLI@2
       name: teardown
-      displayName: 'Tear down remaining resources'
+      displayName: 'Tear down remaining Azure resources'
       inputs:
         azureSubscription: '$(subscriptionConnection)'
         scriptType: pscore
@@ -606,6 +606,14 @@ jobs:
         useGlobalConfig: true
         failOnStandardError: true
         workingDirectory: '$(scriptDirectory)'
+
+    - pwsh: |
+        ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
+                                -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
+      displayName: 'Tear down up agent pools'
+      workingDirectory: '$(scriptDirectory)'
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
 
     - task: AzureCLI@2
       name: cleanup

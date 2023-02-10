@@ -105,6 +105,10 @@ variables:
   value: 'true'
 - name: 'TF_INPUT'
   value: 0
+- name: 'TF_VAR_aca_agent_pool_name'
+  value: 'aca-container-agents-${{ parameters.workspace }}-$(Build.BuildId)'
+- name: 'TF_VAR_aks_agent_pool_name'
+  value: 'aks-container-agents-${{ parameters.workspace }}-$(Build.BuildId)'
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_container_repository'
@@ -454,7 +458,7 @@ jobs:
     - ${{ if ne(parameters.destroy, 'Never') }}:
       - task: AzureCLI@2
         name: teardown
-        displayName: 'Tear down remaining resources'
+        displayName: 'Tear down remaining Azure resources'
         ${{ if eq(parameters.destroy, 'Always') }}:
           condition: or(always(),canceled())
         ${{ if eq(parameters.destroy, 'On failure') }}:
@@ -498,6 +502,15 @@ jobs:
           useGlobalConfig: true
           failOnStandardError: true
           workingDirectory: '$(scriptDirectory)'
+
+    - ${{ if ne(parameters.destroy, 'Never') }}:
+      - pwsh: |
+          ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
+                                  -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
+        displayName: 'Tear down up agent pools'
+        workingDirectory: '$(scriptDirectory)'
+        env:
+          AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
 
     - ${{ if ne(parameters.destroy, 'Never') }}:
       - task: AzureCLI@2
