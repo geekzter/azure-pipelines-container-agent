@@ -24,7 +24,7 @@ locals {
   environment_variables        = merge(
     {
       AGENT_DIAGNOSTIC                                          = tostring(var.pipeline_agent_diagnostics)
-      PIPELINE_DEMO_AGENT_LOCATION                              = var.location
+      PIPELINE_DEMO_AGENT_LOCATION                              = azurerm_resource_group.rg.location
       PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_CLIENT_ID      = local.agent_identity_client_id
       PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_NAME           = local.agent_identity_name
       PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID   = local.agent_identity_principal_id
@@ -73,6 +73,7 @@ resource azurerm_resource_group rg {
 
   lifecycle {
     ignore_changes             = [
+      location,
       name,
       tags["suffix"]
     ]

@@ -23,7 +23,7 @@ module aks_agent_pool {
 module diagnostics_storage {
   source                       = "./modules/diagnostics-storage"
 
-  location                     = var.location
+  location                     = azurerm_resource_group.rg.location
   create_log_analytics_workspace = (var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null) ? false : true
   create_files_share           = var.create_files_share
   resource_group_name          = azurerm_resource_group.rg.name
@@ -39,7 +39,7 @@ module network {
   deploy_bastion               = var.deploy_bastion
   diagnostics_storage_id       = module.diagnostics_storage.diagnostics_storage_id
   gateway_type                 = var.gateway_type
-  location                     = var.location
+  location                     = azurerm_resource_group.rg.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_resource_id
   peer_network_has_gateway     = var.peer_network_has_gateway
   peer_network_id              = var.peer_network_id
@@ -57,7 +57,7 @@ module container_registry {
   container_image              = var.container_repository
   container_registry_id        = var.container_registry_id
   github_repo_access_token     = var.github_repo_access_token
-  location                     = var.location
+  location                     = azurerm_resource_group.rg.location
   log_analytics_workspace_resource_id   = local.log_analytics_workspace_resource_id
   resource_group_name          = azurerm_resource_group.rg.name
   suffix                       = local.suffix
@@ -77,7 +77,7 @@ module container_app_agents {
   environment_variables        = { for k, v in local.environment_variables : k => v if k != "PIPELINE_DEMO_JOB_CAPABILITY_AKS" }
   # gateway_id                   = var.deploy_network ? module.network.0.gateway_id : null # Requires upcoming Premium SKU
   gateway_id                   = null
-  location                     = var.location
+  location                     = azurerm_resource_group.rg.location
   log_analytics_workspace_resource_id= local.log_analytics_workspace_resource_id
   pipeline_agent_cpu           = var.pipeline_agent_cpu
   pipeline_agent_memory        = var.pipeline_agent_memory
@@ -100,7 +100,6 @@ module container_app_agents {
   ]
 
   count                        = var.deploy_container_app ? 1 : 0
-  # count                        = 0
 }
 
 module aks_agents {
@@ -112,7 +111,7 @@ module aks_agents {
   dns_prefix                   = var.resource_prefix
   enable_keda                  = false # Install KEDA with Helm chart instead
   enable_node_public_ip        = !var.deploy_network || var.gateway_type == "None"
-  location                     = var.location
+  location                     = azurerm_resource_group.rg.location
   kube_config_path             = local.kube_config_absolute_path
   kubernetes_version           = var.kubernetes_version
   log_analytics_workspace_id   = local.log_analytics_workspace_resource_id

@@ -116,11 +116,12 @@ try {
         if ($resourceGroup) {
             Invoke-Command -ScriptBlock {
                 $Private:ErrorActionPreference = "Continue"
-                $aks = $(az aks list -g $resourceGroup --subscription $env:ARM_SUBSCRIPTION_ID --query "[?properties.powerState.code!='Running'].name" -o tsv)
+                Write-Debug "az aks list -g $resourceGroup --subscription $env:ARM_SUBSCRIPTION_ID --query `"[?provisioningState=='Succeeded'&&properties.powerState.code!='Running'].name`""
+                $aks = $(az aks list -g $resourceGroup --subscription $env:ARM_SUBSCRIPTION_ID --query "[?provisioningState=='Succeeded'&&properties.powerState.code!='Running'].name" -o tsv)
                 if ($aks) {
                     Write-Host "Starting AKS '${aks}' in resource group '${resourceGroup}'..."
                     Write-Debug "az aks start -n $aks -g $resourceGroup"
-                    az aks start -n $aks -g $resourceGroup --query "[].name" -o tsv
+                    az aks start -n $aks -g $resourceGroup --no-wait --query "[].name" -o tsv
                 }
             }
         }
