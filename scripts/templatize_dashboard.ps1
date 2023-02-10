@@ -72,6 +72,11 @@ if ($InputFile) {
     $template = (az portal dashboard show -n $dashboardName -g $resourceGroupName -o json --subscription $subscriptionGUID)
 }
 
+if (!$template) {
+    Write-Warning "Dashboard not found"
+    exit
+}
+
 if ($aca_agent_pool_url) {
     # $template = $template -Replace "https://dev.azure.com[^`']*_settings/agentpools[^`']*`'", "`$`{aca_agent_pool_url`}`'"
     $template = $template -Replace "${aca_agent_pool_url}", "`$`{aca_agent_pool_url`}`'"
