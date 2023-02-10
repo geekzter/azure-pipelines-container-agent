@@ -70,7 +70,7 @@ variable container_repository {
 
 variable create_agent_pools {
   description                  = "Create specific agent pools for ACA & AKS"
-  default                      = false
+  default                      = true
   type                         = bool
 }
 
