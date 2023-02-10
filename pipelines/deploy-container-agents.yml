@@ -610,7 +610,7 @@ jobs:
     - pwsh: |
         ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
                                 -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
-      displayName: 'Tear down up agent pools'
+      displayName: 'Tear down agent pools'
       workingDirectory: '$(scriptDirectory)'
       env:
         AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)

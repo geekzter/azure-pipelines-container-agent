@@ -507,7 +507,13 @@ jobs:
       - pwsh: |
           ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
                                   -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
-        displayName: 'Tear down up agent pools'
+        displayName: 'Tear down agent pools'
+        ${{ if eq(parameters.destroy, 'Always') }}:
+          condition: or(always(),canceled())
+        ${{ if eq(parameters.destroy, 'On failure') }}:
+          condition: not(eq(variables['provisioningResult.result'],'success'))
+        ${{ if eq(parameters.destroy, 'On success') }}:
+          condition: eq(variables['provisioningResult.result'],'success')
         workingDirectory: '$(scriptDirectory)'
         env:
           AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
