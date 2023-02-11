@@ -65,7 +65,7 @@ az aks show -n $aksClusterName `
 
 $aks | Format-List | Out-String | Write-Debug
 
-if ($aks.provisioningState -inotin "Stopped", "Stopping", "Succeeded") {
+if ($aks.provisioningState -inotin "Stopping", "Succeeded") {
     "AKS '${aksClusterName}' is in '{0}' state" -f $aks.provisioningState | Write-Error
     exit 1
 }
