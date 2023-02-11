@@ -194,8 +194,8 @@ jobs:
         $jobIndex++
         $workspace = "${{ parameters.workspace }}${jobIndex}"
         $strategyHash[$job].resourceGroup = "$(TF_VAR_resource_prefix)-${workspace}-$(Build.BuildId)"
-        $strategyHash[$job].TF_VAR_aca_agent_pool_name = "aca-container-agents-${workspace}-$(Build.BuildId)
-        $strategyHash[$job].TF_VAR_aks_agent_pool_name = "aks-container-agents-${workspace}-$(Build.BuildId)
+        $strategyHash[$job].TF_VAR_aca_agent_pool_name = "aca-container-agents-${workspace}-$(Build.BuildId)"
+        $strategyHash[$job].TF_VAR_aks_agent_pool_name = "aks-container-agents-${workspace}-$(Build.BuildId)"
         $strategyHash[$job].TF_WORKSPACE = $workspace
       }
 
