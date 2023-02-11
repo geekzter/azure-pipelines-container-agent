@@ -69,7 +69,7 @@ if ($aks.provisioningState -inotin "Stopped", "Stopping", "Succeeded") {
     "AKS '${aksClusterName}' is in '{0}' state" -f $aks.provisioningState | Write-Error
     exit 1
 }
-if ($aks.powerState.code -inotin "Running", "Starting") {
+if ($aks.powerState.code -iin "Running", "Starting") {
     "AKS '${aksClusterName}' is already in '{0}' state" -f $aks.powerState.code | Write-Error
     exit 0
 }
