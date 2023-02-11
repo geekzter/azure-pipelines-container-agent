@@ -39,7 +39,7 @@ if (!(az extension list --query "[?name=='azure-devops'].version" -o tsv)) {
 $Token | az devops login --organization $OrganizationUrl
 az devops configure --defaults organization=$OrganizationUrl
 
-foreach ($pool in $PoolName) {
+foreach ($pool in ($PoolName | Get-Unique)) {
     az pipelines pool list --pool-name "${pool}" --query "[].id" -o tsv | Set-Variable poolId
 
     if (!$poolId) {

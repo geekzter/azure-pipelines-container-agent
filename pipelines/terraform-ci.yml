@@ -162,6 +162,9 @@ jobs:
         $strategyHash.Add("aks-gw-fw",
           @{
             substituteAlternateVariables = $false
+            TF_VAR_aca_agent_pool_name = 'Default'
+            TF_VAR_aks_agent_pool_name = 'Default'
+            TF_VAR_create_agent_pools = 'false'
             TF_VAR_deploy_container_app = 'false'
             TF_VAR_deploy_aks = 'true'
             TF_VAR_deploy_bastion = 'true'
@@ -349,16 +352,11 @@ jobs:
           $(scriptDirectory)/set_terraform_azurerm_vars.ps1
 
           Write-Host "Terraform workspace: $(terraform workspace show)"
-          terraform output
 
-          Write-Host "Last exit code 0: $LASTEXITCODE"
           if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
-            Write-Host "Last exit code 1: $LASTEXITCODE"
             $env:TF_VAR_RESOURCE_SUFFIX = $null
             $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
-            Write-Host "Last exit code 2: $LASTEXITCODE"
           }
-          Write-Host "Last exit code 3: $LASTEXITCODE"
 
           # Parse alternate strategy variables
           if ($$(substituteAlternateVariables)) {
@@ -372,11 +370,9 @@ jobs:
               Set-Item env:${primaryVariableName} -Value $variableValue
             } 
           }
-          Write-Host "Last exit code 4: $LASTEXITCODE"
 
           # List environment variables
           Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
-          Write-Host "Last exit code 5: $LASTEXITCODE"
 
           # Convert uppercased Terraform environment variables to .auto.tfvars file
           foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
@@ -390,10 +386,8 @@ jobs:
               Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
             }
           } 
-          Write-Host "Last exit code 6: $LASTEXITCODE"
           Write-Host "Contents of ci.auto.tfvars:"
           Get-Content ci.auto.tfvars | Sort-Object
-          Write-Host "Last exit code 7: $LASTEXITCODE"
         addSpnToEnvironment: true
         useGlobalConfig: true
         failOnStandardError: true
@@ -510,11 +504,11 @@ jobs:
                                   -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
         displayName: 'Tear down agent pools'
         ${{ if eq(parameters.destroy, 'Always') }}:
-          condition: or(always(),canceled())
+          condition: and(or(always(),canceled()),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
         ${{ if eq(parameters.destroy, 'On failure') }}:
-          condition: not(eq(variables['provisioningResult.result'],'success'))
+          condition: and(not(eq(variables['provisioningResult.result'],'success')),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
         ${{ if eq(parameters.destroy, 'On success') }}:
-          condition: eq(variables['provisioningResult.result'],'success')
+          condition: and(eq(variables['provisioningResult.result'],'success'),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
         workingDirectory: '$(scriptDirectory)'
         env:
           AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)

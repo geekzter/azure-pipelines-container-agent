@@ -416,7 +416,6 @@ jobs:
                               -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
                               -PoolId $(apply.aca_agent_pool_id)
-      condition: eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true')
       displayName: 'Wait for Container App agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
@@ -428,7 +427,6 @@ jobs:
                               -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
                               -PoolId $(apply.aks_agent_pool_id)
-      condition: eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true')
       displayName: 'Wait for Kubernetes agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
@@ -611,6 +609,7 @@ jobs:
         ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
                                 -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
       displayName: 'Tear down agent pools'
+      condition: eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true')
       workingDirectory: '$(scriptDirectory)'
       env:
         AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
