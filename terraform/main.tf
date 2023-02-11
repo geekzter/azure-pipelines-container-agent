@@ -8,7 +8,7 @@ resource random_string suffix {
 }
 
 locals {
-  aca_agent_pool_id            = var.create_agent_pools ? module.aca_agent_pool.0.pool_id : var.aca_agent_pool_id
+  aca_agent_pool_id            = var.create_agent_pools ? try(module.aca_agent_pool.0.pool_id,1) : var.aca_agent_pool_id
   aca_agent_pool_name          = var.aca_agent_pool_name != null && var.aks_agent_pool_name != null ? var.aca_agent_pool_name : "aca-container-agents-${terraform.workspace}-${local.suffix}"
   aca_agent_pool_url           = "${local.devops_url}/_settings/agentpools?poolId=${local.aca_agent_pool_id}&view=agents"
   agent_identity_client_id     = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.client_id : azurerm_user_assigned_identity.agent_identity.0.client_id
@@ -16,7 +16,7 @@ locals {
   agent_identity_principal_id  = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.principal_id : azurerm_user_assigned_identity.agent_identity.0.principal_id
   agent_identity_resource_id   = local.agent_identity_is_precreated ? var.agent_identity_resource_id : azurerm_user_assigned_identity.agent_identity.0.id
   agent_identity_is_precreated = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null
-  aks_agent_pool_id            = var.create_agent_pools ? module.aks_agent_pool.0.pool_id : var.aks_agent_pool_id
+  aks_agent_pool_id            = var.create_agent_pools ? try(module.aks_agent_pool.0.pool_id,1) : var.aks_agent_pool_id
   aks_agent_pool_name          = var.aks_agent_pool_name != null && var.aks_agent_pool_name != null ? var.aks_agent_pool_name : "aks-container-agents-${terraform.workspace}-${local.suffix}"
   aks_agent_pool_url           = "${local.devops_url}/_settings/agentpools?poolId=${local.aks_agent_pool_id}&view=agents"
   devops_url                   = replace(var.devops_url,"/\\/$/","")
