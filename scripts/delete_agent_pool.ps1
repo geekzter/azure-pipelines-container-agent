@@ -47,7 +47,7 @@ foreach ($pool in ($PoolName | Get-Unique)) {
         continue
     }
     if ($poolId -eq 1) {
-        Write-Warning "Pool '${pool}' is the default pool, skipping delete operation"
+        Write-Warning "Pool '${pool}' is the default pool, skipping delete operation."
         continue
     }
     
