@@ -8,8 +8,8 @@
 param ( 
     [Parameter(Mandatory=$false)]
     [ValidateNotNull()]
-    [string]
-    $PoolName='Default',
+    [string[]]
+    $PoolName,
                 
     [Parameter(Mandatory=$false)]
     [ValidateNotNull()]
@@ -39,25 +39,17 @@ if (!(az extension list --query "[?name=='azure-devops'].version" -o tsv)) {
 $Token | az devops login --organization $OrganizationUrl
 az devops configure --defaults organization=$OrganizationUrl
 
-az pipelines pool list --pool-name "${PoolName}" --query "[].id" -o tsv | Set-Variable poolId
+foreach ($pool in ($PoolName | Get-Unique)) {
+    az pipelines pool list --pool-name "${pool}" --query "[].id" -o tsv | Set-Variable poolId
 
-if (!$poolId) {
-    Write-Error "Pool '${PoolName}' not found."
-    exit 1
-}
-
-$offlineAgentIds = Get-Agents -PoolId $poolId
-$offlineAgentIds | Measure-Object | Select-Object -ExpandProperty Count | Set-Variable offlineAgentCount
-if ($offlineAgentCount -eq 0) {
-    Write-Host "No offline agents found in pool '${PoolName}'."
-    exit 0
-}
-Write-Host "Removing ${offlineAgentCount} offline agents from pool '${PoolName}'..."
-
-if ($offlineAgentIds) {
-    foreach ($offlineAgentId in $offlineAgentIds) {
-        Remove-OfflineAgent -AgentId $offlineAgentId -PoolId $poolId -Token $Token -OrganizationUrl $OrganizationUrl
+    if (!$poolId) {
+        Write-Warning "Pool '${pool}' not found, nothing to delete."
+        continue
     }
-} else {
-    Write-Host "No offline agents found in pool '${PoolName}'."
+    if ($poolId -eq 1) {
+        Write-Warning "Pool '${pool}' is the default pool, skipping delete operation."
+        continue
+    }
+    
+    Remove-AgentPool -PoolId $poolId -Token $Token -OrganizationUrl $OrganizationUrl
 }

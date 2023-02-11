@@ -3,11 +3,11 @@ terraform {
     azapi                      = {
       source                   = "azure/azapi"
       version                  = "~> 1.1"
-    }    
-    # azuredevops = {
-    #   source                   = "microsoft/azuredevops"
-    #   version                  = "~> 0.3"
-    # }
+    }
+    azuredevops = {
+      source                   = "microsoft/azuredevops"
+      version                  = "~> 0.3"
+    }
     azurerm                    = "~> 3.39"
     local                      = "~> 2.3"
     random                     = "~> 3.4"
@@ -16,12 +16,10 @@ terraform {
   required_version             = "~> 1.3"
 }
 
-# provider azuredevops {
-#   features {
-#     org_service_url            = local.devops_url
-#     personal_access_token      = var.devops_pat
-#   }
-# }
+provider azuredevops {
+  org_service_url              = local.devops_url
+  personal_access_token        = var.devops_pat
+}
 provider azurerm {
   features {
     resource_group {

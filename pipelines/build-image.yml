@@ -1,16 +1,6 @@
 trigger: none
 
-pr:
-  autoCancel: false
-  branches:
-    include:
-    - '*'
-  drafts: false
-  paths:
-    exclude:
-    - '.devcontainer/**'  
-    - 'visuals/**'  
-    - '*.md'  
+pr: none
 
 schedules:
 - cron: '0 0 * * *'

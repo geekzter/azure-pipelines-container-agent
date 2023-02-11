@@ -125,6 +125,10 @@ variables:
   value: 'true'
 - name: 'TF_INPUT'
   value: 0
+- name: 'TF_VAR_aca_agent_pool_name'
+  value: 'aca-container-agents-${{ parameters.workspace }}'
+- name: 'TF_VAR_aks_agent_pool_name'
+  value: 'aks-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_container_repository'
@@ -137,6 +141,8 @@ variables:
   value: ${{ lower(or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'TF_VAR_deploy_network'
   value: ${{ lower(ne(parameters.networkType, 'None')) }}
+- name: 'TF_VAR_devops_project'
+  value: '$(System.TeamProject)'
 - name: 'TF_VAR_devops_url'
   value: '$(System.CollectionUri)'
 - ${{ if ne(parameters.networkType, 'None') }}:
@@ -144,10 +150,6 @@ variables:
     value: '${{ parameters.networkType }}'
 - name: 'TF_VAR_environment_variables'
   value: '{PIPELINE_DEMO_JOB_CAPABILITY_ACA="$(correlationCapability)"}'
-- name: 'TF_VAR_pipeline_agent_pool_id'
-  value: 1
-- name: 'TF_VAR_pipeline_agent_pool_name'
-  value: 'Default'
 - name: 'TF_VAR_repository'
   value: 'azure-pipelines-container-agent'
 - name: 'TF_VAR_resource_suffix'
@@ -399,10 +401,10 @@ jobs:
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
           linux.azureDevOps.orgUrl=$(System.CollectionUri)
           linux.azureDevOps.capability=$(correlationCapability)
-          linux.azureDevOps.poolName=$(TF_VAR_pipeline_agent_pool_name)
+          linux.azureDevOps.poolName=$(apply.aks_agent_pool_name)
           linux.image.acrLoginServer=$(apply.container_registry_name)
           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
-          linux.trigger.poolId=$(TF_VAR_pipeline_agent_pool_id)
+          linux.trigger.poolId=$(apply.aks_agent_pool_id)
           storage.accountName=$(apply.diagnostics_storage_account_name)
           storage.accountKey=$(apply.diagnostics_storage_key)
           storage.resourceGroupName=$(apply.resource_group_name)
@@ -413,7 +415,7 @@ jobs:
         ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_ACA `
                               -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(TF_VAR_pipeline_agent_pool_id)
+                              -PoolId $(apply.aca_agent_pool_id)
       displayName: 'Wait for Container App agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
@@ -424,7 +426,7 @@ jobs:
         ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_AKS `
                               -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(TF_VAR_pipeline_agent_pool_id)
+                              -PoolId $(apply.aks_agent_pool_id)
       displayName: 'Wait for Kubernetes agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
@@ -442,7 +444,7 @@ jobs:
     dependsOn: provision
     displayName: Test Container App Agent
     pool:
-      name: '$(TF_VAR_pipeline_agent_pool_name)'
+      name: '$(TF_VAR_aca_agent_pool_name)'
       demands:
       - agent.os -equals Linux
       - CONTAINER_APP_NAME
@@ -475,7 +477,7 @@ jobs:
     dependsOn: provision
     displayName: Test Kubernetes Agent
     pool:
-      name: '$(TF_VAR_pipeline_agent_pool_name)'
+      name: '$(TF_VAR_aks_agent_pool_name)'
       demands:
       - agent.os -equals Linux
       # - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(correlationCapability)
@@ -564,7 +566,7 @@ jobs:
 
     - task: AzureCLI@2
       name: teardown
-      displayName: 'Tear down remaining resources'
+      displayName: 'Tear down remaining Azure resources'
       inputs:
         azureSubscription: '$(subscriptionConnection)'
         scriptType: pscore
@@ -602,6 +604,15 @@ jobs:
         useGlobalConfig: true
         failOnStandardError: true
         workingDirectory: '$(scriptDirectory)'
+
+    - pwsh: |
+        ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
+                                -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
+      displayName: 'Tear down agent pools'
+      condition: and(succeededOrFailed(),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
+      workingDirectory: '$(scriptDirectory)'
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
 
     - task: AzureCLI@2
       name: cleanup

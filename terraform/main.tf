@@ -8,17 +8,23 @@ resource random_string suffix {
 }
 
 locals {
+  aca_agent_pool_id            = var.create_agent_pools ? try(module.aca_agent_pool.0.pool_id,1) : try(module.aca_agent_pool_data.0.pool_id,1)
+  aca_agent_pool_name          = var.create_agent_pools && (var.aca_agent_pool_name == "Default" || var.aca_agent_pool_name == "" || var.aca_agent_pool_name == null) ? "aca-container-agents-${terraform.workspace}-${local.suffix}" : var.aca_agent_pool_name
+  aca_agent_pool_url           = "${local.devops_url}/_settings/agentpools?poolId=${local.aca_agent_pool_id}&view=agents"
   agent_identity_client_id     = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.client_id : azurerm_user_assigned_identity.agent_identity.0.client_id
   agent_identity_name          = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.name : azurerm_user_assigned_identity.agent_identity.0.name
   agent_identity_principal_id  = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.principal_id : azurerm_user_assigned_identity.agent_identity.0.principal_id
   agent_identity_resource_id   = local.agent_identity_is_precreated ? var.agent_identity_resource_id : azurerm_user_assigned_identity.agent_identity.0.id
   agent_identity_is_precreated = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null
+  aks_agent_pool_id            = var.create_agent_pools ? try(module.aks_agent_pool.0.pool_id,1) : try(module.aks_agent_pool_data.0.pool_id,1)
+  aks_agent_pool_name          = var.create_agent_pools && (var.aks_agent_pool_name == "Default" || var.aks_agent_pool_name == "" || var.aks_agent_pool_name == null) ? "aks-container-agents-${terraform.workspace}-${local.suffix}" : var.aks_agent_pool_name
+  aks_agent_pool_url           = "${local.devops_url}/_settings/agentpools?poolId=${local.aks_agent_pool_id}&view=agents"
   devops_url                   = replace(var.devops_url,"/\\/$/","")
 
   environment_variables        = merge(
     {
       AGENT_DIAGNOSTIC                                          = tostring(var.pipeline_agent_diagnostics)
-      PIPELINE_DEMO_AGENT_LOCATION                              = var.location
+      PIPELINE_DEMO_AGENT_LOCATION                              = azurerm_resource_group.rg.location
       PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_CLIENT_ID      = local.agent_identity_client_id
       PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_NAME           = local.agent_identity_name
       PIPELINE_DEMO_AGENT_USER_ASSIGNED_IDENTITY_PRINCIPAL_ID   = local.agent_identity_principal_id
@@ -34,13 +40,8 @@ locals {
     },
     var.environment_variables
   )
-  kube_config_relative_path    = var.kube_config_path != "" ? var.kube_config_path : "../.kube/${local.workspace_moniker}config"
-  kube_config_absolute_path    = var.kube_config_path != "" ? var.kube_config_path : "${path.root}/../.kube/${local.workspace_moniker}config"
-  log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
-  owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
-  pipeline_agent_pool_url      = "${local.devops_url}/_settings/agentpools?poolId=${var.pipeline_agent_pool_id}&view=agents"
-  suffix                       = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
-  tags                         = merge(
+  initial_suffix               = var.resource_suffix != "" ? lower(var.resource_suffix) : random_string.suffix.result
+  initial_tags                 = merge(
     {
       application              = var.application_name
       githubRepo               = "https://github.com/geekzter/azure-pipelines-container-agent"
@@ -50,19 +51,33 @@ locals {
       provisionerObjectId      = data.azurerm_client_config.default.object_id
       repository               = "azure-pipelines-container-agent"
       runId                    = var.run_id
-      suffix                   = local.suffix
+      suffix                   = local.initial_suffix
       workspace                = terraform.workspace
     },
     var.tags
-  )  
+  )
+  kube_config_relative_path    = var.kube_config_path != "" ? var.kube_config_path : "../.kube/${local.workspace_moniker}config"
+  kube_config_absolute_path    = var.kube_config_path != "" ? var.kube_config_path : "${path.root}/../.kube/${local.workspace_moniker}config"
+  log_analytics_workspace_resource_id   = var.log_analytics_workspace_resource_id != "" && var.log_analytics_workspace_resource_id != null ? var.log_analytics_workspace_resource_id : module.diagnostics_storage.log_analytics_workspace_resource_id
+  owner                        = var.application_owner != "" ? var.application_owner : data.azurerm_client_config.default.object_id
+  suffix                       = azurerm_resource_group.rg.tags["suffix"] # Ignores updates to var.resource_suffix
+  tags                         = azurerm_resource_group.rg.tags           # Ignores updates to var.resource_suffix
   workspace_moniker            = terraform.workspace == "default" ? "" : terraform.workspace
 }
 
 resource azurerm_resource_group rg {
-  name                         = terraform.workspace == "default" ? "${var.resource_prefix}-container-agents-${local.suffix}" : "${var.resource_prefix}-${terraform.workspace}-container-agents-${local.suffix}"
+  name                         = terraform.workspace == "default" ? "${var.resource_prefix}-container-agents-${local.initial_suffix}" : "${var.resource_prefix}-${terraform.workspace}-container-agents-${local.initial_suffix}"
   location                     = var.location
 
-  tags                         = local.tags
+  tags                         = local.initial_tags
+
+  lifecycle {
+    ignore_changes             = [
+      location,
+      name,
+      tags["suffix"]
+    ]
+  }  
 }
 
 resource azurerm_user_assigned_identity agent_identity {
@@ -103,10 +118,12 @@ resource azurerm_portal_dashboard dashboard {
   dashboard_properties         = templatefile("dashboard.template.json",merge(
     local.tags,
     {
+      aca_agent_pool_url       = local.aca_agent_pool_url
+      aks_agent_pool_url       = local.aks_agent_pool_url
       container_registry_id    = module.container_registry.container_registry_id
       location                 = azurerm_resource_group.rg.location
       log_analytics_workspace_resource_id = local.log_analytics_workspace_resource_id
-      pipeline_agent_pool_url  = local.pipeline_agent_pool_url
+      pipeline_agent_pool_url  = local.aca_agent_pool_url
       resource_group           = azurerm_resource_group.rg.name
       resource_group_id        = azurerm_resource_group.rg.id
       storage_account_name     = module.diagnostics_storage.diagnostics_storage_name
@@ -122,4 +139,6 @@ resource azurerm_portal_dashboard dashboard {
       hidden-title             = "Container Agents (${terraform.workspace})"
     }
   )
+
+  count                        = var.create_portal_dashboard ? 1 : 0
 }

@@ -34,6 +34,8 @@ if (!(Test-Path $inputFilePath)) {
 try {
     Push-Location $tfdirectory
 
+    $acaPoolUrl          = (Get-TerraformOutput "aca_agent_pool_url")
+    $aksPoolUrl          = (Get-TerraformOutput "aks_agent_pool_url")
     $containerRegistryID = (Get-TerraformOutput "container_registry_id")
     $dashboardID         = (Get-TerraformOutput "portal_dashboard_id")
     $location            = (Get-TerraformOutput "location")
@@ -70,14 +72,23 @@ if ($InputFile) {
     $template = (az portal dashboard show -n $dashboardName -g $resourceGroupName -o json --subscription $subscriptionGUID)
 }
 
+if (!$template) {
+    Write-Warning "Dashboard not found"
+    exit
+}
+
+if ($aca_agent_pool_url) {
+    # $template = $template -Replace "https://dev.azure.com[^`']*_settings/agentpools[^`']*`'", "`$`{aca_agent_pool_url`}`'"
+    $template = $template -Replace "${aca_agent_pool_url}", "`$`{aca_agent_pool_url`}`'"
+}
+if ($aks_agent_pool_url) {
+    $template = $template -Replace "${aks_agent_pool_url}", "`$`{aks_agent_pool_url`}`'"
+}
 if ($containerRegistryID) {
     $template = $template -Replace "${containerRegistryID}", "`$`{container_registry_id`}" 
 }
 if ($logAnalyticsID) {
     $template = $template -Replace "${logAnalyticsID}", "`$`{log_analytics_workspace_resource_id`}" 
-}
-if ($pipelinePoolUrl) {
-    $template = $template -Replace "https://dev.azure.com[^`']*_settings/agentpools[^`']*`'", "`$`{pipeline_agent_pool_url`}`'"
 }
 if ($resourceGroupID) {
     $template = $template -Replace "${resourceGroupID}", "`$`{resource_group_id`}"
