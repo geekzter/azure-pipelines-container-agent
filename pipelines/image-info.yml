@@ -49,9 +49,9 @@ jobs:
     displayName: Parallel job
   pool:
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      name: $[coalesce(variables.aca-pool,'Default')]
+      name: $(aca-pool)
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      name: $[coalesce(variables.aks-pool,'Default')]
+      name: $(aks-pool)
     demands:
     - agent.os -equals Linux
     - KUBERNETES_SERVICE_HOST
