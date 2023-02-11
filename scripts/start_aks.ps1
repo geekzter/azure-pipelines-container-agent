@@ -74,6 +74,6 @@ if ($aks.powerState.code -iin "Running", "Starting") {
     exit 0
 }
 
-Write-Host "Starting AKS '${aks}' in resource group '${resourceGroup}'..."
-Write-Debug "az aks start -n $aks -g $resourceGroup --subscription $aksSubscription"
+Write-Host "Starting AKS '${aksClusterName}' in resource group '${aksResourceGroup}'..."
+Write-Debug "az aks start -n $aksClusterName -g $aksResourceGroup --subscription $aksSubscription"
 az aks start -n $aksClusterName -g $aksResourceGroup --subscription $aksSubscription --no-wait
