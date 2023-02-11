@@ -15,11 +15,17 @@ parameters:
   displayName: Sleep time in minutes
   type: number
   default: 0
-  
+- name: startAKSNodes
+  displayName: Start AKS Nodes
+  type: boolean
+  default: false
+
 trigger: none
 
 variables:
-  - group: 'container-image-info' # Should include 'aca-pool' and 'aks-pool' variables
+  - group: 'container-image-info' # Should include 'aca-pool', 'aks-pool' and 'subscriptionConnection' variables
+  - name: 'scriptDirectory'
+    value: '$(Build.SourcesDirectory)/scripts'
 
 jobs:
 - job: createStrategy
@@ -27,6 +33,18 @@ jobs:
   pool:
     name: Azure Pipelines
   steps:
+  - ${{ if and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}:
+    - task: AzureCLI@2
+      displayName: 'Start AKS Nodes'
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          $(scriptDirectory)/start_aks.ps1 -AgentPoolName $(aks-pool)
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'
+
   - pwsh: |
       $strategyHash = @{}
       for ($i=1; $i -le ${{ parameters.numberOfJobs }}; $i++) {
@@ -49,9 +67,9 @@ jobs:
     displayName: Parallel job
   pool:
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      name: $(aca-pool)
+      name: $[coalesce(variables['aca-pool'],variables['aks-pool'],'Default')]
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      name: $(aks-pool)
+      name: $[coalesce(variables['aks-pool'],variables['aca-pool'],'Default')]
     demands:
     - agent.os -equals Linux
     - KUBERNETES_SERVICE_HOST
