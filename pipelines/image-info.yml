@@ -18,7 +18,7 @@ parameters:
 - name: startAKSNodes
   displayName: Start AKS Nodes
   type: boolean
-  default: false
+  default: true
 
 trigger: none
 

@@ -25,6 +25,10 @@ if (!(Get-Command az)) {
 if ($AksId) {
     Write-Verbose "AKS resource id provided: ${AksId}"
 } elseif ($AgentPoolName) {
+    if (!(az extension list --query "[?name=='resource-graph'].version" -o tsv)) {
+        Write-Host "Adding Azure CLI extension 'resource-graph'..."
+        az extension add -n resource-graph -y
+    }
     az graph query -q "resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '${AgentPoolName}'" `
                    -a `
                    --query "data" `
