@@ -8,6 +8,13 @@ module aca_agent_pool {
 
   count                        = var.create_agent_pools ? 1 : 0
 }
+module aca_agent_pool_data {
+  source                       = "./modules/agent-pool-data"
+
+  pool_name                    = var.aca_agent_pool_name
+
+  count                        = var.create_agent_pools ? 0 : 1
+}
 
 module aks_agent_pool {
   source                       = "./modules/agent-pool"
@@ -18,6 +25,13 @@ module aks_agent_pool {
   pool_name                    = local.aks_agent_pool_name
 
   count                        = var.create_agent_pools ? 1 : 0
+}
+module aks_agent_pool_data {
+  source                       = "./modules/agent-pool-data"
+
+  pool_name                    = var.aks_agent_pool_name
+
+  count                        = var.create_agent_pools ? 0 : 1
 }
 
 module diagnostics_storage {

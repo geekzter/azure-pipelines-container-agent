@@ -7,4 +7,6 @@ variable create_queue_for_all_projects {
 }
 variable create_queue_for_project {}
 
-variable pool_name {}
+variable pool_name {
+  nullable                      = false
+}
