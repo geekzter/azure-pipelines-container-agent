@@ -19,7 +19,10 @@ parameters:
 trigger: none
 
 variables:
-  - group: 'container-image-info' # Should include 'pool' variable
+  - name: variable-group-name
+    value: 'container-image-info'
+  # - group: 'container-image-info' # Should include 'pool' variable
+  - group: $(variable-group-name) # Should include 'pool' variable
 
 jobs:
 - job: createStrategy
