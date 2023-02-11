@@ -19,10 +19,7 @@ parameters:
 trigger: none
 
 variables:
-  - name: variable-group-name
-    value: 'container-image-info'
-  # - group: 'container-image-info' # Should include 'pool' variable
-  - group: $(variable-group-name) # Should include 'pool' variable
+  - group: 'container-image-info' # Should include 'aca-pool' and 'aks-pool' variables
 
 jobs:
 - job: createStrategy
@@ -51,7 +48,10 @@ jobs:
   ${{ else }}:
     displayName: Parallel job
   pool:
-    name: $[coalesce(variables.pool,'Default')]
+    ${{ if eq(parameters.containerEngine, 'Container App') }}:
+      name: $[coalesce(variables.aca-pool,'Default')]
+    ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+      name: $[coalesce(variables.aks-pool,'Default')]
     demands:
     - agent.os -equals Linux
     - KUBERNETES_SERVICE_HOST
