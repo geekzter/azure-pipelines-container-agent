@@ -16,7 +16,7 @@ parameters:
   type: number
   default: 0
 - name: startAKSNodes
-  displayName: Start AKS Nodes
+  displayName: Start Nodes
   type: boolean
   default: true
 

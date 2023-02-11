@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <# 
 .SYNOPSIS 
-    Configure kubectl context to the AKS cluster
+    Start AKS cluster
 #> 
 #Requires -Version 7.2
 
@@ -55,6 +55,7 @@ $aksClusterName = $AksIdElements.Split('/')[8]
 $aksResourceGroup = $AksIdElements.Split('/')[4]
 $aksSubscription = $AksIdElements.Split('/')[2]
 
+# Get latest AKS state (resource graph may be out of date)
 az aks show -n $aksClusterName `
             -g $aksResourceGroup `
             --subscription $aksSubscription `
@@ -64,12 +65,12 @@ az aks show -n $aksClusterName `
 
 $aks | Format-List | Out-String | Write-Debug
 
-if ($aks.provisioningState -ne "Succeeded") {
-    Write-Error "AKS '${aksClusterName}' is not in 'Succeeded' state"
+if ($aks.provisioningState -inotin "Stopped", "Stopping", "Succeeded") {
+    "AKS '${aksClusterName}' is in '{0}' state" -f $aks.provisioningState | Write-Error
     exit 1
 }
-if ($aks.powerState.code -eq "Running") {
-    Write-Host "AKS '${aksClusterName}' is already in 'Running' state"
+if ($aks.powerState.code -inotin "Running", "Starting") {
+    "AKS '${aksClusterName}' is already in '{0}' state" -f $aks.powerState.code | Write-Error
     exit 0
 }
 
