@@ -6,5 +6,5 @@ output container_app_name {
 }
 
 output container_environment_id {
-  value       = azapi_resource.agent_container_environment.id
+  value       = azurerm_container_app_environment.agent_container_environment.id
 }

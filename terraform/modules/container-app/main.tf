@@ -36,57 +36,19 @@ data azurerm_log_analytics_workspace monitor {
   resource_group_name          = local.log_analytics_workspace_rg
 }
 
-# Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
-resource azapi_resource agent_container_environment {
+resource azurerm_container_app_environment agent_container_environment {
   name                         = "${var.resource_group_name}-environment"
   location                     = var.location
-  parent_id                    = var.resource_group_id
-  type                         = "Microsoft.App/managedEnvironments@2022-03-01"
-  tags                         = var.tags
-  
-  # schema_validation_enabled    = false
-
-  body                         = jsonencode({
-    properties                 = {
-      appLogsConfiguration     = {
-        destination            = "log-analytics"
-        logAnalyticsConfiguration= {
-          customerId           = data.azurerm_log_analytics_workspace.monitor.workspace_id
-          sharedKey            = data.azurerm_log_analytics_workspace.monitor.primary_shared_key
-        }
-      }
-      # BUG: https://github.com/microsoft/azure-container-apps/issues/522 (NAT Gateway)
-      # BUG: https://github.com/microsoft/azure-container-apps/issues/227 (Azure Firewall)
-      vnetConfiguration        = var.subnet_id != null ? {
-        infrastructureSubnetId = var.subnet_id
-        internal               = true
-        # Requires Premium SKU
-        # outboundSettings       = var.gateway_id != null ? {
-        #   outBoundType         = "UserDefinedRouting"
-        #   virtualNetworkApplianceIp= var.gateway_id
-        # } : null
-      } : null
-    }
-    # sku                        = {
-    #   # https://github.com/microsoft/azure-container-apps/issues/452
-    #   # name                     = var.gateway_id != null ? "Premium" : "Consumption"
-    #   name                     = "Consumption"
-    # }
-  })
-
-  timeouts {
-    create                     = "1h30m"
-  }
-  lifecycle {
-    ignore_changes             = [
-      tags
-    ]
-  }
-}
-resource azurerm_monitor_diagnostic_setting agent_container_environment {
-  name                         = "${azapi_resource.agent_container_environment.name}-diagnostics"
+  resource_group_name          = var.resource_group_name
   log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
-  target_resource_id           = azapi_resource.agent_container_environment.id
+
+  tags                         = var.tags
+}
+
+resource azurerm_monitor_diagnostic_setting agent_container_environment {
+  name                         = "${azurerm_container_app_environment.agent_container_environment.name}-diagnostics"
+  log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
+  target_resource_id           = azurerm_container_app_environment.agent_container_environment.id
 
   enabled_log {
     category_group             = "audit"
@@ -111,25 +73,87 @@ resource azurerm_monitor_diagnostic_setting agent_container_environment {
   }
 }
 
-resource azapi_resource agent_container_environment_share {
-  type                         = "Microsoft.App/managedEnvironments/storages@2022-01-01-preview"
+resource azurerm_container_app_environment_storage agent_container_environment_share {
   name                         = "diagnostics"
-  parent_id                    = azapi_resource.agent_container_environment.id
-  body                         = jsonencode({
-    properties                 = {
-      azureFile                = {
-        accessMode             = "ReadWrite"
-        accountKey             = var.diagnostics_storage_share_key
-        accountName            = var.diagnostics_storage_share_name
-        shareName              = var.diagnostics_share_name
-      }
-    }
-  })
+  container_app_environment_id = azurerm_container_app_environment.agent_container_environment.id
+  account_name                 = var.diagnostics_storage_share_name
+  share_name                   = var.diagnostics_storage_share_name
+  access_key                   = var.diagnostics_storage_share_key
+  access_mode                  = "ReadWrite"
 
   count                        = local.create_files_share ? 1 : 0
 }
 
-# Container Apps do not have an azurerm provider resource yet, falling back to azapi provider
+# resource azurerm_container_app agent_container_app {
+#   name                         = "aca-${terraform.workspace}-${var.suffix}-deployment"
+#   container_app_environment_id = azurerm_container_app_environment.agent_container_environment.id
+#   resource_group_name          = var.resource_group_name
+#   revision_mode                = "Single"
+
+#   identity {
+#     type                       = "UserAssigned"
+#     identity_ids               = [var.user_assigned_identity_id]
+#   }
+
+#   registry {
+#     server                     = "${local.container_registry_name}.azurecr.io"
+#     identity                   = var.user_assigned_identity_id
+#   }
+
+#   template {
+#     container {
+#       name                     = "pipeline-agent"
+#       image                    = "${local.container_registry_name}.azurecr.io/${var.container_repository}"
+#       cpu                      = var.pipeline_agent_cpu
+#       memory                   = "${var.pipeline_agent_memory}Gi"
+
+#       dynamic env {
+#         iterator               = env_var
+#         for_each               = local.environment_variables_template
+#         content {
+#           name                 = env_var.name
+#           secret_name          = env_var.secretRef
+#           value                = env_var.value
+#         }
+#       }
+
+#       volume_mounts {
+#         name                   = local.diagnostics_volume_name
+#         path                   = "/mnt/diag"
+#       }
+#     }
+
+#     min_replicas               = var.pipeline_agent_number_min
+#     max_replicas               = var.pipeline_agent_number_max
+
+#     volume {
+#       name                     = local.diagnostics_volume_name
+#       storage_type             = "AzureFile"
+#       storage_name             = azurerm_container_app_environment_storage.agent_container_environment_share.0.name
+#     }
+#   }
+
+#   secret {
+#     name                       = "azp-pool-id"
+#     value                      = tostring(var.pipeline_agent_pool_id)
+#   }
+#   secret {
+#     name                       = "azp-pool-name"
+#     value                      = var.pipeline_agent_pool_name
+#   }
+#   secret {
+#     name                       = "azp-url"
+#     value                      = var.devops_url
+#   }
+#   secret {
+#     name                       = "azp-token"
+#     value                      = var.devops_pat
+#   }
+
+#   tags                         = var.tags
+# }
+
+# Container Apps do not have an azurerm provider support for KEDA scaler or Managed Identity (yet), falling back to azapi provider
 resource azapi_resource agent_container_app {
   name                         = "aca-${terraform.workspace}-${var.suffix}-deployment"
   location                     = var.location
@@ -145,7 +169,7 @@ resource azapi_resource agent_container_app {
 
   body                         = jsonencode({
     properties: {
-      managedEnvironmentId     = azapi_resource.agent_container_environment.id
+      managedEnvironmentId     = azurerm_container_app_environment.agent_container_environment.id
       configuration            = {
         registries             = [
           {
@@ -219,7 +243,7 @@ resource azapi_resource agent_container_app {
           {
             name               = local.diagnostics_volume_name
             storageType        = "AzureFile"
-            storageName        = azapi_resource.agent_container_environment_share.0.name
+            storageName        = azurerm_container_app_environment_storage.agent_container_environment_share.0.name
           }
         ] : []
       }
