@@ -95,7 +95,9 @@ jobs:
 
   - pwsh: |
       # Validate whether pipeline name(s) have been set
-      if ("$(agentPool)" -ieq "Default") {
+      if ([string]::IsNullOrEmpty("$(agentPool)") {
+        Write-Error "Agent pool name not set"
+      elseif ("$(agentPool)" -ieq "Default") {
         Write-Warning "Agent pool name not set using '$(agentPoolVariable)' variable. Using 'Default' pool."
       } else {
         Write-Host "Agent pool name set using '$(agentPoolVariable)' variable. Using '$(agentPool)' pool."
