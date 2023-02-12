@@ -57,6 +57,7 @@ variables:
   - group: 'container-image-info' # Should 'subscriptionConnection' variables
   - group: 'container-image-info-${{ parameters.workspace }}' # Provisioned by terraform. Should include 'aca-pool-name', 'aks-pool-name' variables.
   # - group: 'container-image-info-test' 
+  - group: 'container-image-info-doesnotexist' 
   - group: 'container-agents-vault' # Key Vault variable group populated by Terraform. Should include '<workspace>-aca-pool', '<workspace>-aks-pool' variables.
   - name: 'scriptDirectory'
     value: '$(Build.SourcesDirectory)/scripts'
