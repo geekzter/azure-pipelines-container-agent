@@ -89,9 +89,10 @@ jobs:
   - pwsh: |
       # Validate whether pipeline name(s) have been set
       if ("$(agentPool)" -ieq "Default") {
-        Write-Warning "Agent pool name not set using '$(agentPoolVariable)'"
+        Write-Warning "Agent pool name not set using '$(agentPoolVariable)' variable. Using 'Default' pool."
+      } else {
+        Write-Host "Agent pool name set using '$(agentPoolVariable)' variable. Using '$(agentPool)' pool."
       }
-      Write-Host "Agent pool name: '$(agentPool)'"
 
       Write-Host "`nCreating strategy..."
       # Create strategy
