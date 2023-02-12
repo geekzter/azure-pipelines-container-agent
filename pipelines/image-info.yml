@@ -6,7 +6,6 @@ parameters:
   values:
   - 'Container App'
   - Kubernetes
-# Test auto-scaling by setting sleep time
 - name: numberOfJobs
   displayName: Number of parallel jobs to create
   type: number
@@ -22,9 +21,8 @@ parameters:
 - name: workspace
   displayName: Terraform Workspace
   type: string
-  default: any
+  default: cd
   values:
-  - any
   - ci
   - cd
   - cd1
@@ -54,37 +52,14 @@ schedules:
 trigger: none
 
 variables:
-  - group: 'container-image-info' # Should 'subscriptionConnection' variables
-  - group: 'container-image-info-${{ parameters.workspace }}' # Provisioned by terraform. Should include 'aca-pool-name', 'aks-pool-name' variables.
-  # - group: 'container-image-info-test' 
-  - group: 'container-image-info-doesnotexist' 
-  - group: 'container-agents-vault' # Key Vault variable group populated by Terraform. Should include '<workspace>-aca-pool', '<workspace>-aks-pool' variables.
+  - group: 'container-image-info' # Should define 'subscriptionConnection' variable
   - name: 'scriptDirectory'
     value: '$(Build.SourcesDirectory)/scripts'
-  - name: 'agentPoolVariable'
-    ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      # value: '${{ parameters.workspace }}-aca-pool-name'
-      value: 'aca-pool-name'
-    ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      # value: '${{ parameters.workspace }}-aks-pool-name'
-      value: 'aks-pool-name'
   - name: 'agentPool'
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      value: $[variables['aca-pool-name']]
+      value: 'aca-container-agents-${{ parameters.workspace }}'
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      value: $[variables['aks-pool-name']]
-    # ${{ if eq(parameters.containerEngine, 'Container App') }}:
-    #   ${{ if eq(parameters.workspace, 'any') }}:
-    #     value: $[coalesce(variables['cd-aca-pool-name'],variables['cd1-aca-pool-name'],variables['cd2-aca-pool-name'],variables['cd3-aca-pool-name'],variables['test-aca-pool-name'],variables['test1-aca-pool-name'],variables['test2-aca-pool-name'],variables['test3-aca-pool-name'],variables['default-aca-pool-name'],variables['aca-pool-name'],'Default')]
-    #   ${{ else }}:
-    #     # value: $[variables['${{ parameters.workspace }}-aca-pool-name']]
-    #     value: $(${{ parameters.workspace }}-aca-pool-name)
-    # ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-    #   ${{ if eq(parameters.workspace, 'any') }}:
-    #     value: $[coalesce(variables['cd-aks-pool-name'],variables['cd1-aks-pool-name'],variables['cd2-aks-pool-name'],variables['cd3-aks-pool-name'],variables['test-aks-pool-name'],variables['test1-aks-pool-name'],variables['test2-aks-pool-name'],variables['test3-aks-pool-name'],variables['default-aks-pool-name'],variables['aks-pool-name'],'Default')]
-    #   ${{ else }}:
-    #     # value: $[variables['${{ parameters.workspace }}-aks-pool-name']]
-    #     value: $(${{ parameters.workspace }}-aks-pool-name)
+      value: 'aks-container-agents-${{ parameters.workspace }}'
 
 jobs:
 - job: createStrategy
@@ -105,18 +80,7 @@ jobs:
         workingDirectory: '$(scriptDirectory)'
 
   - pwsh: |
-      # Validate whether pipeline name(s) have been set
-      if ([string]::IsNullOrEmpty("$(agentPool)")) {
-        Write-Error "Agent pool name not set"
-      } elseif ("$(agentPool)" -ieq 'Default') {
-        if ($${{ eq(parameters.workspace, 'any') }}) {
-          Write-Warning "Agent pool name not set using any '*-a..-pool-name' variable. Using 'Default' pool created by Azure Pipelines."
-        } else {
-          Write-Warning "Agent pool name not set using '$(agentPoolVariable)' variable. Using 'Default' pool created by Azure Pipelines."
-        }
-      } else {
-        Write-Host "Agent pool name set using '$(agentPoolVariable)' variable. Using '$(agentPool)' ($("$(agentPool)".Length) characters) pool."
-      }
+      Write-Host "Using '$(agentPool)' pool."
 
       Write-Host "`nCreating strategy..."
       # Create strategy
