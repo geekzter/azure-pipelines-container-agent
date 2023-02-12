@@ -106,7 +106,7 @@ jobs:
           Write-Warning "Agent pool name not set using '$(agentPoolVariable)' variable. Using 'Default' pool created by Azure Pipelines."
         }
       } else {
-        Write-Host "Agent pool name set using '$(agentPoolVariable)' variable. Using '$(agentPool)' pool."
+        Write-Host "Agent pool name set using '$(agentPoolVariable)' variable. Using '$(agentPool)' ($("$(agentPool)".Length) characters) pool."
       }
 
       Write-Host "`nCreating strategy..."
