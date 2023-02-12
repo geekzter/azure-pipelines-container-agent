@@ -134,7 +134,7 @@ jobs:
   pool:
     # name: $(agentPool)
     # name: $(test-aca-pool-name2)
-    name: $[coalesce(variables['test-aca-pool-name2']]
+    name: $[variables['test-aca-pool-name2']]
     demands:
     - agent.os -equals Linux
     - KUBERNETES_SERVICE_HOST
