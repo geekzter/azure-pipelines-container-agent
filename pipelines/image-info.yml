@@ -114,7 +114,7 @@ jobs:
       $strategyHash | ConvertTo-Json -Compress | Set-Variable strategyJson
       Write-Host $strategy
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]${strategyJson}"
-      Write-Host "${{ parameters.numberOfJobs }} jobs created"
+      Write-Host "Strategy created ${{ parameters.numberOfJobs }} jobs"
     name: pwsh
     displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
 
