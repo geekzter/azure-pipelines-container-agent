@@ -22,8 +22,9 @@ parameters:
 - name: workspace
   displayName: Terraform Workspace
   type: string
-  default: cd
+  default: any
   values:
+  - any
   - ci
   - cd
   - cd1
@@ -35,7 +36,7 @@ parameters:
   - test2
   - test3
 
-name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-aca-${{ parameters.workspace }}-$(Build.BuildId) (${{ parameters.containerEngine }})
+name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId) (${{ parameters.containerEngine }})
 
 resources:
   pipelines:
@@ -64,9 +65,15 @@ variables:
       value: '${{ parameters.workspace }}-aks-pool'
   - name: 'agentPool'
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      value: $[coalesce(variables['${{ parameters.workspace }}-aca-pool'],variables['aca-pool'],'Default')]
+      ${{ if eq(parameters.workspace, 'any') }}:
+        value: $[coalesce(variables['cd-aca-pool'],variables['cd1-aca-pool'],variables['cd2-aca-pool'],variables['cd3-aca-pool'],variables['test-aca-pool'],variables['test1-aca-pool'],variables['test2-aca-pool'],variables['test3-aca-pool'],variables['default-aca-pool'],variables['aca-pool'],'Default')]
+      ${{ else }}:
+        value: $[variables['${{ parameters.workspace }}-aca-pool']]
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      value: $[coalesce(variables['${{ parameters.workspace }}-aks-pool'],variables['aks-pool'],'Default')]    
+      ${{ if eq(parameters.workspace, 'any') }}:
+        value: $[coalesce(variables['cd-aks-pool'],variables['cd1-aks-pool'],variables['cd2-aks-pool'],variables['cd3-aks-pool'],variables['test-aks-pool'],variables['test1-aks-pool'],variables['test2-aks-pool'],variables['test3-aks-pool'],variables['default-aks-pool'],variables['aks-pool'],'Default')]
+      ${{ else }}:
+        value: $[variables['${{ parameters.workspace }}-aks-pool']]
 
 jobs:
 - job: createStrategy
