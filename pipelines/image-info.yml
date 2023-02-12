@@ -60,20 +60,20 @@ variables:
     value: '$(Build.SourcesDirectory)/scripts'
   - name: 'agentPoolVariable'
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      value: '${{ parameters.workspace }}-aca-pool'
+      value: '${{ parameters.workspace }}-aca-pool-name'
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      value: '${{ parameters.workspace }}-aks-pool'
+      value: '${{ parameters.workspace }}-aks-pool-name'
   - name: 'agentPool'
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
       ${{ if eq(parameters.workspace, 'any') }}:
-        value: $[coalesce(variables['cd-aca-pool'],variables['cd1-aca-pool'],variables['cd2-aca-pool'],variables['cd3-aca-pool'],variables['test-aca-pool'],variables['test1-aca-pool'],variables['test2-aca-pool'],variables['test3-aca-pool'],variables['default-aca-pool'],variables['aca-pool'],'Default')]
+        value: $[coalesce(variables['cd-aca-pool-name'],variables['cd1-aca-pool-name'],variables['cd2-aca-pool-name'],variables['cd3-aca-pool-name'],variables['test-aca-pool-name'],variables['test1-aca-pool-name'],variables['test2-aca-pool-name'],variables['test3-aca-pool-name'],variables['default-aca-pool-name'],variables['aca-pool-name'],'Default')]
       ${{ else }}:
-        value: $[variables['${{ parameters.workspace }}-aca-pool']]
+        value: $[variables['${{ parameters.workspace }}-aca-pool-name']]
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
       ${{ if eq(parameters.workspace, 'any') }}:
-        value: $[coalesce(variables['cd-aks-pool'],variables['cd1-aks-pool'],variables['cd2-aks-pool'],variables['cd3-aks-pool'],variables['test-aks-pool'],variables['test1-aks-pool'],variables['test2-aks-pool'],variables['test3-aks-pool'],variables['default-aks-pool'],variables['aks-pool'],'Default')]
+        value: $[coalesce(variables['cd-aks-pool-name'],variables['cd1-aks-pool-name'],variables['cd2-aks-pool-name'],variables['cd3-aks-pool-name'],variables['test-aks-pool-name'],variables['test1-aks-pool-name'],variables['test2-aks-pool-name'],variables['test3-aks-pool-name'],variables['default-aks-pool-name'],variables['aks-pool-name'],'Default')]
       ${{ else }}:
-        value: $[variables['${{ parameters.workspace }}-aks-pool']]
+        value: $[variables['${{ parameters.workspace }}-aks-pool-name']]
 
 jobs:
 - job: createStrategy
@@ -95,7 +95,7 @@ jobs:
 
   - pwsh: |
       # Validate whether pipeline name(s) have been set
-      if ([string]::IsNullOrEmpty("$(agentPool)") {
+      if ([string]::IsNullOrEmpty("$(agentPool)")) {
         Write-Error "Agent pool name not set"
       elseif ("$(agentPool)" -ieq "Default") {
         Write-Warning "Agent pool name not set using '$(agentPoolVariable)' variable. Using 'Default' pool."
