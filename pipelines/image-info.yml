@@ -99,8 +99,8 @@ jobs:
       # Validate whether pipeline name(s) have been set
       if ([string]::IsNullOrEmpty("$(agentPool)")) {
         Write-Error "Agent pool name not set"
-      } elseif ("$(agentPool)" -ieq "Default") {
-        Write-Warning "Agent pool name not set using '$(agentPoolVariable)' variable. Using 'Default' pool."
+      } elseif ("$(agentPool)" -ieq 'Default') {
+        Write-Warning "Agent pool name not set using '$(agentPoolVariable)' variable. Using 'Default' pool created by Azure Pipelines."
       } else {
         Write-Host "Agent pool name set using '$(agentPoolVariable)' variable. Using '$(agentPool)' pool."
       }
@@ -109,7 +109,7 @@ jobs:
       # Create strategy
       $strategyHash = @{}
       for ($i=1; $i -le ${{ parameters.numberOfJobs }}; $i++) {
-        $strategyHash.Add("${i}",@{"index"=$i})
+        $strategyHash.Add("job${i}",@{"index"=$i})
       }
       $strategyHash | ConvertTo-Json -Compress | Set-Variable strategyJson
       Write-Host $strategy
