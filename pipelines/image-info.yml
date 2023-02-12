@@ -19,6 +19,21 @@ parameters:
   displayName: Start Nodes
   type: boolean
   default: true
+- name: workspace
+  displayName: Terraform Workspace
+  type: string
+  default: cd
+  values:
+  - ci
+  - cd
+  - cd1
+  - cd2
+  - cd3
+  - cd3
+  - test
+  - test1
+  - test2
+  - test3
 
 resources:
   pipelines:
@@ -36,9 +51,14 @@ schedules:
 trigger: none
 
 variables:
-  - group: 'container-image-info' # Should include 'aca-pool', 'aks-pool' and 'subscriptionConnection' variables
+  - group: 'container-image-info' # Should 'subscriptionConnection' variables
+  - group: 'container-agents-vault' # Key Vault variable group populated by Terraform. Should include '<workspace>-aca-pool', '<workspace>-aks-pool' variables.
   - name: 'scriptDirectory'
     value: '$(Build.SourcesDirectory)/scripts'
+  - name: 'aca-pool-to-use'
+    value: $[coalesce(variables['${{ parameters.workspace }}-aca-pool'],variables['aca-pool'],'Default')]
+  - name: 'aks-pool-to-use'
+    value: $[coalesce(variables['${{ parameters.workspace }}-aks-pool'],variables['aks-pool'],'Default')]
 
 jobs:
 - job: createStrategy
@@ -80,9 +100,9 @@ jobs:
     displayName: Parallel job
   pool:
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      name: $[coalesce(variables['aca-pool'],variables['aks-pool'],'Default')]
+      name: $(aca-pool-to-use)
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      name: $[coalesce(variables['aks-pool'],variables['aca-pool'],'Default')]
+      name: $(aks-pool-to-use)
     demands:
     - agent.os -equals Linux
     - KUBERNETES_SERVICE_HOST
