@@ -1,7 +1,7 @@
 trigger: none
 
 schedules:
-- cron: '0 0 * * Tue, Thu, Fri, Sat, Sun'
+- cron: '0 0 * * Thu'
   displayName: 'Daily build (0:00 UTC)'
   # Run if there are no changes
   always: 'true'
