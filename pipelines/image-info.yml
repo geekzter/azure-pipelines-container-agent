@@ -72,7 +72,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(scriptDirectory)/start_aks.ps1 -AgentPoolName $(aks-pool)
+          $(scriptDirectory)/start_aks.ps1 -AgentPoolName $(agentPool)
         failOnStandardError: true
         workingDirectory: '$(scriptDirectory)'
 
