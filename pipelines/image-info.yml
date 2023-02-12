@@ -55,27 +55,34 @@ trigger: none
 
 variables:
   - group: 'container-image-info' # Should 'subscriptionConnection' variables
+  - group: 'container-image-info-${{ parameters.workspace }}' # Provisioned by terraform. Should include 'aca-pool-name', 'aks-pool-name' variables.
   - group: 'container-agents-vault' # Key Vault variable group populated by Terraform. Should include '<workspace>-aca-pool', '<workspace>-aks-pool' variables.
   - name: 'scriptDirectory'
     value: '$(Build.SourcesDirectory)/scripts'
   - name: 'agentPoolVariable'
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      value: '${{ parameters.workspace }}-aca-pool-name'
+      # value: '${{ parameters.workspace }}-aca-pool-name'
+      value: 'aca-pool-name'
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      value: '${{ parameters.workspace }}-aks-pool-name'
+      # value: '${{ parameters.workspace }}-aks-pool-name'
+      value: 'aks-pool-name'
   - name: 'agentPool'
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      ${{ if eq(parameters.workspace, 'any') }}:
-        value: $[coalesce(variables['cd-aca-pool-name'],variables['cd1-aca-pool-name'],variables['cd2-aca-pool-name'],variables['cd3-aca-pool-name'],variables['test-aca-pool-name'],variables['test1-aca-pool-name'],variables['test2-aca-pool-name'],variables['test3-aca-pool-name'],variables['default-aca-pool-name'],variables['aca-pool-name'],'Default')]
-      ${{ else }}:
-        # value: $[variables['${{ parameters.workspace }}-aca-pool-name']]
-        value: $(${{ parameters.workspace }}-aca-pool-name)
+      value: $[variables['aca-pool-name']]
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      ${{ if eq(parameters.workspace, 'any') }}:
-        value: $[coalesce(variables['cd-aks-pool-name'],variables['cd1-aks-pool-name'],variables['cd2-aks-pool-name'],variables['cd3-aks-pool-name'],variables['test-aks-pool-name'],variables['test1-aks-pool-name'],variables['test2-aks-pool-name'],variables['test3-aks-pool-name'],variables['default-aks-pool-name'],variables['aks-pool-name'],'Default')]
-      ${{ else }}:
-        # value: $[variables['${{ parameters.workspace }}-aks-pool-name']]
-        value: $(${{ parameters.workspace }}-aks-pool-name)
+      value: $[variables['aks-pool-name']]
+    # ${{ if eq(parameters.containerEngine, 'Container App') }}:
+    #   ${{ if eq(parameters.workspace, 'any') }}:
+    #     value: $[coalesce(variables['cd-aca-pool-name'],variables['cd1-aca-pool-name'],variables['cd2-aca-pool-name'],variables['cd3-aca-pool-name'],variables['test-aca-pool-name'],variables['test1-aca-pool-name'],variables['test2-aca-pool-name'],variables['test3-aca-pool-name'],variables['default-aca-pool-name'],variables['aca-pool-name'],'Default')]
+    #   ${{ else }}:
+    #     # value: $[variables['${{ parameters.workspace }}-aca-pool-name']]
+    #     value: $(${{ parameters.workspace }}-aca-pool-name)
+    # ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+    #   ${{ if eq(parameters.workspace, 'any') }}:
+    #     value: $[coalesce(variables['cd-aks-pool-name'],variables['cd1-aks-pool-name'],variables['cd2-aks-pool-name'],variables['cd3-aks-pool-name'],variables['test-aks-pool-name'],variables['test1-aks-pool-name'],variables['test2-aks-pool-name'],variables['test3-aks-pool-name'],variables['default-aks-pool-name'],variables['aks-pool-name'],'Default')]
+    #   ${{ else }}:
+    #     # value: $[variables['${{ parameters.workspace }}-aks-pool-name']]
+    #     value: $(${{ parameters.workspace }}-aks-pool-name)
 
 jobs:
 - job: createStrategy
@@ -132,9 +139,9 @@ jobs:
   ${{ else }}:
     displayName: Parallel ${{ parameters.containerEngine }} job
   pool:
-    # name: $(agentPool)
+    name: $(agentPool)
     # name: $(test-aca-pool-name2)
-    name: $[variables['test-aca-pool-name']]
+    # name: $[variables['test-aca-pool-name']]
     demands:
     - agent.os -equals Linux
     - KUBERNETES_SERVICE_HOST
