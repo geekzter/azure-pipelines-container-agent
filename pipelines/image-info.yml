@@ -57,10 +57,16 @@ variables:
   - group: 'container-agents-vault' # Key Vault variable group populated by Terraform. Should include '<workspace>-aca-pool', '<workspace>-aks-pool' variables.
   - name: 'scriptDirectory'
     value: '$(Build.SourcesDirectory)/scripts'
-  - name: 'aca-pool-to-use'
-    value: $[coalesce(variables['${{ parameters.workspace }}-aca-pool'],variables['aca-pool'],'Default')]
-  - name: 'aks-pool-to-use'
-    value: $[coalesce(variables['${{ parameters.workspace }}-aks-pool'],variables['aks-pool'],'Default')]
+  - name: 'agentPoolVariable'
+    ${{ if eq(parameters.containerEngine, 'Container App') }}:
+      value: '${{ parameters.workspace }}-aca-pool'
+    ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+      value: '${{ parameters.workspace }}-aks-pool'
+  - name: 'agentPool'
+    ${{ if eq(parameters.containerEngine, 'Container App') }}:
+      value: $[coalesce(variables['${{ parameters.workspace }}-aca-pool'],variables['aca-pool'],'Default')]
+    ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+      value: $[coalesce(variables['${{ parameters.workspace }}-aks-pool'],variables['aks-pool'],'Default')]
 
 jobs:
 - job: createStrategy
@@ -81,6 +87,14 @@ jobs:
         workingDirectory: '$(scriptDirectory)'
 
   - pwsh: |
+      # Validate whether pipeline name(s) have been set
+      if ("$(agentPool)" -ieq "Default") {
+        Write-Warning "Agent pool name not set using '$(agentPoolVariable)'"
+      }
+      Write-Host "Agent pool name: '$(agentPool)'"
+
+      Write-Host "`nCreating strategy..."
+      # Create strategy
       $strategyHash = @{}
       for ($i=1; $i -le ${{ parameters.numberOfJobs }}; $i++) {
         $strategyHash.Add("${i}",@{"index"=$i})
@@ -88,6 +102,7 @@ jobs:
       $strategyHash | ConvertTo-Json -Compress | Set-Variable strategyJson
       Write-Host $strategy
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]${strategyJson}"
+      Write-Host "${{ parameters.numberOfJobs }} created"
     name: pwsh
     displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
 
@@ -101,10 +116,7 @@ jobs:
   ${{ else }}:
     displayName: Parallel job
   pool:
-    ${{ if eq(parameters.containerEngine, 'Container App') }}:
-      name: $(aca-pool-to-use)
-    ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      name: $(aks-pool-to-use)
+    name: $(agentPool)
     demands:
     - agent.os -equals Linux
     - KUBERNETES_SERVICE_HOST
