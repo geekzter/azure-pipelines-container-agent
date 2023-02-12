@@ -66,7 +66,7 @@ variables:
     ${{ if eq(parameters.containerEngine, 'Container App') }}:
       value: $[coalesce(variables['${{ parameters.workspace }}-aca-pool'],variables['aca-pool'],'Default')]
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-      value: $[coalesce(variables['${{ parameters.workspace }}-aks-pool'],variables['aks-pool'],'Default')]
+      value: $[coalesce(variables['${{ parameters.workspace }}-aks-pool'],variables['aks-pool'],'Default')]    
 
 jobs:
 - job: createStrategy
@@ -113,9 +113,9 @@ jobs:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
     maxParallel: ${{ parameters.numberOfJobs }}
   ${{ if le(parameters.numberOfJobs, 1) }}:
-    displayName: Single job
+    displayName: Single ${{ parameters.containerEngine }} job
   ${{ else }}:
-    displayName: Parallel job
+    displayName: Parallel ${{ parameters.containerEngine }} job
   pool:
     name: $(agentPool)
     demands:
