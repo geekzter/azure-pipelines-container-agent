@@ -100,7 +100,11 @@ jobs:
       if ([string]::IsNullOrEmpty("$(agentPool)")) {
         Write-Error "Agent pool name not set"
       } elseif ("$(agentPool)" -ieq 'Default') {
-        Write-Warning "Agent pool name not set using '$(agentPoolVariable)' variable. Using 'Default' pool created by Azure Pipelines."
+        if ($${{ eq(parameters.workspace, 'any') }}) {
+          Write-Warning "Agent pool name not set using any '*-a..-pool-name' variable. Using 'Default' pool created by Azure Pipelines."
+        } else {
+          Write-Warning "Agent pool name not set using '$(agentPoolVariable)' variable. Using 'Default' pool created by Azure Pipelines."
+        }
       } else {
         Write-Host "Agent pool name set using '$(agentPoolVariable)' variable. Using '$(agentPool)' pool."
       }
