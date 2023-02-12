@@ -68,16 +68,14 @@ variables:
       ${{ if eq(parameters.workspace, 'any') }}:
         value: $[coalesce(variables['cd-aca-pool-name'],variables['cd1-aca-pool-name'],variables['cd2-aca-pool-name'],variables['cd3-aca-pool-name'],variables['test-aca-pool-name'],variables['test1-aca-pool-name'],variables['test2-aca-pool-name'],variables['test3-aca-pool-name'],variables['default-aca-pool-name'],variables['aca-pool-name'],'Default')]
       ${{ else }}:
-        # value: $[coalesce(variables['${{ parameters.workspace }}-aca-pool-name'],'Default')]
+        value: $[coalesce(variables['container-agents-vault.${{ parameters.workspace }}-aca-pool-name'],'Default')]
         # value: $[variables['${{ parameters.workspace }}-aca-pool-name']]
-        value: $[ variablegroups.container-agents-vault.${{ parameters.workspace }}-aca-pool-name ]
     ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
       ${{ if eq(parameters.workspace, 'any') }}:
         value: $[coalesce(variables['cd-aks-pool-name'],variables['cd1-aks-pool-name'],variables['cd2-aks-pool-name'],variables['cd3-aks-pool-name'],variables['test-aks-pool-name'],variables['test1-aks-pool-name'],variables['test2-aks-pool-name'],variables['test3-aks-pool-name'],variables['default-aks-pool-name'],variables['aks-pool-name'],'Default')]
       ${{ else }}:
-        # value: $[coalesce(variables['${{ parameters.workspace }}-aks-pool-name'],'Default')]
+        value: $[coalesce(variables['container-agents-vault.${{ parameters.workspace }}-aks-pool-name'],'Default')]
         # value: $[variables['${{ parameters.workspace }}-aks-pool-name']]
-        value: $[ variablegroups.container-agents-vault.${{ parameters.workspace }}-aks-pool-name ]
 
 jobs:
 - job: createStrategy
