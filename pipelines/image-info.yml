@@ -35,6 +35,8 @@ parameters:
   - test2
   - test3
 
+name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId)
+
 resources:
   pipelines:
   - pipeline: deployment 
