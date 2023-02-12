@@ -132,7 +132,8 @@ jobs:
   ${{ else }}:
     displayName: Parallel ${{ parameters.containerEngine }} job
   pool:
-    name: $(agentPool)
+    # name: $(agentPool)
+    name: $(${{ parameters.workspace }}-aca-pool-name)
     demands:
     - agent.os -equals Linux
     - KUBERNETES_SERVICE_HOST
