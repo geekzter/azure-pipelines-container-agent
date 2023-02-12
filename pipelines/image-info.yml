@@ -35,10 +35,7 @@ parameters:
   - test2
   - test3
 
-${{ if eq(parameters.containerEngine, 'Container App') }}:
-  name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-aca-${{ parameters.workspace }}-$(Build.BuildId)
-${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-  name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-aks-${{ parameters.workspace }}-$(Build.BuildId)
+name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-aca-${{ parameters.workspace }}-$(Build.BuildId) (${{ parameters.containerEngine }})
 
 resources:
   pipelines:
