@@ -33,6 +33,7 @@ parameters:
   - test1
   - test2
   - test3
+  - default
 
 name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId) (${{ parameters.containerEngine }})
 

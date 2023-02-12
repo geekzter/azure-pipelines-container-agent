@@ -4,13 +4,6 @@ output aca_agent_pool_id {
 output aca_agent_pool_name {
   value                        = local.aca_agent_pool_name
 }
-resource azurerm_key_vault_secret aca_agent_pool_name {
-  name                         = "${terraform.workspace}-aca-pool-name"
-  value                        = local.aca_agent_pool_name
-  key_vault_id                 = var.key_vault_id
-  tags                         = azurerm_resource_group.rg.tags
-  count                        = var.key_vault_id != null ? 1 : 0
-}
 output aca_agent_pool_url {
   value                        = local.aca_agent_pool_url
 }
@@ -34,13 +27,6 @@ output aks_agent_pool_id {
 }
 output aks_agent_pool_name {
   value                        = local.aks_agent_pool_name
-}
-resource azurerm_key_vault_secret aks_agent_pool_name {
-  name                         = "${terraform.workspace}-aks-pool-name"
-  value                        = local.aks_agent_pool_name
-  key_vault_id                 = var.key_vault_id
-  tags                         = azurerm_resource_group.rg.tags
-  count                        = var.key_vault_id != null ? 1 : 0
 }
 output aks_agent_pool_url {
   value                        = local.aks_agent_pool_url

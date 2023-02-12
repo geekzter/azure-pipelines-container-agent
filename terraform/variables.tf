@@ -143,12 +143,6 @@ variable github_repo_access_token {
   default                      = null
 }
 
-variable key_vault_id {
-  description                  = "Store outputs in Key Vault"
-  default                      = null
-  nullable                     = true
-}
-
 variable kube_config_path {
   description                  = "Path to the kube config file (e.g. ~/.kube/config)"
   default                      = ""
