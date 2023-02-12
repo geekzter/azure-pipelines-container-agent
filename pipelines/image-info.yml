@@ -20,6 +20,19 @@ parameters:
   type: boolean
   default: true
 
+resources:
+  pipelines:
+  - pipeline: deployment 
+    source: deploy-container-agents
+    trigger: true
+schedules:
+- cron: '0 0 * * *'
+  displayName: 'Daily build (0:00 UTC)'
+  # Run when there are no changes
+  always: 'true'
+  branches:
+    include:
+    - main
 trigger: none
 
 variables:
