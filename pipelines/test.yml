@@ -1,0 +1,11 @@
+# - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
+#   - template: image-info.yml
+#     parameters:
+#       containerEngine: 'Container App'
+#       workspace: ${{ parameters.workspace }}
+
+# - ${{ if or(eq(parameters.containerEngine, 'Kubernetes),eq(parameters.containerEngine, 'Both')) }}:
+#   - template: image-info.yml
+#     parameters:
+#       containerEngine: 'Kubernetes'
+#       workspace: ${{ parameters.workspace }}

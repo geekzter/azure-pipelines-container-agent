@@ -105,7 +105,14 @@ module container_app_agents {
   resource_group_name          = azurerm_resource_group.rg.name
   subnet_id                    = var.deploy_network ? module.network.0.container_apps_environment_subnet_id : null
   suffix                       = local.suffix
-  tags                         = local.tags
+  tags                         = merge(
+    azurerm_resource_group.rg.tags,
+    {
+      pipelineAgentPoolId      = local.aca_agent_pool_id
+      pipelineAgentPoolName    = local.aca_agent_pool_name
+      pipelineAgentPoolUrl     = local.aca_agent_pool_url
+    }
+  )
   user_assigned_identity_id    = local.agent_identity_resource_id
 
   depends_on                   = [
@@ -139,7 +146,14 @@ module aks_agents {
   node_max_count               = var.kubernetes_node_max_count
   private_cluster_enabled      = var.aks_private_cluster_enabled
   resource_group_id            = azurerm_resource_group.rg.id
-  tags                         = azurerm_resource_group.rg.tags
+  tags                         = merge(
+    azurerm_resource_group.rg.tags,
+    {
+      pipelineAgentPoolId      = local.aks_agent_pool_id
+      pipelineAgentPoolName    = local.aks_agent_pool_name
+      pipelineAgentPoolUrl     = local.aks_agent_pool_url
+    }
+  )
   user_assigned_identity_id    = local.agent_identity_resource_id
   user_assigned_identity_is_precreated=local.agent_identity_is_precreated
 

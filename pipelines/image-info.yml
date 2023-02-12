@@ -6,7 +6,6 @@ parameters:
   values:
   - 'Container App'
   - Kubernetes
-# Test auto-scaling by setting sleep time
 - name: numberOfJobs
   displayName: Number of parallel jobs to create
   type: number
@@ -15,11 +14,49 @@ parameters:
   displayName: Sleep time in minutes
   type: number
   default: 0
-  
+- name: startAKSNodes
+  displayName: Start Nodes
+  type: boolean
+  default: true
+- name: workspace
+  displayName: Terraform Workspace
+  type: string
+  default: cd
+  values:
+  - ci
+  - cd
+  - cd1
+  - cd2
+  - cd3
+  - cd3
+  - test
+  - test1
+  - test2
+  - test3
+  - default
+
+name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId) (${{ parameters.containerEngine }})
+
+pr: none
+schedules:
+- cron: '0 0 * * *'
+  displayName: 'Daily build (0:00 UTC)'
+  # Run when there are no changes
+  always: 'true'
+  branches:
+    include:
+    - main
 trigger: none
 
 variables:
-  - group: 'container-image-info' # Should include 'pool' variable
+  - group: 'container-image-info' # Should define 'subscriptionConnection' variable
+  - name: 'scriptDirectory'
+    value: '$(Build.SourcesDirectory)/scripts'
+  - name: 'agentPool'
+    ${{ if eq(parameters.containerEngine, 'Container App') }}:
+      value: 'aca-container-agents-${{ parameters.workspace }}'
+    ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+      value: 'aks-container-agents-${{ parameters.workspace }}'
 
 jobs:
 - job: createStrategy
@@ -27,7 +64,23 @@ jobs:
   pool:
     name: Azure Pipelines
   steps:
+  - ${{ if and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}:
+    - task: AzureCLI@2
+      displayName: 'Start AKS Nodes'
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          $(scriptDirectory)/start_aks.ps1 -AgentPoolName $(agentPool)
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'
+
   - pwsh: |
+      Write-Host "Using '$(agentPool)' pool."
+
+      Write-Host "`nCreating strategy..."
+      # Create strategy
       $strategyHash = @{}
       for ($i=1; $i -le ${{ parameters.numberOfJobs }}; $i++) {
         $strategyHash.Add("${i}",@{"index"=$i})
@@ -35,6 +88,7 @@ jobs:
       $strategyHash | ConvertTo-Json -Compress | Set-Variable strategyJson
       Write-Host $strategy
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]${strategyJson}"
+      Write-Host "Strategy created ${{ parameters.numberOfJobs }} jobs"
     name: pwsh
     displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
 
@@ -44,11 +98,13 @@ jobs:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
     maxParallel: ${{ parameters.numberOfJobs }}
   ${{ if le(parameters.numberOfJobs, 1) }}:
-    displayName: Single job
+    displayName: Single ${{ parameters.containerEngine }} job
   ${{ else }}:
-    displayName: Parallel job
+    displayName: Parallel ${{ parameters.containerEngine }} job
   pool:
-    name: $[coalesce(variables.pool,'Default')]
+    name: $(agentPool)
+    # name: $(test-aca-pool-name2)
+    # name: $[variables['test-aca-pool-name']]
     demands:
     - agent.os -equals Linux
     - KUBERNETES_SERVICE_HOST
