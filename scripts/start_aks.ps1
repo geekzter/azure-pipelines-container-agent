@@ -11,10 +11,29 @@ param (
     [string]
     $AksId,
 
+    [Parameter(Mandatory=$true,ParameterSetName='ResourceName')]
+    [ValidateNotNull()]
+    [string]
+    $AksName,
+
+    [Parameter(Mandatory=$true,ParameterSetName='ResourceName')]
+    [ValidateNotNull()]
+    [string]
+    $ResourceGroupName,
+
+    [Parameter(Mandatory=$true,ParameterSetName='ResourceName')]
+    [ValidateNotNull()]
+    [string]
+    $SubscriptionId=($env:AZURE_SUBSCRIPTION_ID),
+
     [Parameter(Mandatory=$true,ParameterSetName='ResourceGraph')]
     [ValidateNotNull()]
     [string]
-    $AgentPoolName
+    $AgentPoolName,
+
+    [Parameter(Mandatory=$false)]
+    [switch]
+    $Wait
 ) 
 
 if (!(Get-Command az)) {
@@ -41,24 +60,23 @@ if ($AksId) {
     }
     $AksId = $aks.id
     Write-Verbose "AKS resource id found  with tag 'pipelineAgentPoolName=${AgentPoolName}': ${AksId}"
-} else {
-    Write-Warning "Either AKS resource id or agent pool name must be provided"
-    exit 1
 }
-
-$AksIdElements = $AksId.Split('/')
-if ($AksIdElements.Count -ne 9) {
-    Write-Warning "Invalid AKS resource id: $AksId"
-    exit 1
+if ($AksId) {
+    $AksIdElements = $AksId.Split('/')
+    if ($AksIdElements.Count -ne 9) {
+        Write-Warning "Invalid AKS resource id: $AksId"
+        exit 1
+    }
+    $AksName = $AksIdElements.Split('/')[8]
+    $ResourceGroupName = $AksIdElements.Split('/')[4]
+    $SubscriptionId = $AksIdElements.Split('/')[2]    
 }
-$aksClusterName = $AksIdElements.Split('/')[8]
-$aksResourceGroup = $AksIdElements.Split('/')[4]
-$aksSubscription = $AksIdElements.Split('/')[2]
+$SubscriptionId ??= (az account show --query id -o tsv)
 
 # Get latest AKS state (resource graph may be out of date)
-az aks show -n $aksClusterName `
-            -g $aksResourceGroup `
-            --subscription $aksSubscription `
+az aks show -n $AksName `
+            -g $ResourceGroupName `
+            --subscription $SubscriptionId `
             -o json `
             | ConvertFrom-Json `
             | Set-Variable aks
@@ -66,14 +84,17 @@ az aks show -n $aksClusterName `
 $aks | Format-List | Out-String | Write-Debug
 
 if ($aks.provisioningState -inotin "Stopping", "Succeeded") {
-    "AKS '${aksClusterName}' is in '{0}' state" -f $aks.provisioningState | Write-Error
+    "AKS '${AksName}' is in '{0}' state" -f $aks.provisioningState | Write-Error
     exit 1
 }
 if ($aks.powerState.code -iin "Running", "Starting") {
-    "AKS '${aksClusterName}' is already in '{0}' state" -f $aks.powerState.code | Write-Host
+    "AKS '${AksName}' is already in '{0}' state" -f $aks.powerState.code | Write-Host
     exit 0
 }
 
-Write-Host "Starting AKS '${aksClusterName}' in resource group '${aksResourceGroup}'..."
-Write-Debug "az aks start -n $aksClusterName -g $aksResourceGroup --subscription $aksSubscription"
-az aks start -n $aksClusterName -g $aksResourceGroup --subscription $aksSubscription --no-wait
+Write-Host "Starting AKS '${AksName}' in resource group '${ResourceGroupName}'..."
+Write-Debug "az aks start -n $AksName -g $ResourceGroupName --subscription $SubscriptionId"
+az aks start -n $AksName -g $ResourceGroupName --subscription $SubscriptionId --no-wait
+if ($Wait) {
+    az aks start -n $AksName -g $ResourceGroupName --subscription $SubscriptionId
+}
