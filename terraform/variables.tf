@@ -1,5 +1,5 @@
 variable aca_agent_pool_name {
-  description                  = "ID of the agent pool to create for Azure Container Apps (ACA) agents"
+  description                  = "Name of the agent pool to create for Azure Container Apps (ACA) agents"
   default                      = "Default"
   nullable                     = true
 }
@@ -16,7 +16,7 @@ variable agent_identity_resource_id {
 }
 
 variable aks_agent_pool_name {
-  description                  = "ID of the agent pool to create for Azure Kubernetes Service (AKS) agents"
+  description                  = "Name of the agent pool to create for Azure Kubernetes Service (AKS) agents"
   default                      = "Default"
   nullable                     = true
 }
