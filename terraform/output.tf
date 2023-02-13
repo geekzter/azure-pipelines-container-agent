@@ -68,11 +68,11 @@ output diagnostics_storage_sas {
   value                        = module.diagnostics_storage.diagnostics_storage_sas
 }
 output diagnostics_share_url {
-  value                        = module.diagnostics_storage.diagnostics_share_url
+  value                        = var.create_files_share ? module.diagnostics_storage.diagnostics_share_url : null
 }
 output diagnostics_share_url_with_sas {
   sensitive                    = true
-  value                        = "${module.diagnostics_storage.diagnostics_share_url}${module.diagnostics_storage.diagnostics_storage_sas}"
+  value                        = var.create_files_share ? "${module.diagnostics_storage.diagnostics_share_url}${module.diagnostics_storage.diagnostics_storage_sas}" : null
 }
 
 output environment_variables {
