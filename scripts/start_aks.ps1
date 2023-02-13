@@ -11,17 +11,12 @@ param (
     [string]
     $AksId,
 
-    [Parameter(Mandatory=$true,ParameterSetName='ResourceName')]
-    [ValidateNotNull()]
-    [string]
-    $AksName,
-
-    [Parameter(Mandatory=$true,ParameterSetName='ResourceName')]
+    [Parameter(Mandatory=$true,ParameterSetName='ResourceGroup')]
     [ValidateNotNull()]
     [string]
     $ResourceGroupName,
 
-    [Parameter(Mandatory=$true,ParameterSetName='ResourceName')]
+    [Parameter(Mandatory=$false,ParameterSetName='ResourceGroup')]
     [ValidateNotNull()]
     [string]
     $SubscriptionId=($env:AZURE_SUBSCRIPTION_ID),
@@ -60,6 +55,8 @@ if ($AksId) {
     }
     $AksId = $aks.id
     Write-Verbose "AKS resource id found  with tag 'pipelineAgentPoolName=${AgentPoolName}': ${AksId}"
+} else {
+    $AksName = $(az aks list -g $ResourceGroupName --subscription $SubscriptionId --query "[0].name" -o tsv)
 }
 if ($AksId) {
     $AksIdElements = $AksId.Split('/')
@@ -91,6 +88,7 @@ if ($aks.powerState.code -iin "Running", "Starting") {
     "AKS '${AksName}' is already in '{0}' state" -f $aks.powerState.code | Write-Host
     exit 0
 }
+"AKS '${AksName}' is in provisioning state '{0}' and power state '{1}'" -f $aks.provisioningState, $aks.powerState.code | Write-Debug
 
 Write-Host "Starting AKS '${AksName}' in resource group '${ResourceGroupName}'..."
 Write-Debug "az aks start -n $AksName -g $ResourceGroupName --subscription $SubscriptionId"
