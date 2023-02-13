@@ -24,6 +24,11 @@ if (!(Get-Command kubectl -ErrorAction SilentlyContinue)) {
     Write-Warning "kubectl not found. Installing using Azure CLI..."
     az aks install-cli
 }
+if (!(Get-Command kubelogin -ErrorAction SilentlyContinue)) {
+    Write-Warning "kubelogin not found. Installing using Azure CLI..."
+    az aks install-cli
+}
+kubelogin convert-kubeconfig -l azurecli # Inherit Azure CLI token for K8s AAD RBAC
 
 $AksIdElements = $AksId.Split('/')
 if ($AksIdElements.Count -ne 9) {
