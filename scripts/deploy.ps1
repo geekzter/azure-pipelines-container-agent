@@ -121,7 +121,8 @@ try {
                 if ($aks) {
                     Write-Host "Starting AKS '${aks}' in resource group '${resourceGroup}'..."
                     Write-Debug "az aks start -n $aks -g $resourceGroup"
-                    az aks start -n $aks -g $resourceGroup --no-wait --query "[].name" -o tsv
+                    az aks start -n $aks -g $resourceGroup --subscription $env:ARM_SUBSCRIPTION_ID --query "[].name" -o tsv
+                    Write-Host "Started AKS '${aks}' in resource group '${resourceGroup}'"
                 }
             }
         }

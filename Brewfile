@@ -4,6 +4,7 @@
 brew "azure-cli"
 brew "azure/kubelogin/kubelogin"
 cask "docker"
+brew "jq"
 brew "kubernetes-cli"
 brew "kubernetes-helm"
 cask "powershell"

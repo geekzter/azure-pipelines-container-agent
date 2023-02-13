@@ -52,7 +52,7 @@ parameters:
 - name: retryCount
   displayName: Task retry count
   type: number
-  default: 1
+  default: 3
 - name: destroy
   displayName: Destroy Infrastructure
   type: string
@@ -90,17 +90,6 @@ schedules:
     - main
 
 variables:
-- group: 'build-container-agent-image' # shared with build-image.yml
-  # should contain:
-  # containerRegistry -> name of Container Registry Service Connection
-- group: 'pipeline-container-agents' # shared with terraform-ci.yml
-  # should contain:
-  # subscriptionConnection -> name of Azure Registry Service Connection
-  # TF_STATE_RESOURCE_GROUP_NAME, TF_STATE_STORAGE_ACCOUNT_NAME, TF_STATE_CONTAINER_NAME -> Terraform azurerm backend
-  # (See https://developer.hashicorp.com/terraform/language/settings/backends/azurerm)
-  # TF_VAR_agent_identity_resource_id -> Resource id of pre-created User-assigned Managed Identity used to access Container Registry
-  # TF_VAR_container_registry_id -> Resource id of pre-created Container Registry
-  # TF_VAR_devops_pat -> Personal Access Token used by agent to register itself, requires Agent Pools read & manage scope.
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
   value: 'true'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
@@ -160,6 +149,17 @@ variables:
   value: '${{ parameters.workspace }}'
 - name: 'vmImage'
   value: 'ubuntu-latest'
+- group: 'build-container-agent-image' # shared with build-image.yml
+  # should contain:
+  # containerRegistry -> name of Container Registry Service Connection
+- group: 'pipeline-container-agents' # shared with terraform-ci.yml
+  # should contain:
+  # subscriptionConnection -> name of Azure Registry Service Connection
+  # TF_STATE_RESOURCE_GROUP_NAME, TF_STATE_STORAGE_ACCOUNT_NAME, TF_STATE_CONTAINER_NAME -> Terraform azurerm backend
+  # (See https://developer.hashicorp.com/terraform/language/settings/backends/azurerm)
+  # TF_VAR_agent_identity_resource_id -> Resource id of pre-created User-assigned Managed Identity used to access Container Registry
+  # TF_VAR_container_registry_id -> Resource id of pre-created Container Registry
+  # TF_VAR_devops_pat -> Personal Access Token used by agent to register itself, requires Agent Pools read & manage scope.
 
 jobs:    
 - ${{ if parameters.buildImage }}:
