@@ -122,6 +122,7 @@ try {
                     Write-Host "Starting AKS '${aks}' in resource group '${resourceGroup}'..."
                     Write-Debug "az aks start -n $aks -g $resourceGroup"
                     az aks start -n $aks -g $resourceGroup --query "[].name" -o tsv
+                    Write-Host "Started AKS '${aks}' in resource group '${resourceGroup}'"
                 }
             }
         }
