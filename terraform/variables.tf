@@ -232,6 +232,11 @@ variable resource_prefix {
   default                      = "pipelines"
   nullable                     = false
 }
+variable resource_project {
+  description                  = "The middle part of resource names created"
+  default                      = "container-agents"
+  nullable                     = true
+}
 variable resource_suffix {
   description                  = "The suffix to put at the start of resource names created"
   default                      = "" # Empty string triggers a random suffix
