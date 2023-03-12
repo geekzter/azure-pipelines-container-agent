@@ -135,6 +135,7 @@ module aks_agents {
   location                     = azurerm_resource_group.rg.location
   kube_config_path             = local.kube_config_absolute_path
   kubernetes_version           = var.kubernetes_version
+  local_account_disabled       = var.kubernetes_local_account_disabled
   log_analytics_workspace_id   = local.log_analytics_workspace_resource_id
   network_outbound_type        = var.deploy_network ? (var.gateway_type == "Firewall" ? "userDefinedRouting" : (var.gateway_type == "NATGateway" ? "userAssignedNATGateway" : null)) : null
   network_plugin               = var.deploy_network ? "azure" : "kubenet"

@@ -9,7 +9,7 @@ resource random_string suffix {
 
 locals {
   aca_agent_pool_id            = var.create_agent_pools ? try(module.aca_agent_pool.0.pool_id,1) : try(module.aca_agent_pool_data.0.pool_id,1)
-  aca_agent_pool_name          = var.create_agent_pools && (var.aca_agent_pool_name == "Default" || var.aca_agent_pool_name == "" || var.aca_agent_pool_name == null) ? "aca-container-agents-${terraform.workspace}" : var.aca_agent_pool_name
+  aca_agent_pool_name          = var.create_agent_pools && (var.aca_agent_pool_name == "Default" || var.aca_agent_pool_name == "" || var.aca_agent_pool_name == null) ? "aca-${var.resource_project}-${terraform.workspace}" : var.aca_agent_pool_name
   aca_agent_pool_url           = "${local.devops_url}/_settings/agentpools?poolId=${local.aca_agent_pool_id}&view=agents"
   agent_identity_client_id     = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.client_id : azurerm_user_assigned_identity.agent_identity.0.client_id
   agent_identity_name          = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.name : azurerm_user_assigned_identity.agent_identity.0.name
@@ -17,7 +17,7 @@ locals {
   agent_identity_resource_id   = local.agent_identity_is_precreated ? var.agent_identity_resource_id : azurerm_user_assigned_identity.agent_identity.0.id
   agent_identity_is_precreated = var.agent_identity_resource_id != "" && var.agent_identity_resource_id != null
   aks_agent_pool_id            = var.create_agent_pools ? try(module.aks_agent_pool.0.pool_id,1) : try(module.aks_agent_pool_data.0.pool_id,1)
-  aks_agent_pool_name          = var.create_agent_pools && (var.aks_agent_pool_name == "Default" || var.aks_agent_pool_name == "" || var.aks_agent_pool_name == null) ? "aks-container-agents-${terraform.workspace}" : var.aks_agent_pool_name
+  aks_agent_pool_name          = var.create_agent_pools && (var.aks_agent_pool_name == "Default" || var.aks_agent_pool_name == "" || var.aks_agent_pool_name == null) ? "aks-${var.resource_project}-${terraform.workspace}" : var.aks_agent_pool_name
   aks_agent_pool_url           = "${local.devops_url}/_settings/agentpools?poolId=${local.aks_agent_pool_id}&view=agents"
   devops_url                   = replace(var.devops_url,"/\\/$/","")
 
@@ -66,7 +66,7 @@ locals {
 }
 
 resource azurerm_resource_group rg {
-  name                         = terraform.workspace == "default" ? "${var.resource_prefix}-container-agents-${local.initial_suffix}" : "${var.resource_prefix}-${terraform.workspace}-container-agents-${local.initial_suffix}"
+  name                         = terraform.workspace == "default" ? "${var.resource_prefix}-${var.resource_project}-${local.initial_suffix}" : "${var.resource_prefix}-${terraform.workspace}-${var.resource_project}-${local.initial_suffix}"
   location                     = var.location
 
   tags                         = local.initial_tags

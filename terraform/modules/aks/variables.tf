@@ -12,6 +12,9 @@ variable enable_node_public_ip {
 }
 variable kube_config_path {}
 variable kubernetes_version {}
+variable local_account_disabled {
+  type        = bool
+}
 variable location {}
 variable log_analytics_workspace_id {}
 variable node_min_count {
