@@ -1,5 +1,7 @@
+variable admin_object_ids {
+  type        = list(string)
+}
 variable admin_username {}
-variable client_object_id {}
 variable configure_access_control {
   type        = bool
 }

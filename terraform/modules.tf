@@ -126,8 +126,8 @@ module container_app_agents {
 module aks_agents {
   source                       = "./modules/aks"
 
+  admin_object_ids             = local.admin_object_ids
   admin_username               = "aksadmin"
-  client_object_id             = data.azurerm_client_config.default.object_id
   configure_access_control     = var.configure_access_control
   dns_prefix                   = var.resource_prefix
   enable_keda                  = false # Install KEDA with Helm chart instead
