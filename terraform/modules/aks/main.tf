@@ -61,19 +61,33 @@ resource azurerm_role_assignment spn_vm_contributor {
 }
 
 # Grant Terraform user Cluster Admin role
+resource azurerm_role_assignment terraform_rbac_admin {
+  scope                        = var.resource_group_id
+  role_definition_name         = "Azure Kubernetes Service RBAC Admin"
+  principal_id                 = each.value
+
+  for_each                     = var.configure_access_control ? toset(var.admin_object_ids) : []
+}
+resource azurerm_role_assignment terraform_rbac_cluster_admin {
+  scope                        = var.resource_group_id
+  role_definition_name         = "Azure Kubernetes Service RBAC Cluster Admin"
+  principal_id                 = each.value
+
+  for_each                     = var.configure_access_control ? toset(var.admin_object_ids) : []
+}
 resource azurerm_role_assignment terraform_cluster_admin {
   scope                        = var.resource_group_id
   role_definition_name         = "Azure Kubernetes Service Cluster Admin Role"
-  principal_id                 = var.client_object_id
+  principal_id                 = each.value
 
-  count                        = var.configure_access_control ? 1 : 0
+  for_each                     = var.configure_access_control ? toset(var.admin_object_ids) : []
 }
 resource azurerm_role_assignment terraform_cluster_user {
   scope                        = var.resource_group_id
   role_definition_name         = "Azure Kubernetes Service Cluster User Role"
-  principal_id                 = var.client_object_id
+  principal_id                 = each.value
 
-  count                        = var.configure_access_control ? 1 : 0
+  for_each                     = var.configure_access_control ? toset(var.admin_object_ids) : []
 }
 
 data azurerm_kubernetes_service_versions current {
@@ -106,7 +120,7 @@ resource azurerm_kubernetes_cluster aks {
   dynamic azure_active_directory_role_based_access_control {
     for_each = range(var.configure_access_control ? 1 : 0) 
     content {
-      admin_group_object_ids   = [var.client_object_id]
+      admin_group_object_ids   = var.admin_object_ids
       azure_rbac_enabled       = true
       managed                  = true
     }

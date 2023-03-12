@@ -9,6 +9,11 @@ variable address_space {
   nullable                     = false
 }
 
+variable admin_object_ids {
+  default                      = []
+  type                         = list(string)
+}
+
 variable agent_identity_resource_id {
   description                  = "Resource id of pre-created User-assigned Managed Identity used to access Container Registry"
   default                      = ""

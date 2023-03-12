@@ -11,6 +11,7 @@ locals {
   aca_agent_pool_id            = var.create_agent_pools ? try(module.aca_agent_pool.0.pool_id,1) : try(module.aca_agent_pool_data.0.pool_id,1)
   aca_agent_pool_name          = var.create_agent_pools && (var.aca_agent_pool_name == "Default" || var.aca_agent_pool_name == "" || var.aca_agent_pool_name == null) ? "aca-${var.resource_project}-${terraform.workspace}" : var.aca_agent_pool_name
   aca_agent_pool_url           = "${local.devops_url}/_settings/agentpools?poolId=${local.aca_agent_pool_id}&view=agents"
+  admin_object_ids             = concat(var.admin_object_ids,[data.azurerm_client_config.default.object_id])
   agent_identity_client_id     = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.client_id : azurerm_user_assigned_identity.agent_identity.0.client_id
   agent_identity_name          = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.name : azurerm_user_assigned_identity.agent_identity.0.name
   agent_identity_principal_id  = local.agent_identity_is_precreated ? data.azurerm_user_assigned_identity.pre_created_agent_identity.0.principal_id : azurerm_user_assigned_identity.agent_identity.0.principal_id
