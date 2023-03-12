@@ -148,12 +148,10 @@ variable kube_config_path {
   default                      = ""
   nullable                     = true
 }
-
-variable kubernetes_version {
-  default                      = ""
-  nullable                     = true
+variable kubernetes_local_account_disabled {
+  default                      = false
+  type                         = bool
 }
-
 variable kubernetes_node_min_count {
   default                      = 1
   type                         = number
@@ -166,6 +164,11 @@ variable kubernetes_node_size {
   default                      = "Standard_B4ms"
   nullable                     = false
 }
+variable kubernetes_version {
+  default                      = ""
+  nullable                     = true
+}
+
 variable location {
   default                      = "centralus"
   nullable                     = false

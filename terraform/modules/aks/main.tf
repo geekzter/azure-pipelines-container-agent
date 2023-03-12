@@ -141,7 +141,7 @@ resource azurerm_kubernetes_cluster aks {
     user_assigned_identity_id  = var.user_assigned_identity_id
   }
 
-  # local_account_disabled       = var.configure_access_control
+  local_account_disabled       = var.local_account_disabled
 
   monitor_metrics {}
 
