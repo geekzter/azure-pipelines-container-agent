@@ -155,7 +155,7 @@ jobs:
           @{
             substituteAlternateVariables = $true
             TF_VAR_resource_suffix = '$(Build.BuildId)'
-            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
@@ -171,7 +171,7 @@ jobs:
             TF_VAR_deploy_network = 'true'
             TF_VAR_gateway_type = 'Firewall'
             TF_VAR_resource_suffix = '$(Build.BuildId)'
-            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
@@ -186,7 +186,7 @@ jobs:
             TF_VAR_deploy_network = 'true'
             TF_VAR_gateway_type = 'NATGateway'
             TF_VAR_resource_suffix = '$(Build.BuildId)'
-            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
