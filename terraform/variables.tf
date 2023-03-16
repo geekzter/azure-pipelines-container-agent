@@ -127,6 +127,11 @@ variable devops_url {
   nullable                     = false
 }
 
+variable enable_keda {
+  default                      = false
+  type                         = bool
+}
+
 variable environment_variables {
   type                         = map
   default                      = {}  

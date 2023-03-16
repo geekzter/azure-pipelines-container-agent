@@ -95,15 +95,15 @@ data azurerm_kubernetes_service_versions current {
   include_preview              = false
 }
 
-resource azurerm_resource_provider_registration keda {
-  name                         = "Microsoft.ContainerService"
-  feature {
-    name                       = "AKS-KedaPreview"
-    registered                 = true
-  }
+# resource azurerm_resource_provider_registration keda {
+#   name                         = "Microsoft.ContainerService"
+#   feature {
+#     name                       = "AKS-KedaPreview"
+#     registered                 = true
+#   }
 
-  count                        = var.enable_keda ? 1 : 0
-}
+#   count                        = var.enable_keda ? 1 : 0
+# }
 
 resource azurerm_kubernetes_cluster aks {
   name                         = "${local.resource_group_name}-k8s"

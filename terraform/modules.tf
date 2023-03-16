@@ -130,7 +130,7 @@ module aks_agents {
   admin_username               = "aksadmin"
   configure_access_control     = var.configure_access_control
   dns_prefix                   = var.resource_prefix
-  enable_keda                  = false # Install KEDA with Helm chart instead
+  enable_keda                  = var.enable_keda
   enable_node_public_ip        = !var.deploy_network || var.gateway_type == "None"
   location                     = azurerm_resource_group.rg.location
   kube_config_path             = local.kube_config_absolute_path
