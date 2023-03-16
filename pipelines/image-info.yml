@@ -29,6 +29,8 @@ parameters:
   - cd2
   - cd3
   - cd3
+  - k8s125
+  - k8s126
   - test
   - test1
   - test2
