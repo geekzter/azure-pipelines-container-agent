@@ -75,7 +75,6 @@ jobs:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        Set-PSDebug -Trace 1
         Write-Host "az graph query -q `"resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '$(agentPool)'`""
         if (!(az extension list --query "[?name=='resource-graph'].version" -o tsv)) {
           Write-Host "Adding Azure CLI extension 'resource-graph'..."
