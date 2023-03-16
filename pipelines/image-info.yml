@@ -62,13 +62,15 @@ variables:
 
 jobs:
 - job: createStrategy
-  displayName: Create strategy
+  displayName: Prepare strategy
   pool:
     name: Azure Pipelines
   steps:
   - task: AzureCLI@2
     displayName: 'Start AKS Nodes'
     name: aks
+    env:
+      AZURE_EXTENSION_USE_DYNAMIC_INSTALL: "yes_without_prompt"
     inputs:
       azureSubscription: '$(subscriptionConnection)'
       scriptType: pscore
