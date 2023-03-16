@@ -90,12 +90,12 @@ jobs:
 
         if ($aks) {
           if ($${{ and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}) {
+            Write-Host "Starting AKS $(agentPool) nodes..."
             az aks start -n $aks.name -g $aks.resourceGroup
           }
           Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]true"
         } else {
           Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]false"
-          # Write-Host "##[warning]No AKS found with tag pipelineAgentPoolName='$(agentPool)'"
           Write-Host "##vso[task.logissue type=warning]No AKS found with tag pipelineAgentPoolName='$(agentPool)'"
         }
       failOnStandardError: true
