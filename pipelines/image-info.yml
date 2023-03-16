@@ -68,6 +68,7 @@ jobs:
   steps:
   - task: AzureCLI@2
     displayName: 'Start AKS Nodes'
+    name: aks
     inputs:
       azureSubscription: '$(subscriptionConnection)'
       scriptType: pscore
@@ -79,11 +80,14 @@ jobs:
                        -o json `
                       | ConvertFrom-Json `
                       | Set-Variable aks
+
         if ($aks) {
           if ($${{ and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}) {
             az aks start -n $aks.name -g $aks.resourceGroup --subscription $SubscriptionId
           }
+          Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]true"
         } else {
+          Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]false"
           Write-Warning "No AKS found with tag pipelineAgentPoolName='${AgentPoolName}'"
         }
       failOnStandardError: true
@@ -106,6 +110,7 @@ jobs:
     displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
 
 - job: ubuntuContainer
+  condition: and(succeeded(), eq(dependencies.createStrategy.outputs['aks.aksExists'], 'true'))
   dependsOn: createStrategy
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
