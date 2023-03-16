@@ -67,6 +67,7 @@ jobs:
     name: Azure Pipelines
   steps:
   - task: AzureCLI@2
+    continueOnError: true
     displayName: 'Start AKS Nodes'
     name: aks
     env:
@@ -110,6 +111,7 @@ jobs:
       Write-Host $strategy
       Write-Host "##vso[task.setvariable variable=strategy;isOutput=true]${strategyJson}"
       Write-Host "Strategy created ${{ parameters.numberOfJobs }} jobs"
+    condition: succeeded()
     name: pwsh
     displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
 
