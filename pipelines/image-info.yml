@@ -29,6 +29,8 @@ parameters:
   - cd2
   - cd3
   - cd3
+  - k8s125
+  - k8s126
   - test
   - test1
   - test2
@@ -60,21 +62,43 @@ variables:
 
 jobs:
 - job: createStrategy
-  displayName: Create strategy
+  displayName: Prepare strategy
   pool:
     name: Azure Pipelines
   steps:
-  - ${{ if and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}:
-    - task: AzureCLI@2
-      displayName: 'Start AKS Nodes'
-      inputs:
-        azureSubscription: '$(subscriptionConnection)'
-        scriptType: pscore
-        scriptLocation: inlineScript
-        inlineScript: |
-          $(scriptDirectory)/start_aks.ps1 -AgentPoolName $(agentPool) -Wait
-        failOnStandardError: true
-        workingDirectory: '$(scriptDirectory)'
+  - task: AzureCLI@2
+    continueOnError: true
+    displayName: 'Start AKS Nodes'
+    name: aks
+    inputs:
+      azureSubscription: '$(subscriptionConnection)'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        Write-Host "az graph query -q `"resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '$(agentPool)'`""
+        if (!(az extension list --query "[?name=='resource-graph'].version" -o tsv)) {
+          Write-Host "Adding Azure CLI extension 'resource-graph'..."
+          az extension add -n resource-graph -y
+        }
+        az graph query -q "resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '$(agentPool)'" `
+                       -a `
+                       --query "data" `
+                       -o json `
+                      | ConvertFrom-Json `
+                      | Set-Variable aks
+
+        if ($aks) {
+          if ($${{ and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}) {
+            Write-Host "Starting AKS $(agentPool) nodes..."
+            az aks start -n $aks.name -g $aks.resourceGroup
+          }
+          Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]true"
+        } else {
+          Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]false"
+          Write-Host "##vso[task.logissue type=warning]No AKS found with tag pipelineAgentPoolName='$(agentPool)'"
+        }
+      failOnStandardError: true
+      workingDirectory: '$(scriptDirectory)'
 
   - pwsh: |
       Write-Host "Using '$(agentPool)' pool."
@@ -93,6 +117,7 @@ jobs:
     displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
 
 - job: ubuntuContainer
+  condition: and(succeeded(), eq(dependencies.createStrategy.outputs['aks.aksExists'], 'true'))
   dependsOn: createStrategy
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
