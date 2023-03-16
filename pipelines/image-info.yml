@@ -85,7 +85,7 @@ jobs:
 
         if ($aks) {
           if ($${{ and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}) {
-            az aks start -n $aks.name -g $aks.resourceGroup --subscription $SubscriptionId
+            az aks start -n $aks.name -g $aks.resourceGroup
           }
           Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]true"
         } else {
