@@ -77,8 +77,8 @@ jobs:
       scriptLocation: inlineScript
       inlineScript: |
         Set-PSDebug -Trace 1
-        Write-Host "az graph query -q `"resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '${AgentPoolName}'`""
-        az graph query -q "resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '${AgentPoolName}'" `
+        Write-Host "az graph query -q `"resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '$(agentPool)'`""
+        az graph query -q "resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '$(agentPool)'" `
                        -a `
                        --query "data" `
                        -o json `
@@ -92,7 +92,7 @@ jobs:
           Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]true"
         } else {
           Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]false"
-          Write-Warning "No AKS found with tag pipelineAgentPoolName='${AgentPoolName}'"
+          Write-Warning "No AKS found with tag pipelineAgentPoolName='$(agentPool)'"
         }
       failOnStandardError: true
       workingDirectory: '$(scriptDirectory)'
