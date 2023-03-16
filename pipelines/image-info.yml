@@ -66,17 +66,28 @@ jobs:
   pool:
     name: Azure Pipelines
   steps:
-  - ${{ if and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}:
-    - task: AzureCLI@2
-      displayName: 'Start AKS Nodes'
-      inputs:
-        azureSubscription: '$(subscriptionConnection)'
-        scriptType: pscore
-        scriptLocation: inlineScript
-        inlineScript: |
-          $(scriptDirectory)/start_aks.ps1 -AgentPoolName $(agentPool) -Wait
-        failOnStandardError: true
-        workingDirectory: '$(scriptDirectory)'
+  - task: AzureCLI@2
+    displayName: 'Start AKS Nodes'
+    inputs:
+      azureSubscription: '$(subscriptionConnection)'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        az graph query -q "resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '${AgentPoolName}'" `
+                       -a `
+                       --query "data" `
+                       -o json `
+                      | ConvertFrom-Json `
+                      | Set-Variable aks
+        if ($aks) {
+          if ($${{ and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}) {
+            az aks start -n $aks.name -g $aks.resourceGroup --subscription $SubscriptionId
+          }
+        } else {
+          Write-Warning "No AKS found with tag pipelineAgentPoolName='${AgentPoolName}'"
+        }
+      failOnStandardError: true
+      workingDirectory: '$(scriptDirectory)'
 
   - pwsh: |
       Write-Host "Using '$(agentPool)' pool."
