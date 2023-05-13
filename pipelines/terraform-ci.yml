@@ -272,7 +272,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
           $env:TF_WORKSPACE = 'default' # Workspace may not exist yet
 
@@ -293,7 +293,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
           if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
             Write-Host "Terraform workspace '$(TF_WORKSPACE)' already exists"
@@ -323,7 +323,7 @@ jobs:
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
-            $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+            $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
             $terraformState = (terraform state pull | ConvertFrom-Json)
             if ($terraformState.resources) {
@@ -349,7 +349,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
           Write-Host "Terraform workspace: $(terraform workspace show)"
 
@@ -402,7 +402,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          ./set_terraform_azurerm_vars.ps1
+          ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
           ./deploy.ps1 -apply -force
         addSpnToEnvironment: true
         useGlobalConfig: true
@@ -418,7 +418,7 @@ jobs:
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
-            ./set_terraform_azurerm_vars.ps1
+            ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
             ./deploy.ps1 -apply -force
           addSpnToEnvironment: true
           useGlobalConfig: true
@@ -433,7 +433,7 @@ jobs:
         condition: succeeded()
 
     - ${{ if not(eq(parameters.destroy, 'Never')) }}:
-      - task: TerraformCLI@0
+      - task: AzureCLI@2
         displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
         ${{ if eq(parameters.destroy, 'Always') }}:
           condition: succeededOrFailed()
@@ -444,11 +444,16 @@ jobs:
         continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
         retryCountOnTaskFailure: ${{ parameters.retryCount }}
         inputs:
-          command: 'destroy'
-          workingDirectory: '$(terraformDirectory)'
-          environmentServiceName: '$(subscriptionConnection)'
-          runAzLogin: true
-          allowTelemetryCollection: true
+          azureSubscription: '$(subscriptionConnection)'
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
+            ./deploy.ps1 -destroy -force
+          addSpnToEnvironment: true
+          useGlobalConfig: true
+          failOnStandardError: true
+          workingDirectory: '$(scriptDirectory)'
 
     - ${{ if ne(parameters.destroy, 'Never') }}:
       - task: AzureCLI@2
@@ -528,7 +533,7 @@ jobs:
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
-            $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+            $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
             $terraformState = (terraform state pull | ConvertFrom-Json)
             if ($terraformState.resources) {

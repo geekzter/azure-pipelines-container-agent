@@ -94,6 +94,12 @@ try {
                 $tfbackendArgs += " -backend-config=`"container_name=${env:TF_STATE_backend_storage_container_name}`""
             }
         }
+        
+        $initCmd = "terraform init $tfbackendArgs"
+        if ($Upgrade) {
+            $initCmd += " -upgrade"
+        }
+        Invoke "$initCmd" 
     }
 
     if ($Validate) {

@@ -243,18 +243,19 @@ jobs:
       displayName: 'Unpin Terraform provider versions'
       workingDirectory: '$(terraformDirectory)'
 
-  - task: TerraformCLI@0
-    displayName: 'Terraform init'
-    inputs:
-      command: 'init'
-      workingDirectory: '$(terraformDirectory)'
-      backendType: 'azurerm'
-      backendServiceArm: '$(subscriptionConnection)'
-      backendAzureRmResourceGroupName: '$(TF_STATE_RESOURCE_GROUP_NAME)'
-      backendAzureRmStorageAccountName: '$(TF_STATE_STORAGE_ACCOUNT_NAME)'
-      backendAzureRmContainerName: '$(TF_STATE_CONTAINER_NAME)'
-      backendAzureRmKey: 'terraform.tfstate'
-      allowTelemetryCollection: true
+    - task: AzureCLI@2
+      displayName: 'Terraform init'
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
+          ./deploy.ps1 -Init
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'
 
   - pwsh: |
       if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
@@ -283,6 +284,43 @@ jobs:
     displayName: 'Prepare Terraform variables'
     workingDirectory: '$(terraformDirectory)'
 
+  - task: AzureCLI@2
+    name: terraformVariables
+    displayName: 'Prepare Terraform variables'
+    inputs:
+      azureSubscription: '$(subscriptionConnection)'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
+
+        if ($${{ not(parameters.clear) }} -and (!((terraform output resource_suffix 2>&1) -match "Warning"))) {
+          $env:TF_VAR_RESOURCE_SUFFIX = $null
+          $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
+        }
+
+        # List environment variables
+        Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+
+        # Convert uppercased Terraform environment variables to .auto.tfvars file
+        foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
+          $terraformVariableName = $tfvar.Name.Substring(7).ToLowerInvariant()
+          $terraformVariableValue = $tfVar.Value
+
+          if ($terraformVariableValue -imatch "^\W*(true|false|\[[^\]]*\]|\{[^\}]*\})\W*$") {
+            # Boolean or List, write as-is
+            Write-Output "${terraformVariableName} = ${terraformVariableValue}" | Out-File ci.auto.tfvars -Append -Force
+          } else {
+            Write-Output "${terraformVariableName} = `"${terraformVariableValue}`"" | Out-File ci.auto.tfvars -Append -Force
+          }
+        } 
+        Write-Host "Contents of ci.auto.tfvars:"
+        Get-Content ci.auto.tfvars | Sort-Object    
+      addSpnToEnvironment: true
+      useGlobalConfig: true
+      failOnStandardError: true
+      workingDirectory: '$(terraformDirectory)'
+
   - publish: $(terraformDirectory)
     displayName: 'Publish Terraform directory'
     artifact: $(terraformArtifactName)
@@ -296,7 +334,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
           $terraformState = (terraform state pull | ConvertFrom-Json)
           if ($terraformState.resources) {
@@ -323,7 +361,7 @@ jobs:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        ./set_terraform_azurerm_vars.ps1
+        ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
         terraform -chdir='$(terraformDirectory)' show -json | ConvertFrom-Json -AsHashtable | Set-Variable tfState 
         $priorResourcesExist = $tfState.ContainsKey('values')
@@ -553,16 +591,27 @@ jobs:
       displayName: 'Make Terraform providers executable'
       workingDirectory: $(terraformDirectory)/.terraform/providers
 
-    - task: TerraformCLI@0
+    - task: AzureCLI@2
       displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
+      ${{ if eq(parameters.destroy, 'Always') }}:
+        condition: succeededOrFailed()
+      ${{ if eq(parameters.destroy, 'On failure') }}:
+        condition: failed()
+      ${{ if eq(parameters.destroy, 'On success') }}:
+        condition: succeeded()
       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
-        command: 'destroy'
-        workingDirectory: '$(terraformDirectory)'
-        environmentServiceName: '$(subscriptionConnection)'
-        runAzLogin: true
-        allowTelemetryCollection: true
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
+          ./deploy.ps1 -destroy -force
+        addSpnToEnvironment: true
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'
 
     - task: AzureCLI@2
       name: teardown
@@ -622,7 +671,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(scriptDirectory)/set_terraform_azurerm_vars.ps1
+          $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
           $terraformState = (terraform state pull | ConvertFrom-Json)
           if ($terraformState.resources) {
