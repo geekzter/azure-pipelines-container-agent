@@ -16,6 +16,9 @@ terraform {
   required_version             = "~> 1.3"
 }
 
+provider azapi {
+  use_oidc                     = true
+}
 provider azuredevops {
   org_service_url              = local.devops_url
   personal_access_token        = var.devops_pat
