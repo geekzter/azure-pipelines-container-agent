@@ -107,7 +107,7 @@ variables:
 - name: 'tags'
   value: 'latest'
 - name: 'terraformArtifactName'
-  value: 'terraform$(System.PlanId)'
+  value: 'terraform-$(System.PlanId)-$(System.JobId)'
 - name: 'terraformDirectory'
   value: '$(Build.SourcesDirectory)/terraform'
 - name: 'TF_IN_AUTOMATION'
