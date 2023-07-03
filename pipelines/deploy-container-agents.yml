@@ -511,7 +511,7 @@ jobs:
         - acaAgent
       - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
         - aksAgent
-    $${{ if ne(variables['Build.Reason']) }}:
+    $${{ if ne(variables['Build.Reason'],'Manual') }}:
       displayName: 'Destroy infrastructure (always on pr/schedule)'
       condition: succeededOrFailed()
     ${{ elseif eq(parameters.destroy, 'Always') }}:
