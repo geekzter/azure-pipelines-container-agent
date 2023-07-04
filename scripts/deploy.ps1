@@ -175,12 +175,13 @@ try {
 
     if ($Output) {
         Invoke "terraform output"
+
+        if (![string]::IsNullOrEmpty($env:AGENT_VERSION)) {
+            # Export Terraform output as Pipeline output variables for subsequent tasks
+            Set-PipelineVariablesFromTerraform
+        }       
     }
 
-    if (($Apply -or $Output) -and ![string]::IsNullOrEmpty($env:AGENT_VERSION)) {
-        # Export Terraform output as Pipeline output variables for subsequent tasks
-        Set-PipelineVariablesFromTerraform
-    }   
 
     if ($Destroy) {
         Invoke "terraform destroy $varArgs $forceArgs"

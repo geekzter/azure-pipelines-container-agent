@@ -327,7 +327,6 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Terraform plan & apply'
-    name: apply
     retryCountOnTaskFailure: ${{ parameters.retryCount }}
     inputs:
       azureSubscription: '$(subscriptionConnection)'
@@ -353,6 +352,25 @@ jobs:
       workingDirectory: '$(scriptDirectory)'      
 
   # https://keda.sh/docs/deploy/#helm
+  - task: AzureCLI@2
+    displayName: 'Terraform output'
+    name: terraform
+    retryCountOnTaskFailure: ${{ parameters.retryCount }}
+    inputs:
+      azureSubscription: '$(subscriptionConnection)'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
+
+        Write-Host ""
+        ./deploy.ps1 -output
+      addSpnToEnvironment: true
+      useGlobalConfig: true
+      failOnStandardError: true
+      workingDirectory: '$(scriptDirectory)'      
+
+  # https://keda.sh/docs/deploy/#helm
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Add KEDA Helm repo"
@@ -360,8 +378,8 @@ jobs:
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(apply.resource_group_name)'
-        kubernetesCluster: '$(apply.aks_name)'
+        azureResourceGroup: '$(terraform.resource_group_name)'
+        kubernetesCluster: '$(terraform.aks_name)'
         useClusterAdmin: true
         command: 'repo'
         arguments: 'add kedacore https://kedacore.github.io/charts'
@@ -372,8 +390,8 @@ jobs:
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(apply.resource_group_name)'
-        kubernetesCluster: '$(apply.aks_name)'
+        azureResourceGroup: '$(terraform.resource_group_name)'
+        kubernetesCluster: '$(terraform.aks_name)'
         useClusterAdmin: true
         command: 'repo'
         arguments: 'update'
@@ -384,8 +402,8 @@ jobs:
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(apply.resource_group_name)'
-        kubernetesCluster: '$(apply.aks_name)'
+        azureResourceGroup: '$(terraform.resource_group_name)'
+        kubernetesCluster: '$(terraform.aks_name)'
         useClusterAdmin: true
         namespace: 'keda'
         command: 'upgrade'
@@ -399,26 +417,26 @@ jobs:
       displayName: "Deploy agent to AKS"
       inputs:
         azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(apply.resource_group_name)'
-        kubernetesCluster: '$(apply.aks_name)'
+        azureResourceGroup: '$(terraform.resource_group_name)'
+        kubernetesCluster: '$(terraform.aks_name)'
         useClusterAdmin: true
         command: upgrade
         chartType: FilePath
         chartPath: "helm/pipeline-keda-agents"
         releaseName: "pipeline-keda-agents"
-        valueFile: "helm/pipeline-keda-agents/values.yaml,$(apply.helm_environment_values_file_abs_path)"
+        valueFile: "helm/pipeline-keda-agents/values.yaml,$(terraform.helm_environment_values_file_abs_path)"
         overrideValues: |
-          image.repository=$(apply.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
+          image.repository=$(terraform.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
           linux.azureDevOps.orgUrl=$(System.CollectionUri)
           linux.azureDevOps.capability=$(correlationCapability)
-          linux.azureDevOps.poolName=$(apply.aks_agent_pool_name)
-          linux.image.acrLoginServer=$(apply.container_registry_name)
+          linux.azureDevOps.poolName=$(terraform.aks_agent_pool_name)
+          linux.image.acrLoginServer=$(terraform.container_registry_name)
           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
-          linux.trigger.poolId=$(apply.aks_agent_pool_id)
-          storage.accountName=$(apply.diagnostics_storage_account_name)
-          storage.accountKey=$(apply.diagnostics_storage_key)
-          storage.resourceGroupName=$(apply.resource_group_name)
+          linux.trigger.poolId=$(terraform.aks_agent_pool_id)
+          storage.accountName=$(terraform.diagnostics_storage_account_name)
+          storage.accountKey=$(terraform.diagnostics_storage_key)
+          storage.resourceGroupName=$(terraform.resource_group_name)
         waitForExecution: true
 
   - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
@@ -426,7 +444,7 @@ jobs:
         ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_ACA `
                               -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(apply.aca_agent_pool_id)
+                              -PoolId $(terraform.aca_agent_pool_id)
       displayName: 'Wait for Container App agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
@@ -437,7 +455,7 @@ jobs:
         ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_AKS `
                               -CapabilityValue $(correlationCapability) `
                               -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(apply.aks_agent_pool_id)
+                              -PoolId $(terraform.aks_agent_pool_id)
       displayName: 'Wait for Kubernetes agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
