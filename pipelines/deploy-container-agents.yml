@@ -298,274 +298,274 @@ jobs:
     displayName: 'Publish Terraform directory'
     artifact: $(terraformArtifactName)
 
-  - ${{ if eq(parameters.clear, true) }}:
-    - task: AzureCLI@2
-      name: clear
-      displayName: 'Clear Terraform state'
-      inputs:
-        azureSubscription: '$(subscriptionConnection)'
-        scriptType: pscore
-        scriptLocation: inlineScript
-        inlineScript: |
-          $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
+#   - ${{ if eq(parameters.clear, true) }}:
+#     - task: AzureCLI@2
+#       name: clear
+#       displayName: 'Clear Terraform state'
+#       inputs:
+#         azureSubscription: '$(subscriptionConnection)'
+#         scriptType: pscore
+#         scriptLocation: inlineScript
+#         inlineScript: |
+#           $(scriptDirectory)/set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
-          $terraformState = (terraform state pull | ConvertFrom-Json)
-          if ($terraformState.resources) {
-            Write-Host "Clearing Terraform state in workspace ${env:TF_WORKSPACE}..."
-            $terraformState.outputs = New-Object PSObject # Empty output
-            $terraformState.resources = @() # No resources
-            $terraformState.serial++
-            $terraformState | ConvertTo-Json | terraform state push -
-          } else {
-            Write-Host "No resources in Terraform state in workspace ${env:TF_WORKSPACE}..."
-          }
-          terraform state pull 
-        addSpnToEnvironment: true
-        useGlobalConfig: true
-        failOnStandardError: true
-        workingDirectory: '$(terraformDirectory)'
+#           $terraformState = (terraform state pull | ConvertFrom-Json)
+#           if ($terraformState.resources) {
+#             Write-Host "Clearing Terraform state in workspace ${env:TF_WORKSPACE}..."
+#             $terraformState.outputs = New-Object PSObject # Empty output
+#             $terraformState.resources = @() # No resources
+#             $terraformState.serial++
+#             $terraformState | ConvertTo-Json | terraform state push -
+#           } else {
+#             Write-Host "No resources in Terraform state in workspace ${env:TF_WORKSPACE}..."
+#           }
+#           terraform state pull 
+#         addSpnToEnvironment: true
+#         useGlobalConfig: true
+#         failOnStandardError: true
+#         workingDirectory: '$(terraformDirectory)'
 
-  - task: AzureCLI@2
-    displayName: 'Terraform plan & apply'
-    retryCountOnTaskFailure: ${{ parameters.retryCount }}
-    inputs:
-      azureSubscription: '$(subscriptionConnection)'
-      scriptType: pscore
-      scriptLocation: inlineScript
-      inlineScript: |
-        ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
+#   - task: AzureCLI@2
+#     displayName: 'Terraform plan & apply'
+#     retryCountOnTaskFailure: ${{ parameters.retryCount }}
+#     inputs:
+#       azureSubscription: '$(subscriptionConnection)'
+#       scriptType: pscore
+#       scriptLocation: inlineScript
+#       inlineScript: |
+#         ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
-        terraform -chdir='$(terraformDirectory)' show -json | ConvertFrom-Json -AsHashtable | Set-Variable tfState 
-        $priorResourcesExist = $tfState.ContainsKey('values')
-        if ($priorResourcesExist) {
-          Write-Warning "Prior resources exist in workspace '${env:TF_WORKSPACE}'"
-        } else {
-          Write-Host "No prior resources exist in workspace '${env:TF_WORKSPACE}'"
-        }
-        Write-Host "##vso[task.setvariable variable=priorResourcesExist;isOutput=true]$($priorResourcesExist.ToString().ToLower())"
+#         terraform -chdir='$(terraformDirectory)' show -json | ConvertFrom-Json -AsHashtable | Set-Variable tfState 
+#         $priorResourcesExist = $tfState.ContainsKey('values')
+#         if ($priorResourcesExist) {
+#           Write-Warning "Prior resources exist in workspace '${env:TF_WORKSPACE}'"
+#         } else {
+#           Write-Host "No prior resources exist in workspace '${env:TF_WORKSPACE}'"
+#         }
+#         Write-Host "##vso[task.setvariable variable=priorResourcesExist;isOutput=true]$($priorResourcesExist.ToString().ToLower())"
 
-        Write-Host ""
-        ./deploy.ps1 -apply -force
-      addSpnToEnvironment: true
-      useGlobalConfig: true
-      failOnStandardError: true
-      workingDirectory: '$(scriptDirectory)'      
+#         Write-Host ""
+#         ./deploy.ps1 -apply -force
+#       addSpnToEnvironment: true
+#       useGlobalConfig: true
+#       failOnStandardError: true
+#       workingDirectory: '$(scriptDirectory)'      
 
-  # https://keda.sh/docs/deploy/#helm
-  - task: AzureCLI@2
-    displayName: 'Terraform output'
-    name: terraform
-    retryCountOnTaskFailure: ${{ parameters.retryCount }}
-    inputs:
-      azureSubscription: '$(subscriptionConnection)'
-      scriptType: pscore
-      scriptLocation: inlineScript
-      inlineScript: |
-        ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
+#   # https://keda.sh/docs/deploy/#helm
+#   - task: AzureCLI@2
+#     displayName: 'Terraform output'
+#     name: terraform
+#     retryCountOnTaskFailure: ${{ parameters.retryCount }}
+#     inputs:
+#       azureSubscription: '$(subscriptionConnection)'
+#       scriptType: pscore
+#       scriptLocation: inlineScript
+#       inlineScript: |
+#         ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
 
-        Write-Host ""
-        ./deploy.ps1 -output
-      addSpnToEnvironment: true
-      useGlobalConfig: true
-      failOnStandardError: true
-      workingDirectory: '$(scriptDirectory)'      
+#         Write-Host ""
+#         ./deploy.ps1 -output
+#       addSpnToEnvironment: true
+#       useGlobalConfig: true
+#       failOnStandardError: true
+#       workingDirectory: '$(scriptDirectory)'      
 
-  # https://keda.sh/docs/deploy/#helm
-  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-    - task: HelmDeploy@0
-      displayName: "Add KEDA Helm repo"
-      continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(terraform.resource_group_name)'
-        kubernetesCluster: '$(terraform.aks_name)'
-        useClusterAdmin: true
-        command: 'repo'
-        arguments: 'add kedacore https://kedacore.github.io/charts'
+#   # https://keda.sh/docs/deploy/#helm
+#   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+#     - task: HelmDeploy@0
+#       displayName: "Add KEDA Helm repo"
+#       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
+#       inputs:
+#         connectionType: 'Azure Resource Manager'
+#         azureSubscription: '$(subscriptionConnection)'
+#         azureResourceGroup: '$(terraform.resource_group_name)'
+#         kubernetesCluster: '$(terraform.aks_name)'
+#         useClusterAdmin: true
+#         command: 'repo'
+#         arguments: 'add kedacore https://kedacore.github.io/charts'
 
-  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-    - task: HelmDeploy@0
-      displayName: "Update KEDA Helm repo"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(terraform.resource_group_name)'
-        kubernetesCluster: '$(terraform.aks_name)'
-        useClusterAdmin: true
-        command: 'repo'
-        arguments: 'update'
+#   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+#     - task: HelmDeploy@0
+#       displayName: "Update KEDA Helm repo"
+#       inputs:
+#         connectionType: 'Azure Resource Manager'
+#         azureSubscription: '$(subscriptionConnection)'
+#         azureResourceGroup: '$(terraform.resource_group_name)'
+#         kubernetesCluster: '$(terraform.aks_name)'
+#         useClusterAdmin: true
+#         command: 'repo'
+#         arguments: 'update'
 
-  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-    - task: HelmDeploy@0
-      displayName: "Install KEDA Helm chart"
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(terraform.resource_group_name)'
-        kubernetesCluster: '$(terraform.aks_name)'
-        useClusterAdmin: true
-        namespace: 'keda'
-        command: 'upgrade'
-        chartType: 'Name'
-        chartName: 'kedacore/keda'
-        releaseName: 'keda'
-        arguments: '--create-namespace'
+#   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+#     - task: HelmDeploy@0
+#       displayName: "Install KEDA Helm chart"
+#       inputs:
+#         connectionType: 'Azure Resource Manager'
+#         azureSubscription: '$(subscriptionConnection)'
+#         azureResourceGroup: '$(terraform.resource_group_name)'
+#         kubernetesCluster: '$(terraform.aks_name)'
+#         useClusterAdmin: true
+#         namespace: 'keda'
+#         command: 'upgrade'
+#         chartType: 'Name'
+#         chartName: 'kedacore/keda'
+#         releaseName: 'keda'
+#         arguments: '--create-namespace'
 
-  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-    - task: HelmDeploy@0
-      displayName: "Deploy agent to AKS"
-      inputs:
-        azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(terraform.resource_group_name)'
-        kubernetesCluster: '$(terraform.aks_name)'
-        useClusterAdmin: true
-        command: upgrade
-        chartType: FilePath
-        chartPath: "helm/pipeline-keda-agents"
-        releaseName: "pipeline-keda-agents"
-        valueFile: "helm/pipeline-keda-agents/values.yaml,$(terraform.helm_environment_values_file_abs_path)"
-        overrideValues: |
-          image.repository=$(terraform.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
-          linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
-          linux.azureDevOps.orgUrl=$(System.CollectionUri)
-          linux.azureDevOps.capability=$(correlationCapability)
-          linux.azureDevOps.poolName=$(terraform.aks_agent_pool_name)
-          linux.image.acrLoginServer=$(terraform.container_registry_name)
-          linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
-          linux.trigger.poolId=$(terraform.aks_agent_pool_id)
-          storage.accountName=$(terraform.diagnostics_storage_account_name)
-          storage.accountKey=$(terraform.diagnostics_storage_key)
-          storage.resourceGroupName=$(terraform.resource_group_name)
-        waitForExecution: true
+#   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+#     - task: HelmDeploy@0
+#       displayName: "Deploy agent to AKS"
+#       inputs:
+#         azureSubscription: '$(subscriptionConnection)'
+#         azureResourceGroup: '$(terraform.resource_group_name)'
+#         kubernetesCluster: '$(terraform.aks_name)'
+#         useClusterAdmin: true
+#         command: upgrade
+#         chartType: FilePath
+#         chartPath: "helm/pipeline-keda-agents"
+#         releaseName: "pipeline-keda-agents"
+#         valueFile: "helm/pipeline-keda-agents/values.yaml,$(terraform.helm_environment_values_file_abs_path)"
+#         overrideValues: |
+#           image.repository=$(terraform.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
+#           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
+#           linux.azureDevOps.orgUrl=$(System.CollectionUri)
+#           linux.azureDevOps.capability=$(correlationCapability)
+#           linux.azureDevOps.poolName=$(terraform.aks_agent_pool_name)
+#           linux.image.acrLoginServer=$(terraform.container_registry_name)
+#           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
+#           linux.trigger.poolId=$(terraform.aks_agent_pool_id)
+#           storage.accountName=$(terraform.diagnostics_storage_account_name)
+#           storage.accountKey=$(terraform.diagnostics_storage_key)
+#           storage.resourceGroupName=$(terraform.resource_group_name)
+#         waitForExecution: true
 
-  - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
-    - pwsh: |
-        ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_ACA `
-                              -CapabilityValue $(correlationCapability) `
-                              -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(terraform.aca_agent_pool_id)
-      displayName: 'Wait for Container App agents to come online'
-      workingDirectory: '$(scriptDirectory)'
-      env:
-        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+#   - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
+#     - pwsh: |
+#         ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_ACA `
+#                               -CapabilityValue $(correlationCapability) `
+#                               -OrganizationUrl $(System.CollectionUri) `
+#                               -PoolId $(terraform.aca_agent_pool_id)
+#       displayName: 'Wait for Container App agents to come online'
+#       workingDirectory: '$(scriptDirectory)'
+#       env:
+#         AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
 
-  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-    - pwsh: |
-        ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_AKS `
-                              -CapabilityValue $(correlationCapability) `
-                              -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(terraform.aks_agent_pool_id)
-      displayName: 'Wait for Kubernetes agents to come online'
-      workingDirectory: '$(scriptDirectory)'
-      env:
-        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+#   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+#     - pwsh: |
+#         ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_AKS `
+#                               -CapabilityValue $(correlationCapability) `
+#                               -OrganizationUrl $(System.CollectionUri) `
+#                               -PoolId $(terraform.aks_agent_pool_id)
+#       displayName: 'Wait for Kubernetes agents to come online'
+#       workingDirectory: '$(scriptDirectory)'
+#       env:
+#         AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
 
-  - ${{ if not(eq(parameters.destroy, 'Never')) }}:
-    - pwsh: |
-        Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
-      name: provisioningResult
-      displayName: 'Indicate provisioning success'
-      condition: succeeded()
+#   - ${{ if not(eq(parameters.destroy, 'Never')) }}:
+#     - pwsh: |
+#         Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
+#       name: provisioningResult
+#       displayName: 'Indicate provisioning success'
+#       condition: succeeded()
 
-- ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
-  - job: acaAgent
-    dependsOn: provision
-    displayName: Test Container App Agent
-    pool:
-      name: '$(TF_VAR_aca_agent_pool_name)'
-      demands:
-      - agent.os -equals Linux
-      - CONTAINER_APP_NAME
-      # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
-      # - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(correlationCapability)
-      # Repeat capability expression as there is no nested variable expansion inside demands
-      - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+# - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
+#   - job: acaAgent
+#     dependsOn: provision
+#     displayName: Test Container App Agent
+#     pool:
+#       name: '$(TF_VAR_aca_agent_pool_name)'
+#       demands:
+#       - agent.os -equals Linux
+#       - CONTAINER_APP_NAME
+#       # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
+#       # - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(correlationCapability)
+#       # Repeat capability expression as there is no nested variable expansion inside demands
+#       - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
 
-    steps:
-    - checkout: self
-      retryCountOnTaskFailure: ${{ parameters.retryCount }}
+#     steps:
+#     - checkout: self
+#       retryCountOnTaskFailure: ${{ parameters.retryCount }}
 
-    - pwsh: |
-        Write-Host "`$PSVersionTable.OS"
-        $PSVersionTable.OS
-        Get-InstalledModule | Sort-Object -Property Name
+#     - pwsh: |
+#         Write-Host "`$PSVersionTable.OS"
+#         $PSVersionTable.OS
+#         Get-InstalledModule | Sort-Object -Property Name
 
-        # List environment variables
-        Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
-      displayName: 'Display agent info'
-    - ${{ if not(eq(parameters.destroy, 'Never')) }}:
-      - pwsh: |
-          Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
-        name: provisioningResult
-        displayName: 'Indicate deployment success'
-        condition: succeeded()
+#         # List environment variables
+#         Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
+#       displayName: 'Display agent info'
+#     - ${{ if not(eq(parameters.destroy, 'Never')) }}:
+#       - pwsh: |
+#           Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
+#         name: provisioningResult
+#         displayName: 'Indicate deployment success'
+#         condition: succeeded()
 
-- ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-  - job: aksAgent
-    dependsOn: provision
-    displayName: Test Kubernetes Agent
-    pool:
-      name: '$(TF_VAR_aks_agent_pool_name)'
-      demands:
-      - agent.os -equals Linux
-      # - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(correlationCapability)
-      # Repeat capability expression as there is no nested variable expansion inside demands
-      - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+# - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+#   - job: aksAgent
+#     dependsOn: provision
+#     displayName: Test Kubernetes Agent
+#     pool:
+#       name: '$(TF_VAR_aks_agent_pool_name)'
+#       demands:
+#       - agent.os -equals Linux
+#       # - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(correlationCapability)
+#       # Repeat capability expression as there is no nested variable expansion inside demands
+#       - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
 
-    steps:
-    - checkout: self
-      retryCountOnTaskFailure: ${{ parameters.retryCount }}
+#     steps:
+#     - checkout: self
+#       retryCountOnTaskFailure: ${{ parameters.retryCount }}
 
-    - pwsh: |
-        Write-Host "`$PSVersionTable.OS"
-        $PSVersionTable.OS
-        Get-InstalledModule | Sort-Object -Property Name
+#     - pwsh: |
+#         Write-Host "`$PSVersionTable.OS"
+#         $PSVersionTable.OS
+#         Get-InstalledModule | Sort-Object -Property Name
 
-        # List environment variables
-        Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
-      displayName: 'Display agent info'
-    - ${{ if not(eq(parameters.destroy, 'Never')) }}:
-      - pwsh: |
-          Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
-        name: provisioningResult
-        displayName: 'Indicate deployment success'
-        condition: succeeded()
+#         # List environment variables
+#         Get-ChildItem Env: | Sort-Object -Property Name | Format-Table
+#       displayName: 'Display agent info'
+#     - ${{ if not(eq(parameters.destroy, 'Never')) }}:
+#       - pwsh: |
+#           Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
+#         name: provisioningResult
+#         displayName: 'Indicate deployment success'
+#         condition: succeeded()
    
 - ${{ if ne(parameters.destroy, 'Never') }}:
   - job: destroy
     dependsOn: 
       - provision
-      - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
-        - acaAgent
-      - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-        - aksAgent
-    ${{ if ne(variables['Build.Reason'],'Manual') }}:
-      displayName: 'Destroy infrastructure (always on pr/schedule)'
-      condition: succeededOrFailed()
-    ${{ elseif eq(parameters.destroy, 'Always') }}:
-      displayName: 'Destroy infrastructure'
-      condition: succeededOrFailed()
-    ${{ elseif eq(parameters.destroy, 'If no prior resources exist') }}:
-      displayName: 'Destroy infrastructure (${{ lower(parameters.destroy) }})'
-      condition: eq(dependencies.provision.outputs['apply.priorResourcesExist'],'false')
-    ${{ elseif eq(parameters.destroy, 'On failure') }}:
-      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
-      ${{ if eq(parameters.containerEngine, 'Container App') }}:
-        condition: ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
-      ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-        condition: ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success')
-      ${{ if eq(parameters.containerEngine, 'Both') }}:
-        condition: or(ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
-    ${{ elseif eq(parameters.destroy, 'On success') }}:
-      displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
-      ${{ if eq(parameters.containerEngine, 'Container App') }}:
-        condition: eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
-      ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-        condition: eq(dependencies.aksAgent.outputs['provisioningResult.result'],'success')
-      ${{ if eq(parameters.containerEngine, 'Both') }}:
-        condition: and(eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),eq(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
-    timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
+    #   - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
+    #     - acaAgent
+    #   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+    #     - aksAgent
+    # ${{ if ne(variables['Build.Reason'],'Manual') }}:
+    #   displayName: 'Destroy infrastructure (always on pr/schedule)'
+    #   condition: succeededOrFailed()
+    # ${{ elseif eq(parameters.destroy, 'Always') }}:
+    #   displayName: 'Destroy infrastructure'
+    #   condition: succeededOrFailed()
+    # ${{ elseif eq(parameters.destroy, 'If no prior resources exist') }}:
+    #   displayName: 'Destroy infrastructure (${{ lower(parameters.destroy) }})'
+    #   condition: eq(dependencies.provision.outputs['apply.priorResourcesExist'],'false')
+    # ${{ elseif eq(parameters.destroy, 'On failure') }}:
+    #   displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
+    #   ${{ if eq(parameters.containerEngine, 'Container App') }}:
+    #     condition: ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
+    #   ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+    #     condition: ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success')
+    #   ${{ if eq(parameters.containerEngine, 'Both') }}:
+    #     condition: or(ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
+    # ${{ elseif eq(parameters.destroy, 'On success') }}:
+    #   displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
+    #   ${{ if eq(parameters.containerEngine, 'Container App') }}:
+    #     condition: eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
+    #   ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+    #     condition: eq(dependencies.aksAgent.outputs['provisioningResult.result'],'success')
+    #   ${{ if eq(parameters.containerEngine, 'Both') }}:
+    #     condition: and(eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),eq(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
+    # timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
     pool:
       name: '$(pool)'
@@ -582,6 +582,8 @@ jobs:
     - bash: |
         echo Marking Terraform provider binaries as executable...
         find . | xargs chmod +x
+        pwd
+        ls -alR
       displayName: 'Make Terraform providers executable'
       workingDirectory: $(terraformDirectory)/.terraform/providers
 
