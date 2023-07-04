@@ -25,6 +25,16 @@ param (
     [parameter(Mandatory=$false,HelpMessage="Don't try to set up a Terraform backend if it does not exist")][switch]$NoBackend=$false
 ) 
 
+if ($env:SYSTEM_DEBUG -eq "true") {
+    $InformationPreference = "Continue"
+    $VerbosePreference = "Continue"
+    $DebugPreference = "Continue"
+
+    Set-PSDebug -Trace 1
+    
+    Get-ChildItem -Path Env: -Force -Recurse -Include * | Sort-Object -Property Name | Format-Table -AutoSize | Out-String
+}
+
 ### Internal Functions
 . (Join-Path $PSScriptRoot functions.ps1)
 
