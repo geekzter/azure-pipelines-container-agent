@@ -107,7 +107,7 @@ variables:
 - name: 'tags'
   value: 'latest'
 - name: 'terraformArtifactName'
-  value: 'terraform$(System.PlanId)'
+  value: 'terraform-$(System.PlanId)-$(System.JobId)'
 - name: 'terraformDirectory'
   value: '$(Build.SourcesDirectory)/terraform'
 - name: 'TF_IN_AUTOMATION'
@@ -511,13 +511,16 @@ jobs:
         - acaAgent
       - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
         - aksAgent
-    ${{ if eq(parameters.destroy, 'Always') }}:
+    $${{ if ne(variables['Build.Reason'],'Manual') }}:
+      displayName: 'Destroy infrastructure (always on pr/schedule)'
+      condition: succeededOrFailed()
+    ${{ elseif eq(parameters.destroy, 'Always') }}:
       displayName: 'Destroy infrastructure'
       condition: succeededOrFailed()
-    ${{ if eq(parameters.destroy, 'If no prior resources exist') }}:
+    ${{ elseif eq(parameters.destroy, 'If no prior resources exist') }}:
       displayName: 'Destroy infrastructure (${{ lower(parameters.destroy) }})'
       condition: eq(dependencies.provision.outputs['apply.priorResourcesExist'],'false')
-    ${{ if eq(parameters.destroy, 'On failure') }}:
+    ${{ elseif eq(parameters.destroy, 'On failure') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
         condition: ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
@@ -525,7 +528,7 @@ jobs:
         condition: ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success')
       ${{ if eq(parameters.containerEngine, 'Both') }}:
         condition: or(ne(dependencies.acaAgent.outputs['provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['provisioningResult.result'],'success'))
-    ${{ if eq(parameters.destroy, 'On success') }}:
+    ${{ elseif eq(parameters.destroy, 'On success') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
         condition: eq(dependencies.acaAgent.outputs['provisioningResult.result'],'success')
