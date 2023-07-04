@@ -604,6 +604,8 @@ jobs:
       ${{ if eq(parameters.destroy, 'On success') }}:
         condition: succeeded()
       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
+      env:
+        TF_PLUGIN_CACHE_MAY_BREAK_DEPENDENCY_LOCK_FILE: true
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         azureSubscription: '$(subscriptionConnection)'
