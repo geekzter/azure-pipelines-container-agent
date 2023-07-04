@@ -252,10 +252,6 @@ jobs:
       inlineScript: |
         ./set_terraform_azurerm_vars.ps1 -Token $(System.AccessToken)
         ./deploy.ps1 -Init
-
-        echo $env:TF_PLUGIN_CACHE_DIR
-
-        ls -alR $env:HOME/.terraform.d/plugin-cache
       addSpnToEnvironment: true
       useGlobalConfig: true
       failOnStandardError: true
@@ -622,6 +618,9 @@ jobs:
     - task: AzureCLI@2
       name: teardown
       displayName: 'Tear down remaining Azure resources'
+      env:
+        # TF_PLUGIN_CACHE_DIR: $(Agent.BuildDirectory)/terraform-plugin-cache
+        TF_PLUGIN_CACHE_MAY_BREAK_DEPENDENCY_LOCK_FILE: true
       inputs:
         azureSubscription: '$(subscriptionConnection)'
         scriptType: pscore
