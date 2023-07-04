@@ -107,7 +107,7 @@ variables:
 - name: 'tags'
   value: 'latest'
 - name: 'terraformArtifactName'
-  value: 'terraform-$(System.PlanId)-$(System.JobId)'
+  value: 'terraform-$(System.PlanId)'
 - name: 'terraformDirectory'
   value: '$(Build.SourcesDirectory)/terraform'
 - name: 'TF_IN_AUTOMATION'
@@ -511,7 +511,7 @@ jobs:
         - acaAgent
       - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
         - aksAgent
-    $${{ if ne(variables['Build.Reason'],'Manual') }}:
+    ${{ if ne(variables['Build.Reason'],'Manual') }}:
       displayName: 'Destroy infrastructure (always on pr/schedule)'
       condition: succeededOrFailed()
     ${{ elseif eq(parameters.destroy, 'Always') }}:
