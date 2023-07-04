@@ -603,6 +603,9 @@ jobs:
         condition: succeeded()
       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
+      env:
+        # TF_PLUGIN_CACHE_DIR: $(Agent.BuildDirectory)/terraform-plugin-cache
+        TF_PLUGIN_CACHE_MAY_BREAK_DEPENDENCY_LOCK_FILE: true
       inputs:
         azureSubscription: '$(subscriptionConnection)'
         scriptType: pscore
@@ -618,9 +621,6 @@ jobs:
     - task: AzureCLI@2
       name: teardown
       displayName: 'Tear down remaining Azure resources'
-      env:
-        # TF_PLUGIN_CACHE_DIR: $(Agent.BuildDirectory)/terraform-plugin-cache
-        TF_PLUGIN_CACHE_MAY_BREAK_DEPENDENCY_LOCK_FILE: true
       inputs:
         azureSubscription: '$(subscriptionConnection)'
         scriptType: pscore
