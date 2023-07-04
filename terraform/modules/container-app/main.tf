@@ -112,7 +112,7 @@ resource azurerm_monitor_diagnostic_setting agent_container_environment {
 }
 
 resource azapi_resource agent_container_environment_share {
-  type                         = "Microsoft.App/managedEnvironments/storages@2022-01-01-preview"
+  type                         = "Microsoft.App/managedEnvironments/storages@2022-03-01"
   name                         = "diagnostics"
   parent_id                    = azapi_resource.agent_container_environment.id
   body                         = jsonencode({
