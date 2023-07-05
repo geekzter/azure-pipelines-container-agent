@@ -4,7 +4,7 @@ terraform {
       source                   = "azure/azapi"
       version                  = "~> 1.1"
     }
-    azuredevops = {
+    azuredevops                = {
       source                   = "microsoft/azuredevops"
       version                  = "~> 0.3"
     }
@@ -16,6 +16,9 @@ terraform {
   required_version             = "~> 1.3"
 }
 
+provider azapi {
+  use_oidc                     = true
+}
 provider azuredevops {
   org_service_url              = local.devops_url
   personal_access_token        = var.devops_pat
@@ -28,6 +31,7 @@ provider azurerm {
   }
 
   # skip_provider_registration   = true
+  use_oidc                     = true
 }
 
 data azurerm_client_config default {}

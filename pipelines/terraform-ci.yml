@@ -433,7 +433,7 @@ jobs:
         condition: succeeded()
 
     - ${{ if not(eq(parameters.destroy, 'Never')) }}:
-      - task: TerraformCLI@0
+      - task: AzureCLI@2
         displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
         ${{ if eq(parameters.destroy, 'Always') }}:
           condition: succeededOrFailed()
@@ -444,11 +444,16 @@ jobs:
         continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
         retryCountOnTaskFailure: ${{ parameters.retryCount }}
         inputs:
-          command: 'destroy'
-          workingDirectory: '$(terraformDirectory)'
-          environmentServiceName: '$(subscriptionConnection)'
-          runAzLogin: true
-          allowTelemetryCollection: true
+          azureSubscription: '$(subscriptionConnection)'
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            ./set_terraform_azurerm_vars.ps1
+            ./deploy.ps1 -destroy -force
+          addSpnToEnvironment: true
+          useGlobalConfig: true
+          failOnStandardError: true
+          workingDirectory: '$(scriptDirectory)'
 
     - ${{ if ne(parameters.destroy, 'Never') }}:
       - task: AzureCLI@2
