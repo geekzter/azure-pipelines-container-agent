@@ -572,7 +572,7 @@ jobs:
       vmImage: $(vmImage)
 
     variables:
-      terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactName)
+      # terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactName)
       terraformVersion: $[ coalesce(dependencies.provision.outputs['terraformConfig.version'],'latest') ]
 
     steps:
@@ -581,15 +581,20 @@ jobs:
       inputs:
         terraformVersion: '$(terraformVersion)'
 
-    - download: current
-      displayName: 'Download Terraform workspace'
-      artifact: $(terraformArtifactName)
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: $(terraformArtifactName)
+        path: $(terraformDirectory)
+
+    # - download: current
+    #   displayName: 'Download Terraform workspace'
+    #   artifact: $(terraformArtifactName)
 
     - bash: |
         echo Marking Terraform provider binaries as executable...
         find . | xargs chmod +x
 
-        ls -alR
+        ls -alR $(terraformDirectory)
       displayName: 'Make Terraform providers executable'
       workingDirectory: $(terraformDirectory)/.terraform/providers
 
