@@ -584,6 +584,12 @@ jobs:
     - download: current
       displayName: 'Download Terraform workspace'
       artifact: $(terraformArtifactName)
+      
+    - bash: |
+        echo Marking Terraform provider binaries as executable...
+        find . | xargs chmod +x
+      displayName: 'Make Terraform providers executable'
+      workingDirectory: $(terraformDirectory)/.terraform/providers
 
     - task: AzureCLI@2
       displayName: 'Terraform destroy (${{ lower(parameters.destroy) }})'
@@ -601,7 +607,7 @@ jobs:
         scriptLocation: inlineScript
         inlineScript: |
           ./set_terraform_azurerm_vars.ps1
-          ./deploy.ps1 -init -destroy -force
+          ./deploy.ps1 -destroy -force
         addSpnToEnvironment: true
         useGlobalConfig: true
         failOnStandardError: true
