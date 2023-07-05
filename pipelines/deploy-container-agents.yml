@@ -573,8 +573,14 @@ jobs:
 
     variables:
       terraformDirectory: $(Agent.BuildDirectory)/$(terraformArtifactName)
+      terraformVersion: $[ coalesce(dependencies.provision.outputs['terraformConfig.version'],'latest') ]
 
     steps:
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: '$(terraformVersion)'
+
     - download: current
       displayName: 'Download Terraform workspace'
       artifact: $(terraformArtifactName)
