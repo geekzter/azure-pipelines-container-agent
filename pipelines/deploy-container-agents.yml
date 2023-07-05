@@ -584,10 +584,12 @@ jobs:
     - download: current
       displayName: 'Download Terraform workspace'
       artifact: $(terraformArtifactName)
-      
+
     - bash: |
         echo Marking Terraform provider binaries as executable...
         find . | xargs chmod +x
+
+        ls -alR
       displayName: 'Make Terraform providers executable'
       workingDirectory: $(terraformDirectory)/.terraform/providers
 
