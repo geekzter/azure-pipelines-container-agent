@@ -217,16 +217,7 @@ resource azapi_resource agent_container_app {
         }
         volumes                = local.create_files_share ? [
           {
-            mountOptions       = [
-              "dir_mode=0777",
-              "file_mode=0777",
-              "uid=1000",
-              "gid=1000",
-              "mfsymlinks",
-              "cache=strict",
-              "nosharesock",
-              "nobrl"
-            ]
+            mountOptions       = "dir_mode=0777,file_mode=0777,uid=1000,gid=1000,mfsymlinks,cache=strict,nosharesock,nobrl"
             name               = local.diagnostics_volume_name
             storageType        = "AzureFile"
             storageName        = azapi_resource.agent_container_environment_share.0.name
