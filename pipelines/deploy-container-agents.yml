@@ -484,6 +484,7 @@ jobs:
 
     steps:
     - checkout: self
+      fetchDepth: 100
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
 
     - pwsh: |
@@ -515,6 +516,7 @@ jobs:
 
     steps:
     - checkout: self
+      fetchDepth: 100
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
 
     - pwsh: |

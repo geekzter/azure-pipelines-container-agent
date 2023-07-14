@@ -41,7 +41,7 @@ resource azapi_resource agent_container_environment {
   name                         = "${var.resource_group_name}-environment"
   location                     = var.location
   parent_id                    = var.resource_group_id
-  type                         = "Microsoft.App/managedEnvironments@2022-03-01"
+  type                         = "Microsoft.App/managedEnvironments@2023-04-01-preview"
   tags                         = var.tags
   
   # schema_validation_enabled    = false
@@ -112,7 +112,7 @@ resource azurerm_monitor_diagnostic_setting agent_container_environment {
 }
 
 resource azapi_resource agent_container_environment_share {
-  type                         = "Microsoft.App/managedEnvironments/storages@2022-03-01"
+  type                         = "Microsoft.App/managedEnvironments/storages@2023-04-01-preview"
   name                         = "diagnostics"
   parent_id                    = azapi_resource.agent_container_environment.id
   body                         = jsonencode({
@@ -134,7 +134,7 @@ resource azapi_resource agent_container_app {
   name                         = "aca-${terraform.workspace}-${var.suffix}-deployment"
   location                     = var.location
   parent_id                    = var.resource_group_id
-  type                         = "Microsoft.App/containerApps@2022-03-01"
+  type                         = "Microsoft.App/containerApps@2023-04-01-preview"
 
   identity {
     type                       = "UserAssigned"
@@ -217,6 +217,7 @@ resource azapi_resource agent_container_app {
         }
         volumes                = local.create_files_share ? [
           {
+            mountOptions       = "mfsymlinks,cache=strict,nobrl"
             name               = local.diagnostics_volume_name
             storageType        = "AzureFile"
             storageName        = azapi_resource.agent_container_environment_share.0.name
