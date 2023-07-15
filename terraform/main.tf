@@ -131,6 +131,7 @@ resource azurerm_portal_dashboard dashboard {
       subscription_id          = data.azurerm_subscription.default.id
       subscription_guid        = data.azurerm_subscription.default.subscription_id
       suffix                   = local.suffix
+      tenant_id                = data.azurerm_subscription.default.tenant_id      
       workspace                = terraform.workspace
   }))
 
