@@ -339,6 +339,7 @@ jobs:
         $priorResourcesExist = $tfState.ContainsKey('values')
         if ($priorResourcesExist) {
           Write-Warning "Prior resources exist in workspace '${env:TF_WORKSPACE}'"
+          Write-Host "##vso[task.logissue type=warning]Prior resources exist in workspace '${env:TF_WORKSPACE}'"
         } else {
           Write-Host "No prior resources exist in workspace '${env:TF_WORKSPACE}'"
         }
