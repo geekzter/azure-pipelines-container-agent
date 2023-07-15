@@ -117,7 +117,8 @@ jobs:
     displayName: 'Create strategy for ${{ parameters.numberOfJobs }} job(s)'
 
 - job: ubuntuContainer
-  condition: and(succeeded(), eq(dependencies.createStrategy.outputs['aks.aksExists'], 'true'))
+  ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+    condition: and(succeeded(), eq(dependencies.createStrategy.outputs['aks.aksExists'], 'true'))
   dependsOn: createStrategy
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
