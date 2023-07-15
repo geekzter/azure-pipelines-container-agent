@@ -472,6 +472,8 @@ jobs:
   - job: acaAgent
     dependsOn: provision
     displayName: Test Container App Agent
+    strategy:
+      parallel: 3
     pool:
       name: '$(TF_VAR_aca_agent_pool_name)'
       demands:
@@ -506,6 +508,8 @@ jobs:
   - job: aksAgent
     dependsOn: provision
     displayName: Test Kubernetes Agent
+    strategy:
+      parallel: 3
     pool:
       name: '$(TF_VAR_aks_agent_pool_name)'
       demands:
