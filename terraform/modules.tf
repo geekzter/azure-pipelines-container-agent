@@ -81,6 +81,8 @@ module container_registry {
 module container_app_agents {
   source                       = "./modules/container-app"
 
+  container_app                = true
+  container_job                = true
   container_registry_id        = module.container_registry.container_registry_id
   container_repository         = var.container_repository
   devops_url                   = local.devops_url

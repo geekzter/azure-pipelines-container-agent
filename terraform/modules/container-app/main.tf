@@ -232,6 +232,8 @@ resource azapi_resource agent_container_app {
       tags
     ]
   }
+
+  count                        = var.container_app ? 1 : 0
 }
 
 resource azapi_resource agent_container_job {
@@ -257,13 +259,13 @@ resource azapi_resource agent_container_job {
           }
         ]
         replicaRetryLimit      = 0
-        replicaTimeout         = 7200
+        replicaTimeout         = 60*60*6 # 6 hours
         eventTriggerConfig     = {
           replicaCompletionCount = 1
           parallelism          = 1
           scale                = {
-            minExecutions      = var.pipeline_agent_number_min
-            maxExecutions      = var.pipeline_agent_number_max
+            minExecutions      = 0
+            maxExecutions      = 1
             pollingInterval    = 15
             rules              = [
               {
@@ -310,22 +312,22 @@ resource azapi_resource agent_container_job {
               cpu              = var.pipeline_agent_cpu
               memory           = "${var.pipeline_agent_memory}Gi"
             }
-            volumeMounts       = local.create_files_share ? [
-              {
-                mountPath      = "/mnt/diag"
-                volumeName     = local.diagnostics_volume_name
-              }
-            ] : []
+            # volumeMounts       = local.create_files_share ? [
+            #   {
+            #     mountPath      = "/mnt/diag"
+            #     volumeName     = local.diagnostics_volume_name
+            #   }
+            # ] : []
           }
         ]
-        volumes                = local.create_files_share ? [
-          {
-            mountOptions       = "mfsymlinks,cache=strict,nobrl"
-            name               = local.diagnostics_volume_name
-            storageType        = "AzureFile"
-            storageName        = azapi_resource.agent_container_environment_share.0.name
-          }
-        ] : []
+        # volumes                = local.create_files_share ? [
+        #   {
+        #     mountOptions       = "mfsymlinks,cache=strict,nobrl"
+        #     name               = local.diagnostics_volume_name
+        #     storageType        = "AzureFile"
+        #     storageName        = azapi_resource.agent_container_environment_share.0.name
+        #   }
+        # ] : []
       }
     }
   })
@@ -335,4 +337,6 @@ resource azapi_resource agent_container_job {
       tags
     ]
   }
+
+  count                        = var.container_job ? 1 : 0
 }
