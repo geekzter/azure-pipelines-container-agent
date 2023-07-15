@@ -144,7 +144,7 @@ resource azapi_resource agent_container_app {
   tags                         = var.tags
 
   body                         = jsonencode({
-    properties: {
+    properties                 = {
       managedEnvironmentId     = azapi_resource.agent_container_environment.id
       configuration            = {
         registries             = [
@@ -208,7 +208,7 @@ resource azapi_resource agent_container_app {
                   },
                   {
                     secretRef  = "azp-url"
-                    triggerParameter: "organizationURL"
+                    triggerParameter= "organizationURL"
                   }
                 ]                
               }
@@ -250,7 +250,7 @@ resource azapi_resource agent_container_job {
   tags                         = var.tags
 
   body                         = jsonencode({
-    properties: { 
+    properties                 = { 
       configuration            = {
         registries             = [
           {
@@ -258,25 +258,36 @@ resource azapi_resource agent_container_job {
             server             = "${local.container_registry_name}.azurecr.io"
           }
         ]
-        replicaRetryLimit      = 0
-        replicaTimeout         = 60*60*6 # 6 hours
+        replicaRetryLimit      = 1
+        replicaTimeout         = 300 # 60*60*6 # 6 hours
         eventTriggerConfig     = {
           replicaCompletionCount = 1
           parallelism          = 1
           scale                = {
             minExecutions      = 0
-            maxExecutions      = 1
+            maxExecutions      = 10
             pollingInterval    = 15
             rules              = [
               {
-                name           = "azure-pipelines"
+                name           = "azure-pipelines-job"
                 type           = "azure-pipelines"
                 metadata       = {
                   organizationURLFromEnv = "AZP_URL"
                   personalAccessTokenfromEnv = "AZP_TOKEN"
                   poolID       = tostring(var.pipeline_agent_pool_id)
                   poolName     = var.pipeline_agent_pool_name
-                }
+                  targetPipelinesQueueLength = "1"
+                },
+                auth           = [
+                  {
+                    secretRef  = "azp-token"
+                    triggerParameter = "personalAccessToken"
+                  },
+                  {
+                    secretRef  = "azp-url"
+                    triggerParameter= "organizationURL"
+                  }
+                ]                
               }
             ]
           }
@@ -307,7 +318,7 @@ resource azapi_resource agent_container_job {
           {
             env                = local.environment_variables_template
             image              = "${local.container_registry_name}.azurecr.io/${var.container_repository}"
-            name               = "pipeline-agent-job"
+            name               = "pipeline-agent"
             resources          = {
               cpu              = var.pipeline_agent_cpu
               memory           = "${var.pipeline_agent_memory}Gi"
