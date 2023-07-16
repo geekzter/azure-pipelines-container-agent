@@ -265,7 +265,7 @@ resource azapi_resource agent_container_job {
           parallelism          = 1
           scale                = {
             minExecutions      = 0
-            maxExecutions      = 10
+            maxExecutions      = var.pipeline_agent_number_max
             pollingInterval    = 15
             rules              = [
               {
