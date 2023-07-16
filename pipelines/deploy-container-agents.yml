@@ -339,6 +339,7 @@ jobs:
         $priorResourcesExist = $tfState.ContainsKey('values')
         if ($priorResourcesExist) {
           Write-Warning "Prior resources exist in workspace '${env:TF_WORKSPACE}'"
+          Write-Host "##vso[task.logissue type=warning]Prior resources exist in workspace '${env:TF_WORKSPACE}'"
         } else {
           Write-Host "No prior resources exist in workspace '${env:TF_WORKSPACE}'"
         }
@@ -472,6 +473,8 @@ jobs:
   - job: acaAgent
     dependsOn: provision
     displayName: Test Container App Agent
+    strategy:
+      parallel: 3
     pool:
       name: '$(TF_VAR_aca_agent_pool_name)'
       demands:
@@ -506,6 +509,8 @@ jobs:
   - job: aksAgent
     dependsOn: provision
     displayName: Test Kubernetes Agent
+    strategy:
+      parallel: 3
     pool:
       name: '$(TF_VAR_aks_agent_pool_name)'
       demands:

@@ -144,7 +144,7 @@ resource azapi_resource agent_container_app {
   tags                         = var.tags
 
   body                         = jsonencode({
-    properties: {
+    properties                 = {
       managedEnvironmentId     = azapi_resource.agent_container_environment.id
       configuration            = {
         registries             = [
@@ -175,7 +175,7 @@ resource azapi_resource agent_container_app {
       template                 = {
         containers             = [{
           image                = "${local.container_registry_name}.azurecr.io/${var.container_repository}"
-          name                 = "pipeline-agent"
+          name                 = "pipeline-agent-app"
           env                  = local.environment_variables_template
           resources            = {
             cpu                = var.pipeline_agent_cpu
@@ -189,8 +189,8 @@ resource azapi_resource agent_container_app {
           ] : []
         }]
         scale                  = {
-          minReplicas          = var.pipeline_agent_number_min
-          maxReplicas          = var.pipeline_agent_number_max
+          minReplicas          = var.container_app ? var.pipeline_agent_number_min : 1
+          maxReplicas          = var.container_app ? var.pipeline_agent_number_max : 1
           rules                = [
             {
               # https://keda.sh/docs/2.9/scalers/azure-pipelines/
@@ -208,7 +208,7 @@ resource azapi_resource agent_container_app {
                   },
                   {
                     secretRef  = "azp-url"
-                    triggerParameter: "organizationURL"
+                    triggerParameter= "organizationURL"
                   }
                 ]                
               }
@@ -232,4 +232,125 @@ resource azapi_resource agent_container_app {
       tags
     ]
   }
+
+  count                        = var.container_app || var.container_job ? 1 : 0
+}
+
+resource azapi_resource agent_container_job {
+  name                         = "aca-${terraform.workspace}-${var.suffix}-job"
+  location                     = var.location
+  parent_id                    = var.resource_group_id
+  type                         = "Microsoft.App/jobs@2023-04-01-preview"
+
+  identity {
+    type                       = "UserAssigned"
+    identity_ids               = [var.user_assigned_identity_id]
+  }
+
+  tags                         = var.tags
+
+  body                         = jsonencode({
+    properties                 = { 
+      configuration            = {
+        registries             = [
+          {
+            identity           = var.user_assigned_identity_id
+            server             = "${local.container_registry_name}.azurecr.io"
+          }
+        ]
+        replicaRetryLimit      = 1
+        replicaTimeout         = 60*60*6 # 6 hours
+        eventTriggerConfig     = {
+          replicaCompletionCount = 1
+          parallelism          = 1
+          scale                = {
+            minExecutions      = 0
+            maxExecutions      = var.pipeline_agent_number_max
+            pollingInterval    = 15
+            rules              = [
+              {
+                name           = "azure-pipelines-job"
+                type           = "azure-pipelines"
+                metadata       = {
+                  organizationURLFromEnv = "AZP_URL"
+                  personalAccessTokenfromEnv = "AZP_TOKEN"
+                  poolID       = tostring(var.pipeline_agent_pool_id)
+                  poolName     = var.pipeline_agent_pool_name
+                  targetPipelinesQueueLength = "1"
+                },
+                auth           = [
+                  {
+                    secretRef  = "azp-token"
+                    triggerParameter = "personalAccessToken"
+                  },
+                  {
+                    secretRef  = "azp-url"
+                    triggerParameter= "organizationURL"
+                  }
+                ]                
+              }
+            ]
+          }
+        }
+        secrets                = [
+          {
+            name               = "azp-pool-id"
+            value              = tostring(var.pipeline_agent_pool_id)
+          },
+          {
+            name               = "azp-pool-name"
+            value              = var.pipeline_agent_pool_name
+          },
+          {
+            name               = "azp-url"
+            value              = var.devops_url
+          },
+          {
+            name               = "azp-token"
+            value              = var.devops_pat
+          }
+        ]
+        triggerType            = "Event"
+      }
+      environmentId            = azapi_resource.agent_container_environment.id
+      template                 = {
+        containers             = [
+          {
+            env                = local.environment_variables_template
+            image              = "${local.container_registry_name}.azurecr.io/${var.container_repository}"
+            name               = "pipeline-agent"
+            resources          = {
+              cpu              = var.pipeline_agent_cpu
+              memory           = "${var.pipeline_agent_memory}Gi"
+            }
+            volumeMounts       = local.create_files_share ? [
+              {
+                mountPath      = "/mnt/diag"
+                volumeName     = local.diagnostics_volume_name
+              }
+            ] : []
+          }
+        ]
+        volumes                = local.create_files_share ? [
+          {
+            mountOptions       = "mfsymlinks,cache=strict,nobrl"
+            name               = local.diagnostics_volume_name
+            storageType        = "AzureFile"
+            storageName        = azapi_resource.agent_container_environment_share.0.name
+          }
+        ] : []
+      }
+    }
+  })
+
+  lifecycle {
+    ignore_changes             = [
+      tags
+    ]
+  }
+
+  count                        = var.container_job ? 1 : 0
+  depends_on                   = [ 
+    azapi_resource.agent_container_app 
+  ]
 }

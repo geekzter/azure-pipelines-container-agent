@@ -49,6 +49,12 @@ output container_app_name {
 output container_environment_id {
   value                        = var.deploy_container_app ? module.container_app_agents.0.container_environment_id : null
 }
+output container_job_id {
+  value                        = var.deploy_container_app ? module.container_app_agents.0.container_job_id : null
+}
+output container_job_name {
+  value                        = var.deploy_container_app ? module.container_app_agents.0.container_job_name : null
+}
 output container_registry_id {
   value                        = module.container_registry.container_registry_id
 }

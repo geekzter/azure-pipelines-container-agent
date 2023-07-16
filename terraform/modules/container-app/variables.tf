@@ -1,5 +1,11 @@
+variable container_app {
+    type = bool
+}
 variable container_registry_id {}
 variable container_repository {}
+variable container_job {
+    type = bool
+}
 variable devops_pat {}
 variable devops_url {}
 variable diagnostics_storage_share_key {}
