@@ -57,7 +57,6 @@ By default, the agents will be created in the `Default` agent pool with system c
 ## Limitations
 This repo is an experiment, you may have various stability issues. Here are some known issues:
 - While Azure Container Apps jobs are in preview, [Azure Files is not yet supported](https://github.com/microsoft/azure-container-apps/issues/832). Hence, diagnostics logs are not persisted for Azure Container Apps jobs.
-- Azure Container Apps have a [maximum replica limit of 30](https://learn.microsoft.com/azure/container-apps/scale-app). Hence a Container App pool can at most have 30 agents.
 - The container image is not a general purpose image that works with all of the standard [Azure Pipeline Tasks](https://github.com/microsoft/azure-pipelines-tasks).
 - Container App Environments do not yet support [NAT Gateway](https://github.com/microsoft/azure-container-apps/issues/522) and there are known issues with [Azure Firewall](https://github.com/microsoft/azure-container-apps/issues/227). Hence, centralized VNet egress traffic is a challenge.  
 - Container App Premium tier is [not yet available](https://github.com/microsoft/azure-container-apps/issues/452).
