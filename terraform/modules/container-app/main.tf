@@ -41,7 +41,7 @@ resource azapi_resource agent_container_environment {
   name                         = "${var.resource_group_name}-environment"
   location                     = var.location
   parent_id                    = var.resource_group_id
-  type                         = "Microsoft.App/managedEnvironments@2023-04-01-preview"
+  type                         = "Microsoft.App/managedEnvironments@2023-05-01"
   tags                         = var.tags
   
   # schema_validation_enabled    = false
@@ -112,7 +112,7 @@ resource azurerm_monitor_diagnostic_setting agent_container_environment {
 }
 
 resource azapi_resource agent_container_environment_share {
-  type                         = "Microsoft.App/managedEnvironments/storages@2023-04-01-preview"
+  type                         = "Microsoft.App/managedEnvironments/storages@2023-05-01"
   name                         = "diagnostics"
   parent_id                    = azapi_resource.agent_container_environment.id
   body                         = jsonencode({
@@ -134,7 +134,7 @@ resource azapi_resource agent_container_app {
   name                         = "aca-${terraform.workspace}-${var.suffix}-deployment"
   location                     = var.location
   parent_id                    = var.resource_group_id
-  type                         = "Microsoft.App/containerApps@2023-04-01-preview"
+  type                         = "Microsoft.App/containerApps@2023-05-01"
 
   identity {
     type                       = "UserAssigned"
@@ -240,7 +240,7 @@ resource azapi_resource agent_container_job {
   name                         = "aca-${terraform.workspace}-${var.suffix}-job"
   location                     = var.location
   parent_id                    = var.resource_group_id
-  type                         = "Microsoft.App/jobs@2023-04-01-preview"
+  type                         = "Microsoft.App/jobs@2023-05-01"
 
   identity {
     type                       = "UserAssigned"
