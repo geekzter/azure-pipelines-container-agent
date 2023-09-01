@@ -1,4 +1,5 @@
 locals {
+  container_registry_name      = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-1)
   diagnostics_storage_name     = element(split("/",var.diagnostics_storage_id),length(split("/",var.diagnostics_storage_id))-1)
   diagnostics_storage_rg       = element(split("/",var.diagnostics_storage_id),length(split("/",var.diagnostics_storage_id))-5)
 }
