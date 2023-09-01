@@ -68,8 +68,8 @@ resource azapi_resource agent_container_environment {
       } : null
       workloadProfiles         = [
         {
-          maximumCount         = var.pipeline_agent_number_max
-          minimumCount         = var.pipeline_agent_number_min
+          # maximumCount         = var.pipeline_agent_number_max
+          # minimumCount         = var.pipeline_agent_number_min
           name                 = "Consumption"
           workloadProfileType  = "Consumption"
         }
