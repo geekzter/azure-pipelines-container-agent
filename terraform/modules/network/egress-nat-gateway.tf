@@ -77,7 +77,6 @@ resource azurerm_subnet_nat_gateway_association aks_node_pool {
   count                        = var.gateway_type == "NATGateway" ? 1 : 0
 }
 
-# BUG: https://github.com/microsoft/azure-container-apps/issues/522
 resource azurerm_subnet_nat_gateway_association container_apps_environment {
   subnet_id                    = azurerm_subnet.container_apps_environment.id
   nat_gateway_id               = azurerm_nat_gateway.egress.0.id

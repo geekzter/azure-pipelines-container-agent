@@ -555,15 +555,14 @@ resource azurerm_subnet_route_table_association aks_node_pool {
   ]
 }
 
-# BUG: https://github.com/microsoft/azure-container-apps/issues/227
-# resource azurerm_subnet_route_table_association container_apps_environment {
-#   subnet_id                    = azurerm_subnet.container_apps_environment.id
-#   route_table_id               = azurerm_route_table.gateway.0.id
+resource azurerm_subnet_route_table_association container_apps_environment {
+  subnet_id                    = azurerm_subnet.container_apps_environment.id
+  route_table_id               = azurerm_route_table.gateway.0.id
 
-#   count                        = var.gateway_type == "Firewall" ? 1 : 0
-#   depends_on                   = [
-#     azurerm_firewall_policy_rule_collection_group.aks,
-#     azurerm_firewall_policy_rule_collection_group.outbound_open,
-#     azurerm_monitor_diagnostic_setting.firewall_logs,
-#   ]
-# }
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
+  depends_on                   = [
+    azurerm_firewall_policy_rule_collection_group.aks,
+    azurerm_firewall_policy_rule_collection_group.outbound_open,
+    azurerm_monitor_diagnostic_setting.firewall_logs,
+  ]
+}

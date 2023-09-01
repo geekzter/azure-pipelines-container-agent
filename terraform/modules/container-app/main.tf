@@ -55,8 +55,6 @@ resource azapi_resource agent_container_environment {
           sharedKey            = data.azurerm_log_analytics_workspace.monitor.primary_shared_key
         }
       }
-      # BUG: https://github.com/microsoft/azure-container-apps/issues/522 (NAT Gateway)
-      # BUG: https://github.com/microsoft/azure-container-apps/issues/227 (Azure Firewall)
       vnetConfiguration        = var.subnet_id != null ? {
         infrastructureSubnetId = var.subnet_id
         internal               = true
