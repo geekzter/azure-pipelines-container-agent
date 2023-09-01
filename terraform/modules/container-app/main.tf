@@ -66,6 +66,14 @@ resource azapi_resource agent_container_environment {
         #   virtualNetworkApplianceIp= var.gateway_id
         # } : null
       } : null
+      workloadProfiles         = [
+        {
+          maximumCount         = var.pipeline_agent_number_max
+          minimumCount         = var.pipeline_agent_number_min
+          name                 = "azure-pipelines-agent-profile"
+          workloadProfileType  = "Consumption"
+        }
+      ]
     }
     # sku                        = {
     #   # https://github.com/microsoft/azure-container-apps/issues/452
