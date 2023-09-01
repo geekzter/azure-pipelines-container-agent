@@ -55,6 +55,7 @@ resource azapi_resource agent_container_environment {
           sharedKey            = data.azurerm_log_analytics_workspace.monitor.primary_shared_key
         }
       }
+      infrastructureResourceGroup = "${var.resource_group_name}-aca-nodes"
       vnetConfiguration        = var.subnet_id != null ? {
         infrastructureSubnetId = var.subnet_id
         internal               = true

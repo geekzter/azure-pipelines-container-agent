@@ -26,6 +26,11 @@ resource azurerm_subnet container_apps_environment {
 
     service_delegation {
       name                     = "Microsoft.App/environments"
+      actions                  = [
+        "Microsoft.Network/virtualNetworks/subnets/action",
+        "Microsoft.Network/virtualNetworks/subnets/join/action", 
+        "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action",
+      ]
     }
   }
 

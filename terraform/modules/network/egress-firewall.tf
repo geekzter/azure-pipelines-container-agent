@@ -111,7 +111,7 @@ resource azurerm_firewall gateway {
 
 resource azurerm_virtual_network_dns_servers dns_proxy {
   virtual_network_id           = azurerm_virtual_network.pipeline_network.id
-  dns_servers                  = [azurerm_firewall.gateway.0.ip_configuration.0.private_ip_address]
+  dns_servers                  = [azurerm_firewall.gateway.0.ip_configuration.0.private_ip_address,"168.63.129.16"]
 
   count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
@@ -557,6 +557,18 @@ resource azurerm_subnet_route_table_association aks_node_pool {
 
 resource azurerm_subnet_route_table_association container_apps_environment {
   subnet_id                    = azurerm_subnet.container_apps_environment.id
+  route_table_id               = azurerm_route_table.gateway.0.id
+
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
+  depends_on                   = [
+    azurerm_firewall_policy_rule_collection_group.aks,
+    azurerm_firewall_policy_rule_collection_group.outbound_open,
+    azurerm_monitor_diagnostic_setting.firewall_logs,
+  ]
+}
+
+resource azurerm_subnet_route_table_association private_endpoint_subnet {
+  subnet_id                    = azurerm_subnet.private_endpoint_subnet.0.id
   route_table_id               = azurerm_route_table.gateway.0.id
 
   count                        = var.gateway_type == "Firewall" ? 1 : 0
