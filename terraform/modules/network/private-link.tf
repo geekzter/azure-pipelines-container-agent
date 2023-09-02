@@ -60,7 +60,7 @@ resource azurerm_private_endpoint diag_blob_storage {
 }
 
 resource azurerm_private_endpoint file_share {
-  name                         = "${local.diagnostics_storage_name}-endpoint"
+  name                         = "${local.diagnostics_storage_name}-files-endpoint"
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
   location                     = azurerm_virtual_network.pipeline_network.location
   
@@ -73,7 +73,7 @@ resource azurerm_private_endpoint file_share {
   
   private_service_connection {
     is_manual_connection       = false
-    name                       = "${local.diagnostics_storage_name}-endpoint-connection"
+    name                       = "${local.diagnostics_storage_name}-files-endpoint-connection"
     private_connection_resource_id = var.diagnostics_storage_id
     subresource_names          = ["file"]
   }
