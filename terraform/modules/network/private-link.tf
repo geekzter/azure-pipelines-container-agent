@@ -58,6 +58,7 @@ resource azurerm_private_endpoint diag_blob_storage_endpoint {
 }
 
 # BUG: ACR private endpoint does not work with with Azure Firewall
+#      https://github.com/microsoft/azure-container-apps/issues/892
 resource azurerm_private_endpoint container_registry_endpoint {
   name                       = "${local.container_registry_name}-endpoint-connection"
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name

@@ -1,5 +1,6 @@
 locals {
   container_registry_name      = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-1)
+  container_registry_rg        = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-5)
   create_files_share           = var.diagnostics_share_name != null && var.diagnostics_share_name != ""
   diagnostics_volume_name      = "diagnostics"
   environment_variables_template= concat(
@@ -29,6 +30,11 @@ locals {
   )
   log_analytics_workspace_name = element(split("/",var.log_analytics_workspace_resource_id),length(split("/",var.log_analytics_workspace_resource_id))-1)
   log_analytics_workspace_rg   = element(split("/",var.log_analytics_workspace_resource_id),length(split("/",var.log_analytics_workspace_resource_id))-5)
+}
+
+data azurerm_container_registry registry {
+  name                         = local.container_registry_name
+  resource_group_name          = local.container_registry_rg
 }
 
 data azurerm_log_analytics_workspace monitor {
@@ -145,7 +151,7 @@ resource azapi_resource agent_container_app {
         registries             = [
           {
             identity           = var.user_assigned_identity_id
-            server             = "${local.container_registry_name}.azurecr.io"
+            server             = data.azurerm_container_registry.registry.login_server
           }
         ]
         secrets                = [
@@ -250,7 +256,7 @@ resource azapi_resource agent_container_job {
         registries             = [
           {
             identity           = var.user_assigned_identity_id
-            server             = "${local.container_registry_name}.azurecr.io"
+            server             = data.azurerm_container_registry.registry.login_server
           }
         ]
         replicaRetryLimit      = 1

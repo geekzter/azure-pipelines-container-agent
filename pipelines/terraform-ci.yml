@@ -29,7 +29,7 @@ parameters:
 - name: retryCount
   displayName: Terraform task retry count
   type: number
-  default: 1
+  default: 3
 - name: testReentrance
   displayName: Test Terraform re-entrance (apply twice)
   type: boolean
@@ -150,8 +150,8 @@ jobs:
         $strategyHash.Add("default",
           @{
             substituteAlternateVariables = $false
-            TF_VAR_deploy_container_app = $(deploy-container-app)
-            TF_VAR_deploy_aks = $(deploy-aks)
+            TF_VAR_deploy_container_app = '$(deploy-container-app)'
+            TF_VAR_deploy_aks = '$(deploy-aks)'
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
