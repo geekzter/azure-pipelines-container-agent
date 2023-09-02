@@ -67,8 +67,8 @@ resource azurerm_private_endpoint file_share {
   subnet_id                    = azurerm_subnet.private_endpoint_subnet.0.id
 
   private_dns_zone_group {
-    name                       = azurerm_private_dns_zone.zone["blob"].name
-    private_dns_zone_ids       = [azurerm_private_dns_zone.zone["blob"].id]
+    name                       = azurerm_private_dns_zone.zone["file"].name
+    private_dns_zone_ids       = [azurerm_private_dns_zone.zone["file"].id]
   }
   
   private_service_connection {
