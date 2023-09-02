@@ -159,6 +159,15 @@ jobs:
             unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
           }
         )
+        # $strategyHash.Add("app-gw-fw",
+        #   @{
+        #     substituteAlternateVariables = $false
+        #     TF_VAR_gateway_type = 'Firewall'
+        #     TF_VAR_resource_suffix = '$(Build.BuildId)'
+        #     unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
+        #     unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
+        #   }
+        # )
         $strategyHash.Add("aks-gw-fw",
           @{
             substituteAlternateVariables = $false

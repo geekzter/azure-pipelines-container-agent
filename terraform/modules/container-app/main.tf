@@ -346,6 +346,6 @@ resource azapi_resource agent_container_job {
 
   count                        = var.container_job ? 1 : 0
   depends_on                   = [ 
-    azapi_resource.agent_container_app 
+    # azapi_resource.agent_container_app 
   ]
 }
