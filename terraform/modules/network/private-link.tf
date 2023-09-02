@@ -36,7 +36,7 @@ resource azurerm_subnet private_endpoint_subnet {
   count                        = var.gateway_type != "NoGateway" ? 1 : 0
 }
 
-resource azurerm_private_endpoint diag_blob_storage_endpoint {
+resource azurerm_private_endpoint diag_blob_storage {
   name                         = "${local.diagnostics_storage_name}-endpoint"
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
   location                     = azurerm_virtual_network.pipeline_network.location
@@ -52,10 +52,30 @@ resource azurerm_private_endpoint diag_blob_storage_endpoint {
     is_manual_connection       = false
     name                       = "${local.diagnostics_storage_name}-endpoint-connection"
     private_connection_resource_id = var.diagnostics_storage_id
-    subresource_names          = [
-      "blob",
-      "file"
-    ]
+    subresource_names          = ["blob"]
+  }
+
+  tags                         = var.tags
+  count                        = var.gateway_type != "NoGateway" ? 1 : 0
+}
+
+resource azurerm_private_endpoint file_share {
+  name                         = "${local.diagnostics_storage_name}-endpoint"
+  resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
+  location                     = azurerm_virtual_network.pipeline_network.location
+  
+  subnet_id                    = azurerm_subnet.private_endpoint_subnet.0.id
+
+  private_dns_zone_group {
+    name                       = azurerm_private_dns_zone.zone["blob"].name
+    private_dns_zone_ids       = [azurerm_private_dns_zone.zone["blob"].id]
+  }
+  
+  private_service_connection {
+    is_manual_connection       = false
+    name                       = "${local.diagnostics_storage_name}-endpoint-connection"
+    private_connection_resource_id = var.diagnostics_storage_id
+    subresource_names          = ["file"]
   }
 
   tags                         = var.tags
@@ -64,7 +84,7 @@ resource azurerm_private_endpoint diag_blob_storage_endpoint {
 
 # BUG: ACR private endpoint does not work with with Azure Firewall
 #      https://github.com/microsoft/azure-container-apps/issues/892
-# resource azurerm_private_endpoint container_registry_endpoint {
+# resource azurerm_private_endpoint container_registry {
 #   name                       = "${local.container_registry_name}-endpoint-connection"
 #   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
 #   location                     = azurerm_virtual_network.pipeline_network.location
