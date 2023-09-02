@@ -12,7 +12,7 @@ resource azurerm_private_dns_zone zone {
 }
 
 resource azurerm_private_dns_zone_virtual_network_link zone_link {
-  for_each                     = var.gateway_type != "NoGateway" ? azurerm_private_dns_zone.zone : null
+  for_each                     = var.gateway_type != "NoGateway" ? azurerm_private_dns_zone.zone : []
   name                         = "${azurerm_virtual_network.pipeline_network.name}-dns-${each.key}"
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
   private_dns_zone_name        = each.value.name

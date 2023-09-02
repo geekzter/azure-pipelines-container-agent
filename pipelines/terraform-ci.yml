@@ -50,6 +50,14 @@ parameters:
   - No
   - Yes
   - Strategy
+- name: containerEngine
+  displayName: Container Engine (ACA/AKS)
+  type: string
+  default: Both
+  values:
+  - Container App
+  - Kubernetes 
+  - Both
 
 name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId)
 
@@ -89,6 +97,10 @@ variables:
   value: 'true'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
   value: 'yes_without_prompt'
+- name: 'deploy-aks'
+  value: ${{ lower(or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both'))) }}
+- name: 'deploy-container-app'
+  value: ${{ lower(or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'jobTimeOutMinutes'
   value: 180
 - name: 'pool'
@@ -122,6 +134,7 @@ variables:
 - name: 'TF_VAR_run_id'
   value: '$(Build.BuildId)'
 
+
 - name: 'vmImage'
   value: 'ubuntu-latest'
 
@@ -137,68 +150,91 @@ jobs:
         $strategyHash.Add("default",
           @{
             substituteAlternateVariables = $false
+            TF_VAR_deploy_container_app = $(deploy-container-app)
+            TF_VAR_deploy_aks = $(deploy-aks)
             TF_VAR_resource_suffix = '$(Build.BuildId)'
             unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
             unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
           }
         )
       } else {
-        $strategyHash.Add("app-default",
-          @{
-            substituteAlternateVariables = $false
-            TF_VAR_resource_suffix = '$(Build.BuildId)'
-            unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
-            unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
-          }
-        )
-        $strategyHash.Add("app-unpinned",
-          @{
-            substituteAlternateVariables = $true
-            TF_VAR_resource_suffix = '$(Build.BuildId)'
-            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
-            unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
-          }
-        )
-        # $strategyHash.Add("app-gw-fw",
-        #   @{
-        #     substituteAlternateVariables = $false
-        #     TF_VAR_gateway_type = 'Firewall'
-        #     TF_VAR_resource_suffix = '$(Build.BuildId)'
-        #     unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
-        #     unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
-        #   }
-        # )
-        $strategyHash.Add("aks-gw-fw",
-          @{
-            substituteAlternateVariables = $false
-            TF_VAR_aca_agent_pool_name = 'Default'
-            TF_VAR_aks_agent_pool_name = 'Default'
-            TF_VAR_create_agent_pools = 'false'
-            TF_VAR_deploy_container_app = 'false'
-            TF_VAR_deploy_aks = 'true'
-            TF_VAR_deploy_bastion = 'true'
-            TF_VAR_deploy_network = 'true'
-            TF_VAR_gateway_type = 'Firewall'
-            TF_VAR_resource_suffix = '$(Build.BuildId)'
-            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
-            unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
-          }
-        )
-        $strategyHash.Add("aks-gw-nat",
-          @{
-            substituteAlternateVariables = $false
-            TF_VAR_aca_agent_pool_name = 'Default'
-            TF_VAR_aks_agent_pool_name = 'Default'
-            TF_VAR_create_agent_pools = 'false'
-            TF_VAR_deploy_container_app = 'false'
-            TF_VAR_deploy_aks = 'true'
-            TF_VAR_deploy_network = 'true'
-            TF_VAR_gateway_type = 'NATGateway'
-            TF_VAR_resource_suffix = '$(Build.BuildId)'
-            unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
-            unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
-          }
-        )
+        if ($$(deploy-container-app)) {
+          $strategyHash.Add("aca-default",
+            @{
+              substituteAlternateVariables = $false
+              TF_VAR_resource_suffix = '$(Build.BuildId)'
+              unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
+              unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
+            }
+          )
+          $strategyHash.Add("aca-unpinned",
+            @{
+              substituteAlternateVariables = $true
+              TF_VAR_resource_suffix = '$(Build.BuildId)'
+              unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
+              unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            }
+          )
+          $strategyHash.Add("aca-gw-fw",
+            @{
+              substituteAlternateVariables = $false
+              TF_VAR_aca_agent_pool_name = 'Default'
+              TF_VAR_aks_agent_pool_name = 'Default'
+              TF_VAR_create_agent_pools = 'false'
+              TF_VAR_deploy_network = 'true'
+              TF_VAR_gateway_type = 'Firewall'
+              TF_VAR_resource_suffix = '$(Build.BuildId)'
+              unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
+              unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
+            }
+          )
+          $strategyHash.Add("aca-gw-nat",
+            @{
+              substituteAlternateVariables = $false
+              TF_VAR_aca_agent_pool_name = 'Default'
+              TF_VAR_aks_agent_pool_name = 'Default'
+              TF_VAR_create_agent_pools = 'false'
+              TF_VAR_deploy_network = 'true'
+              TF_VAR_gateway_type = 'NATGateway'
+              TF_VAR_resource_suffix = '$(Build.BuildId)'
+              unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
+              unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
+            }
+          )
+        }
+        if ($$(deploy-aks)) {
+          $strategyHash.Add("aks-gw-fw",
+            @{
+              substituteAlternateVariables = $false
+              TF_VAR_aca_agent_pool_name = 'Default'
+              TF_VAR_aks_agent_pool_name = 'Default'
+              TF_VAR_create_agent_pools = 'false'
+              TF_VAR_deploy_container_app = 'false'
+              TF_VAR_deploy_aks = 'true'
+              TF_VAR_deploy_bastion = 'true'
+              TF_VAR_deploy_network = 'true'
+              TF_VAR_gateway_type = 'Firewall'
+              TF_VAR_resource_suffix = '$(Build.BuildId)'
+              unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
+              unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            }
+          )
+          $strategyHash.Add("aks-gw-nat",
+            @{
+              substituteAlternateVariables = $false
+              TF_VAR_aca_agent_pool_name = 'Default'
+              TF_VAR_aks_agent_pool_name = 'Default'
+              TF_VAR_create_agent_pools = 'false'
+              TF_VAR_deploy_container_app = 'false'
+              TF_VAR_deploy_aks = 'true'
+              TF_VAR_deploy_network = 'true'
+              TF_VAR_gateway_type = 'NATGateway'
+              TF_VAR_resource_suffix = '$(Build.BuildId)'
+              unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
+              unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+            }
+          )
+        }
       }
 
       [int]$jobIndex = 0
