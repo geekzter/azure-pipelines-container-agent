@@ -2,7 +2,9 @@ resource azurerm_private_dns_zone zone {
   for_each                     = var.gateway_type != "NoGateway" ? {
     blob                       = "privatelink.blob.core.windows.net"
     file                       = "privatelink.file.core.windows.net"
-    registry                   = "privatelink.azurecr.io"
+    # BUG: ACR private endpoint does not work with with Azure Firewall
+    #      https://github.com/microsoft/azure-container-apps/issues/892
+    # registry                   = "privatelink.azurecr.io"
     vault                      = "privatelink.vaultcore.azure.net"
   } : {}
   name                         = each.value
