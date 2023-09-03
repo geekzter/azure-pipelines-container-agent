@@ -2,7 +2,7 @@ resource azurerm_private_dns_zone zone {
   for_each                     = var.gateway_type != "NoGateway" ? {
     blob                       = "privatelink.blob.core.windows.net"
     file                       = "privatelink.file.core.windows.net"
-    # BUG: ACR private endpoint does not work with with Azure Firewall
+    # BUG: ACR private endpoint does not work ACA delegated subnet
     #      https://github.com/microsoft/azure-container-apps/issues/892
     # registry                   = "privatelink.azurecr.io"
     vault                      = "privatelink.vaultcore.azure.net"
@@ -82,7 +82,7 @@ resource azurerm_private_endpoint file_share {
   count                        = var.gateway_type != "NoGateway" ? 1 : 0
 }
 
-# BUG: ACR private endpoint does not work with with Azure Firewall
+# BUG: ACR private endpoint does not work ACA delegated subnet
 #      https://github.com/microsoft/azure-container-apps/issues/892
 # resource azurerm_private_endpoint container_registry {
 #   name                       = "${local.container_registry_name}-endpoint-connection"
