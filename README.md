@@ -57,4 +57,4 @@ By default, the agents will be created in the `Default` agent pool with system c
 ## Limitations
 This repo is an experiment, you may have various stability issues. Here are some known issues:
 - The container image is not a general purpose image that works with all of the standard [Azure Pipeline Tasks](https://github.com/microsoft/azure-pipelines-tasks).
-- Using Azure Firewall and Container Registry has an [issue](https://github.com/microsoft/azure-container-apps/issues/892).
+- Using Container Registry Private Endpoints has an [issue](https://github.com/microsoft/azure-container-apps/issues/892).
