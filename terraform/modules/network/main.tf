@@ -1,6 +1,13 @@
 locals {
+  container_registry_name      = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-1)
+  container_registry_rg        = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-5)
   diagnostics_storage_name     = element(split("/",var.diagnostics_storage_id),length(split("/",var.diagnostics_storage_id))-1)
   diagnostics_storage_rg       = element(split("/",var.diagnostics_storage_id),length(split("/",var.diagnostics_storage_id))-5)
+}
+
+data azurerm_container_registry registry {
+  name                         = local.container_registry_name
+  resource_group_name          = local.container_registry_rg
 }
 
 data azurerm_storage_account diagnostics {

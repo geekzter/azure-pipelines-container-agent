@@ -109,7 +109,7 @@ resource azurerm_kubernetes_cluster aks {
   name                         = "${local.resource_group_name}-k8s"
   location                     = var.location
   resource_group_name          = local.resource_group_name
-  node_resource_group          = "${local.resource_group_name}-k8s-nodes"
+  node_resource_group          = "${local.resource_group_name}-aks-nodes"
   dns_prefix                   = var.dns_prefix
 
   # Triggers resource to be recreated

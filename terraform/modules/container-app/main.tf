@@ -1,5 +1,6 @@
 locals {
   container_registry_name      = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-1)
+  container_registry_rg        = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-5)
   create_files_share           = var.diagnostics_share_name != null && var.diagnostics_share_name != ""
   diagnostics_volume_name      = "diagnostics"
   environment_variables_template= concat(
@@ -31,6 +32,11 @@ locals {
   log_analytics_workspace_rg   = element(split("/",var.log_analytics_workspace_resource_id),length(split("/",var.log_analytics_workspace_resource_id))-5)
 }
 
+data azurerm_container_registry registry {
+  name                         = local.container_registry_name
+  resource_group_name          = local.container_registry_rg
+}
+
 data azurerm_log_analytics_workspace monitor {
   name                         = local.log_analytics_workspace_name
   resource_group_name          = local.log_analytics_workspace_rg
@@ -41,7 +47,7 @@ resource azapi_resource agent_container_environment {
   name                         = "${var.resource_group_name}-environment"
   location                     = var.location
   parent_id                    = var.resource_group_id
-  type                         = "Microsoft.App/managedEnvironments@2023-04-01-preview"
+  type                         = "Microsoft.App/managedEnvironments@2023-05-01"
   tags                         = var.tags
   
   # schema_validation_enabled    = false
@@ -55,23 +61,18 @@ resource azapi_resource agent_container_environment {
           sharedKey            = data.azurerm_log_analytics_workspace.monitor.primary_shared_key
         }
       }
-      # BUG: https://github.com/microsoft/azure-container-apps/issues/522 (NAT Gateway)
-      # BUG: https://github.com/microsoft/azure-container-apps/issues/227 (Azure Firewall)
+      infrastructureResourceGroup = "${var.resource_group_name}-aca-nodes"
       vnetConfiguration        = var.subnet_id != null ? {
         infrastructureSubnetId = var.subnet_id
         internal               = true
-        # Requires Premium SKU
-        # outboundSettings       = var.gateway_id != null ? {
-        #   outBoundType         = "UserDefinedRouting"
-        #   virtualNetworkApplianceIp= var.gateway_id
-        # } : null
       } : null
+      workloadProfiles         = [
+        {
+          name                 = "Consumption"
+          workloadProfileType  = "Consumption"
+        }
+      ]
     }
-    # sku                        = {
-    #   # https://github.com/microsoft/azure-container-apps/issues/452
-    #   # name                     = var.gateway_id != null ? "Premium" : "Consumption"
-    #   name                     = "Consumption"
-    # }
   })
 
   timeouts {
@@ -112,7 +113,7 @@ resource azurerm_monitor_diagnostic_setting agent_container_environment {
 }
 
 resource azapi_resource agent_container_environment_share {
-  type                         = "Microsoft.App/managedEnvironments/storages@2023-04-01-preview"
+  type                         = "Microsoft.App/managedEnvironments/storages@2023-05-01"
   name                         = "diagnostics"
   parent_id                    = azapi_resource.agent_container_environment.id
   body                         = jsonencode({
@@ -134,7 +135,7 @@ resource azapi_resource agent_container_app {
   name                         = "aca-${terraform.workspace}-${var.suffix}-deployment"
   location                     = var.location
   parent_id                    = var.resource_group_id
-  type                         = "Microsoft.App/containerApps@2023-04-01-preview"
+  type                         = "Microsoft.App/containerApps@2023-05-01"
 
   identity {
     type                       = "UserAssigned"
@@ -150,7 +151,7 @@ resource azapi_resource agent_container_app {
         registries             = [
           {
             identity           = var.user_assigned_identity_id
-            server             = "${local.container_registry_name}.azurecr.io"
+            server             = data.azurerm_container_registry.registry.login_server
           }
         ]
         secrets                = [
@@ -240,7 +241,7 @@ resource azapi_resource agent_container_job {
   name                         = "aca-${terraform.workspace}-${var.suffix}-job"
   location                     = var.location
   parent_id                    = var.resource_group_id
-  type                         = "Microsoft.App/jobs@2023-04-01-preview"
+  type                         = "Microsoft.App/jobs@2023-05-01"
 
   identity {
     type                       = "UserAssigned"
@@ -255,7 +256,7 @@ resource azapi_resource agent_container_job {
         registries             = [
           {
             identity           = var.user_assigned_identity_id
-            server             = "${local.container_registry_name}.azurecr.io"
+            server             = data.azurerm_container_registry.registry.login_server
           }
         ]
         replicaRetryLimit      = 1

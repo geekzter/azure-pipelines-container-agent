@@ -103,7 +103,7 @@ resource azurerm_firewall gateway {
   tags                         = var.tags
 
   depends_on                   = [
-    azurerm_firewall_policy_rule_collection_group.aks,
+    azurerm_firewall_policy_rule_collection_group.network,
     azurerm_firewall_policy_rule_collection_group.outbound_open
   ]
   count                        = var.gateway_type == "Firewall" ? 1 : 0
@@ -111,7 +111,7 @@ resource azurerm_firewall gateway {
 
 resource azurerm_virtual_network_dns_servers dns_proxy {
   virtual_network_id           = azurerm_virtual_network.pipeline_network.id
-  dns_servers                  = [azurerm_firewall.gateway.0.ip_configuration.0.private_ip_address]
+  dns_servers                  = [azurerm_firewall.gateway.0.ip_configuration.0.private_ip_address,"168.63.129.16"]
 
   count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
@@ -136,14 +136,63 @@ resource azurerm_firewall_policy gateway {
   count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
 
-resource azurerm_firewall_policy_rule_collection_group aks {
-  name                         = "aks"
+resource azurerm_firewall_policy_rule_collection_group network {
+  name                         = "network"
   firewall_policy_id           = azurerm_firewall_policy.gateway.0.id
   priority                     = 400
 
+  # https://learn.microsoft.com/en-us/azure/container-apps/networking?tabs=azure-cli#network-rules
+  network_rule_collection {
+    name                       = "AcaOutboundNetworkRules"
+    priority                   = 400
+    action                     = "Allow"
+
+    rule {
+      name                     = "All scenarios"
+      source_ip_groups         = [azurerm_ip_group.agents.0.id]
+      destination_addresses    = [
+        "MicrosoftContainerRegistry",
+        "AzureFrontDoorFirstParty",
+        "AzureFrontDoor.FirstParty"
+      ]
+      destination_ports        = ["*"]
+      protocols                = ["Any"]
+    }
+    rule {
+      name                     = "Azure Container Registry (ACR)"
+      source_ip_groups         = [azurerm_ip_group.agents.0.id]
+      destination_addresses    = [
+        "AzureContainerRegistry",
+        "AzureActiveDirectory"
+      ]
+      destination_ports        = ["*"]
+      protocols                = ["Any"]
+    }
+    rule {
+      name                     = "Azure Key Vault"
+      source_ip_groups         = [azurerm_ip_group.agents.0.id]
+      destination_addresses    = [
+        "AzureKeyVault",
+        "AzureActiveDirectory"
+      ]
+      destination_ports        = ["*"]
+      protocols                = ["Any"]
+    }
+    rule {
+      name                     = "Managed Identity"
+      source_ip_groups         = [azurerm_ip_group.agents.0.id]
+      destination_addresses    = [
+        "AzureActiveDirectory"
+      ]
+      destination_ports        = ["*"]
+      protocols                = ["Any"]
+    }
+
+  }
+
   network_rule_collection {
     name                       = "AksOutboundNetworkRules"
-    priority                   = 400
+    priority                   = 401
     action                     = "Allow"
 
     rule {
@@ -192,12 +241,102 @@ resource azurerm_firewall_policy_rule_collection_group aks {
       ]
       protocols                = ["UDP"]
     }
+  }
 
+  # https://learn.microsoft.com/en-us/azure/container-apps/networking?tabs=azure-cli#application-rules
+  application_rule_collection {
+    name                       = "AcaOutboundApplicationRules"
+    priority                   = 402
+    action                     = "Allow"
+
+    rule {
+      name                       = "All scenarios"
+
+      source_ip_groups           = [azurerm_ip_group.agents.0.id]
+      destination_fqdns          = [
+        "mcr.microsoft.com",
+        "*.data.mcr.microsoft.com",
+      ]
+
+      protocols {
+        port                     = "443"
+        type                     = "Https"
+      }
+    }
+
+    rule {
+      name                       = "Azure Container Registry (ACR)"
+
+      source_ip_groups           = [azurerm_ip_group.agents.0.id]
+      destination_fqdns          = [
+        data.azurerm_container_registry.registry.login_server,
+        "*.blob.windows.net",
+        "login.microsoft.com",
+      ]
+
+      protocols {
+        port                     = "443"
+        type                     = "Https"
+      }
+    }
+
+    # rule {
+    #   name                       = "Azure Key Vault"
+
+    #   source_ip_groups           = [azurerm_ip_group.agents.0.id]
+    #   destination_fqdns          = [
+    #     "Your-Azure-Key-Vault-address",
+    #     "login.microsoft.com",
+    #   ]
+
+    #   protocols {
+    #     port                     = "443"
+    #     type                     = "Https"
+    #   }
+    # }
+
+    rule {
+      name                       = "Managed Identity"
+
+      source_ip_groups           = [azurerm_ip_group.agents.0.id]
+      destination_fqdns          = [
+        "*.identity.azure.net",
+        "login.microsoftonline.com",
+        "*.login.microsoftonline.com", 
+        "*.login.microsoft.com"
+      ]
+
+      protocols {
+        port                     = "443"
+        type                     = "Https"
+      }
+    }
+
+    rule {
+      name                       = "Docker Hub Registry"
+
+      source_ip_groups           = [azurerm_ip_group.agents.0.id]
+      destination_fqdns          = [
+        "hub.docker.com",
+        "registry-1.docker.io",
+        "production.cloudflare.docker.com",
+      ]
+
+      protocols {
+        port                     = "80"
+        type                     = "Http"
+      }
+
+      protocols {
+        port                     = "443"
+        type                     = "Https"
+      }
+    }
   }
 
   application_rule_collection {
     name                       = "AksOutboundApplicationRules"
-    priority                   = 401
+    priority                   = 403
     action                     = "Allow"
 
   # https://docs.microsoft.com/en-us/azure/aks/limit-egress-traffic#azure-global-required-fqdn--application-rules
@@ -549,21 +688,32 @@ resource azurerm_subnet_route_table_association aks_node_pool {
 
   count                        = var.gateway_type == "Firewall" ? 1 : 0
   depends_on                   = [
-    azurerm_firewall_policy_rule_collection_group.aks,
+    azurerm_firewall_policy_rule_collection_group.network,
     azurerm_firewall_policy_rule_collection_group.outbound_open,
     azurerm_monitor_diagnostic_setting.firewall_logs,
   ]
 }
 
-# BUG: https://github.com/microsoft/azure-container-apps/issues/227
-# resource azurerm_subnet_route_table_association container_apps_environment {
-#   subnet_id                    = azurerm_subnet.container_apps_environment.id
-#   route_table_id               = azurerm_route_table.gateway.0.id
+resource azurerm_subnet_route_table_association container_apps_environment {
+  subnet_id                    = azurerm_subnet.container_apps_environment.id
+  route_table_id               = azurerm_route_table.gateway.0.id
 
-#   count                        = var.gateway_type == "Firewall" ? 1 : 0
-#   depends_on                   = [
-#     azurerm_firewall_policy_rule_collection_group.aks,
-#     azurerm_firewall_policy_rule_collection_group.outbound_open,
-#     azurerm_monitor_diagnostic_setting.firewall_logs,
-#   ]
-# }
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
+  depends_on                   = [
+    azurerm_firewall_policy_rule_collection_group.network,
+    azurerm_firewall_policy_rule_collection_group.outbound_open,
+    azurerm_monitor_diagnostic_setting.firewall_logs,
+  ]
+}
+
+resource azurerm_subnet_route_table_association private_endpoint_subnet {
+  subnet_id                    = azurerm_subnet.private_endpoint_subnet.0.id
+  route_table_id               = azurerm_route_table.gateway.0.id
+
+  count                        = var.gateway_type == "Firewall" ? 1 : 0
+  depends_on                   = [
+    azurerm_firewall_policy_rule_collection_group.network,
+    azurerm_firewall_policy_rule_collection_group.outbound_open,
+    azurerm_monitor_diagnostic_setting.firewall_logs,
+  ]
+}

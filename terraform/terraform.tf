@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azapi                      = {
       source                   = "azure/azapi"
-      version                  = "~> 1.1"
+      version                  = "~> 1.9"
     }
     azuredevops                = {
       source                   = "microsoft/azuredevops"
