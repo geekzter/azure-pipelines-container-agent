@@ -559,19 +559,19 @@ jobs:
     ${{ elseif eq(parameters.destroy, 'On failure') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
-        condition: ne(dependencies.acaAgent.outputs['job1.provisioningResult.result'],'success')
+        condition: or(ne(dependencies.acaAgent.outputs['job1.provisioningResult.result'],'success'),ne(dependencies.acaAgent.outputs['job2.provisioningResult.result'],'success'),ne(dependencies.acaAgent.outputs['job3.provisioningResult.result'],'success'))
       ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-        condition: ne(dependencies.aksAgent.outputs['job1.provisioningResult.result'],'success')
+        condition: or(ne(dependencies.aksAgent.outputs['job1.provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['job2.provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['job3.provisioningResult.result'],'success'))
       ${{ if eq(parameters.containerEngine, 'Both') }}:
-        condition: or(ne(dependencies.acaAgent.outputs['job1.provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['job1.provisioningResult.result'],'success'))
+        condition: or(ne(dependencies.acaAgent.outputs['job1.provisioningResult.result'],'success'),ne(dependencies.acaAgent.outputs['job2.provisioningResult.result'],'success'),ne(dependencies.acaAgent.outputs['job3.provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['job1.provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['job2.provisioningResult.result'],'success'),ne(dependencies.aksAgent.outputs['job3.provisioningResult.result'],'success'))
     ${{ elseif eq(parameters.destroy, 'On success') }}:
       displayName: 'Destroy (${{ lower(parameters.destroy) }}) infrastructure'
       ${{ if eq(parameters.containerEngine, 'Container App') }}:
-        condition: eq(dependencies.acaAgent.outputs['job1.provisioningResult.result'],'success')
+        condition: and(eq(dependencies.acaAgent.outputs['job1.provisioningResult.result'],'success'),eq(dependencies.acaAgent.outputs['job2.provisioningResult.result'],'success'),eq(dependencies.acaAgent.outputs['job3.provisioningResult.result'],'success'))
       ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
-        condition: eq(dependencies.aksAgent.outputs['job1.provisioningResult.result'],'success')
+        condition: and(eq(dependencies.aksAgent.outputs['job1.provisioningResult.result'],'success'),eq(dependencies.aksAgent.outputs['job2.provisioningResult.result'],'success'),eq(dependencies.aksAgent.outputs['job3.provisioningResult.result'],'success'))
       ${{ if eq(parameters.containerEngine, 'Both') }}:
-        condition: and(eq(dependencies.acaAgent.outputs['job1.provisioningResult.result'],'success'),eq(dependencies.aksAgent.outputs['job1.provisioningResult.result'],'success'))
+        condition: and(eq(dependencies.acaAgent.outputs['job1.provisioningResult.result'],'success'),eq(dependencies.acaAgent.outputs['job2.provisioningResult.result'],'success'),eq(dependencies.acaAgent.outputs['job3.provisioningResult.result'],'success'),eq(dependencies.aksAgent.outputs['job1.provisioningResult.result'],'success'),eq(dependencies.aksAgent.outputs['job2.provisioningResult.result'],'success'),eq(dependencies.aksAgent.outputs['job3.provisioningResult.result'],'success'))
     timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
     pool:
