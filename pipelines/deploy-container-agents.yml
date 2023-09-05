@@ -172,7 +172,7 @@ jobs:
       vmImage: $(vmImage)
 
     steps:
-    - task: Docker@2
+    - task: Docker@1
       displayName: Build image
       inputs:
         azureSubscriptionEndpoint: $(containerSubscriptionConnection)
@@ -183,7 +183,7 @@ jobs:
           latest
           $(date)
 
-    - task: Docker@2
+    - task: Docker@1
       displayName: Push image
       inputs:
         azureSubscriptionEndpoint: $(containerSubscriptionConnection)
