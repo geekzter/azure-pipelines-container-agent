@@ -27,7 +27,7 @@ jobs:
   displayName: Container job
   container:
     image: $(containerRegistry).azurecr.io/$(imageName):$(tags)
-    endpoint: $(containerRegistryConnection)
+    endpoint: ${{ variables.containerRegistryConnection }}
   pool:
     name: Azure Pipelines
     vmImage: $(vmImage)
