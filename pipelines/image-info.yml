@@ -26,8 +26,10 @@ jobs:
 - job: ubuntuContainer
   displayName: Container job
   container:
-    image: $(containerRegistry).azurecr.io/$(imageName):$(tags)
-    endpoint: ${{ variables.containerRegistryConnection }}
+    # image: $(containerRegistry).azurecr.io/$(imageName):$(tags)
+    # endpoint: ${{ variables.containerRegistryConnection }}
+    image: ericvanimages.azurecr.io/pipelineagent/ubuntu:latest
+    endpoint: ericvanimages
   pool:
     name: Azure Pipelines
     vmImage: $(vmImage)
