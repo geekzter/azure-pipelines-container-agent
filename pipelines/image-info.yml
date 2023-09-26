@@ -11,8 +11,12 @@ schedules:
 trigger: none
 
 variables:
-- group: 'build-container-agent-image' # shared with deploy-container-agents.yml
+# - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
 # should contain 'containerRegistry', 'containerRegistryConnection' -> name of Container Registry Service Connection
+# - name: 'containerRegistry'
+#   value: 'ericvanimages'
+# - name: 'containerRegistryConnection'
+#   value: 'ericvanimages'
 - name: 'tags'
   value: 'latest'
 - name: 'imageName'
