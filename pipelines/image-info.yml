@@ -12,7 +12,7 @@ trigger: none
 
 variables:
 - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
-# should contain 'containerRegistry' -> name of Container Registry Service Connection
+# should contain 'containerRegistry', 'containerRegistryConnection' -> name of Container Registry Service Connection
 - name: 'tags'
   value: 'latest'
 - name: 'imageName'
@@ -27,7 +27,7 @@ jobs:
   displayName: Container job
   container:
     image: $(containerRegistry).azurecr.io/$(imageName):$(tags)
-    endpoint: $(containerSubscriptionConnection)
+    endpoint: $(containerRegistryConnection)
   pool:
     name: Azure Pipelines
     vmImage: $(vmImage)
