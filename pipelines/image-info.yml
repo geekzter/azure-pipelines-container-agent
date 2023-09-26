@@ -1,5 +1,4 @@
-name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-$(Build.BuildId) (${{ parameters.containerEngine }})
-
+name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-$(Build.BuildId)
 pr: none
 schedules:
 - cron: '0 0 * * *'
