@@ -1,43 +1,4 @@
-parameters:
-- name: containerEngine
-  displayName: Container Engine
-  type: string
-  default: 'Container App'
-  values:
-  - 'Container App'
-  - Kubernetes
-- name: numberOfJobs
-  displayName: Number of parallel jobs to create
-  type: number
-  default: 1
-- name: sleepTimeMinutes
-  displayName: Sleep time in minutes
-  type: number
-  default: 0
-- name: startAKSNodes
-  displayName: Start Nodes
-  type: boolean
-  default: true
-- name: workspace
-  displayName: Terraform Workspace
-  type: string
-  default: cd
-  values:
-  - ci
-  - cd
-  - cd1
-  - cd2
-  - cd3
-  - cd3
-  - k8s125
-  - k8s126
-  - test
-  - test1
-  - test2
-  - test3
-  - default
-
-name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId) (${{ parameters.containerEngine }})
+name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-$(Build.BuildId) (${{ parameters.containerEngine }})
 
 pr: none
 schedules:
@@ -53,14 +14,14 @@ trigger: none
 variables:
 - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
 # should contain 'containerRegistry' -> name of Container Registry Service Connection
-- name: 'agentPool'
-  value: ubuntu-latest
 - name: 'tags'
   value: 'latest'
 - name: 'imageName'
   value: 'pipelineagent/ubuntu'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
+- name: 'vmImage'
+  value: ubuntu-latest
 
 jobs:
 - job: ubuntuContainer
@@ -69,7 +30,8 @@ jobs:
     image: $(containerRegistry).azurecr.io/$(imageName):$(tags)
     endpoint: $(containerSubscriptionConnection)
   pool:
-    name: $(agentPool)
+    name: Azure Pipelines
+    vmImage: $(vmImage)
   steps:
   - bash: |
       echo Hello from Ubuntu
