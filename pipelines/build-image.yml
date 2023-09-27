@@ -43,6 +43,7 @@ steps:
     tags: |
       $(imageTag)
       $(date)
+      $(Build.SourceBranchName)
 
 - task: Docker@1
   displayName: Push image
@@ -55,3 +56,4 @@ steps:
     tags: |
       $(imageTag)
       $(date)
+      $(Build.SourceBranchName)

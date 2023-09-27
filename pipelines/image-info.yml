@@ -32,7 +32,7 @@ jobs:
   container:
     # image: $(containerRegistry).azurecr.io/$(imageName):$(tags)
     # endpoint: ${{ variables.containerRegistryConnection }}
-    image: ericvanimages.azurecr.io/pipelineagent/ubuntu:latest
+    image: ericvanimages.azurecr.io/pipelineagent/ubuntu:agentless
     endpoint: ericvanimages
   pool:
     name: Azure Pipelines
