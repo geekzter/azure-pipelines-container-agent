@@ -2,8 +2,8 @@
 set -e
 
 if [ -z "$AZP_URL" ]; then
-  echo 1>&2 "error: missing AZP_URL environment variable"
-  exit 1
+  echo "info: missing AZP_URL environment variable, skipping agent configuration"
+  exit 0
 fi
 
 if [ -z "$AZP_TOKEN_FILE" ]; then
