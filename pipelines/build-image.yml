@@ -38,7 +38,7 @@ steps:
   inputs:
     command: build
     containerRegistry: '$(containerRegistry)'
-    Dockerfile: 'images/ubuntu/Dockerfile'
+    # Dockerfile: 'images/ubuntu/Dockerfile'
     repository: $(imageName)
     tags: |
       $(imageTag)
