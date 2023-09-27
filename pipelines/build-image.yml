@@ -28,7 +28,7 @@ variables:
 - name: 'imageName'
   value: 'pipelineagent/ubuntu'
 - name: 'imageTag'
-  value: ${{ parameters.workspace }}
+  value: ${{ parameters.imageTag }}
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 
