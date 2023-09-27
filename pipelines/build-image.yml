@@ -1,3 +1,9 @@
+parameters:
+- name: imageTag
+  displayName: Image tag
+  type: string
+  default: latest
+  
 trigger: none
 
 schedules:
@@ -21,6 +27,8 @@ variables:
   value: 'latest'
 - name: 'imageName'
   value: 'pipelineagent/ubuntu'
+- name: 'imageTag'
+  value: ${{ parameters.workspace }}
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 
@@ -33,7 +41,7 @@ steps:
     command: build
     repository: $(imageName)
     tags: |
-      latest
+      $(imageTag)
       $(date)
 
 - task: Docker@1
@@ -45,5 +53,5 @@ steps:
     containerRegistry: '$(containerRegistry)'
     repository: $(imageName)
     tags: |
-      latest
+      $(imageTag)
       $(date)
