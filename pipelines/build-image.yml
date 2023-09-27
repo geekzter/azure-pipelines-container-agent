@@ -39,7 +39,7 @@ steps:
     azureSubscriptionEndpoint: $(containerSubscriptionConnection)
     azureContainerRegistry: $(containerRegistry).azurecr.io
     command: build
-    repository: $(imageName)
+    imageName: $(imageName)
     tags: |
       $(imageTag)
       $(date)
@@ -52,7 +52,7 @@ steps:
     azureContainerRegistry: $(containerRegistry).azurecr.io
     command: push
     containerRegistry: '$(containerRegistry)'
-    repository: $(imageName)
+    imageName: $(imageName)
     tags: |
       $(imageTag)
       $(date)
