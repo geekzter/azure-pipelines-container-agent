@@ -33,26 +33,23 @@ variables:
   value: '$(Build.SourcesDirectory)/scripts'
 
 steps:
-- task: Docker@1
+- task: Docker@2
   displayName: Build image
   inputs:
-    azureSubscriptionEndpoint: $(containerSubscriptionConnection)
-    azureContainerRegistry: $(containerRegistry).azurecr.io
     command: build
-    imageName: $(imageName)
+    containerRegistry: '$(containerRegistry)'
+    repository: $(imageName)
     tags: |
       $(imageTag)
       $(date)
       $(Build.SourceBranchName)
 
-- task: Docker@1
+- task: Docker@2
   displayName: Push image
   inputs:
-    azureSubscriptionEndpoint: $(containerSubscriptionConnection)
-    azureContainerRegistry: $(containerRegistry).azurecr.io
     command: push
     containerRegistry: '$(containerRegistry)'
-    imageName: $(imageName)
+    repository: $(imageName)
     tags: |
       $(imageTag)
       $(date)
