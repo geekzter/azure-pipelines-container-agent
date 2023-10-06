@@ -49,6 +49,7 @@ jobs:
     inputs:
       azureSubscription: '${{ parameters.azureServiceConnection }}'
       failOnStandardError: true
+      scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: az -v
   - task: AzurePowerShell@5
