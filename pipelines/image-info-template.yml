@@ -16,9 +16,9 @@ parameters:
   default: 'pipelineagent/ubuntu'
 
 jobs:
-- job: toolsContainer
+- job: ${{ parameters.name }}
   dependsOn: ${{ parameters.dependsOn }}
-  displayName: Container job
+  displayName: ${{ parameters.displayName }}
   variables:
   - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
   # should contain 'containerRegistry', 'containerRegistryConnection' -> name of Container Registry Service Connection

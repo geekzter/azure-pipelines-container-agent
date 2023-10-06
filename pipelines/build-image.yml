@@ -118,7 +118,7 @@ jobs:
 #       terraform -v
 #     displayName: 'Terraform info'
 
-  - template: image-info-template.yml
-    parameters:
-      name: test
-      dependsOn: build
+- template: image-info-template.yml
+  parameters:
+    name: test
+    dependsOn: build
