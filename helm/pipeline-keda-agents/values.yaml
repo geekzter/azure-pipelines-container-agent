@@ -12,7 +12,7 @@ linux:
   podPrefix: "azure-devops"
   image: 
     # acrLoginServer: ""
-    name: pipelineagent/ubuntu
+    name: pipelineagent/ubuntu-agent
     tag: latest
 
   azureDevOps: {}

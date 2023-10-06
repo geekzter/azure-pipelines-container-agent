@@ -1,4 +1,4 @@
-container_image                = "<acr_name>.azurecr.io/pipelineagent/ubuntu"
+container_image                = "<acr_name>.azurecr.io/pipelineagent/ubuntu-agent"
 container_registry_id          = "<acr_resource_id>"
 
 # log_analytics_workspace_id     = "<log_analytics_resource_id>"
