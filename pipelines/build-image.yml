@@ -21,15 +21,17 @@ variables:
 - name: date
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
 - name: 'tags'
-  value: 'latest'
-- name: 'baseImageName'
-  value: 'pipelineagent/ubuntu'
+  value: latest
 - name: 'agentImageName'
-  value: 'pipelineagent/ubuntu-agent'
+  value: pipelineagent/ubuntu-agent
+- name: 'baseImageName'
+  value: pipelineagent/ubuntu
+- name: 'baseImageFQName'
+  value: $(containerRegistry).azurecr.io/$(baseImageName):$(Build.BuildId)
 - name: 'imageTag'
   value: ${{ parameters.imageTag }}
 - name: 'scriptDirectory'
-  value: '$(Build.SourcesDirectory)/scripts'
+  value: $(Build.SourcesDirectory)/scripts
 
 jobs:
 - job: build
@@ -65,7 +67,8 @@ jobs:
   - task: Docker@2
     displayName: Build agent image
     inputs:
-      arguments: '--build-arg BASE_IMAGE=$(containerRegistry).azurecr.io/$(baseImageName)'
+      # arguments: '--build-arg BASE_IMAGE=$(containerRegistry).azurecr.io/$(baseImageName)'
+      arguments: '--build-arg BASE_IMAGE=$(baseImageFQName)'
       command: build
       containerRegistry: '$(containerRegistry)'
       Dockerfile: 'images/ubuntu-agent/Dockerfile'
@@ -92,7 +95,8 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
   container:
-    image: $(containerRegistry).azurecr.io/$(baseImageName):latest
+    # image: $(containerRegistry).azurecr.io/$(baseImageName):latest
+    image: $(baseImageFQName)
     endpoint: ericvanimages
 
   steps:
