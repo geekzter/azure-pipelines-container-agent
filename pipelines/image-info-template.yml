@@ -10,10 +10,10 @@ parameters:
   displayName: Display Name
   type: string
   default: Tools Container Info
-- name: imageName
-  displayName: Image Name
+- name: imageTag
+  displayName: Image tag
   type: string
-  default: 'pipelineagent/ubuntu'
+  default: latest
 
 jobs:
 - job: ${{ parameters.name }}
@@ -22,16 +22,8 @@ jobs:
   variables:
   - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
   # should contain 'containerRegistry', 'containerRegistryConnection' -> name of Container Registry Service Connection
-  - name: 'tags'
-    value: 'latest'
-  - name: 'imageName'
-    value: 'pipelineagent/ubuntu'
-  - name: 'scriptDirectory'
-    value: '$(Build.SourcesDirectory)/scripts'
-  - name: 'toolsImageName'
-    value: pipelineagent/ubuntu
   - name: 'toolsImageFQName'
-    value: $(containerRegistry).azurecr.io/$(toolsImageName):$(Build.BuildId)
+    value: $(containerRegistry).azurecr.io/pipelineagent/ubuntu:${{ parameters.imageTag }}
   - name: 'vmImage'
     value: ubuntu-latest
   pool:

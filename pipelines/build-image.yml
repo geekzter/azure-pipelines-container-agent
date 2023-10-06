@@ -122,3 +122,4 @@ jobs:
   parameters:
     name: test
     dependsOn: build
+    imageTag: $(Build.BuildId)
