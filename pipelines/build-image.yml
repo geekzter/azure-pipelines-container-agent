@@ -24,10 +24,10 @@ variables:
   value: latest
 - name: 'agentImageName'
   value: pipelineagent/ubuntu-agent
-- name: 'baseImageName'
+- name: 'toolsImageName'
   value: pipelineagent/ubuntu
-- name: 'baseImageFQName'
-  value: $(containerRegistry).azurecr.io/$(baseImageName):$(Build.BuildId)
+- name: 'toolsImageFQName'
+  value: $(containerRegistry).azurecr.io/$(toolsImageName):$(Build.BuildId)
 - name: 'imageTag'
   value: ${{ parameters.imageTag }}
 - name: 'scriptDirectory'
@@ -41,12 +41,12 @@ jobs:
 
   steps:
   - task: Docker@2
-    displayName: Build base image
+    displayName: Build tools image
     inputs:
       command: build
       containerRegistry: '$(containerRegistry)'
       Dockerfile: 'images/ubuntu/Dockerfile'
-      repository: $(baseImageName)
+      repository: $(toolsImageName)
       tags: |
         $(imageTag)
         $(date)
@@ -54,11 +54,11 @@ jobs:
         $(Build.SourceBranchName)
 
   - task: Docker@2
-    displayName: Push base image
+    displayName: Push tools image
     inputs:
       command: push
       containerRegistry: '$(containerRegistry)'
-      repository: $(baseImageName)
+      repository: $(toolsImageName)
       tags: |
         $(imageTag)
         $(date)
@@ -68,8 +68,7 @@ jobs:
   - task: Docker@2
     displayName: Build agent image
     inputs:
-      # arguments: '--build-arg BASE_IMAGE=$(containerRegistry).azurecr.io/$(baseImageName)'
-      arguments: '--build-arg BASE_IMAGE=$(baseImageFQName)'
+      arguments: '--build-arg BASE_IMAGE=$(toolsImageFQName)'
       command: build
       containerRegistry: '$(containerRegistry)'
       Dockerfile: 'images/ubuntu-agent/Dockerfile'
@@ -92,13 +91,14 @@ jobs:
 
 - job: test
   dependsOn: build
-  displayName: Test base image
+  displayName: Test tools image
   pool:
     vmImage: 'ubuntu-latest'
   container:
-    # image: $(containerRegistry).azurecr.io/$(baseImageName):latest
-    image: $(baseImageFQName)
-    endpoint: ericvanimages
+    # image: $(containerRegistry).azurecr.io/$(toolsImageName):latest
+    image: $(toolsImageFQName)
+    # endpoint: ericvanimages
+    endpoint: ${{ variables.ericvanimages }}
 
   steps:
-  - script: echo hello $(containerRegistry).azurecr.io/$(baseImageName)
+  - script: echo hello $(containerRegistry).azurecr.io/$(toolsImageName)
