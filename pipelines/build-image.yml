@@ -48,6 +48,7 @@ jobs:
       tags: |
         $(imageTag)
         $(date)
+        $(Build.BuildId)
         $(Build.SourceBranchName)
 
   - task: Docker@2
@@ -87,7 +88,7 @@ jobs:
 
 - job: test
   dependsOn: build
-  displayName: Build images
+  displayName: Test base image
   pool:
     vmImage: 'ubuntu-latest'
   container:
@@ -95,4 +96,4 @@ jobs:
     endpoint: ericvanimages
 
   steps:
-  - script: echo hello
+  - script: echo hello $(containerRegistry).azurecr.io/$(baseImageName)
