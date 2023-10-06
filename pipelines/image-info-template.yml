@@ -14,6 +14,10 @@ parameters:
   displayName: Image tag
   type: string
   default: latest
+- name: azureServiceConnection
+  displayName: Azure Service Connection
+  type: string
+  default: my-azure-subscription
 
 jobs:
 - job: ${{ parameters.name }}
@@ -37,13 +41,28 @@ jobs:
       lsb_release -d
     displayName: 'Ubuntu info'
   - pwsh: |
-      az -v
-    displayName: 'Azure CLI info'
-  - pwsh: |
       Write-Host "`$PSVersionTable.OS"
       $PSVersionTable.OS
       Get-InstalledModule | Sort-Object -Property Name
     displayName: 'PowerShell info'
-  - pwsh: |
-      terraform -v
+  - pwsh: terraform -v
     displayName: 'Terraform info'
+  - pwsh: |
+      az -v
+    displayName: 'Azure CLI info'
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: '${{ parameters.azureServiceConnection }}'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: az -v
+  - task: AzurePowerShell@5
+    inputs:
+      azureSubscription: '${{ parameters.azureServiceConnection }}'
+      scriptType: inlineScript
+      inline: |
+        Get-AzContext Format-List
+        Get-AzContext | Select-Object -ExpandProperty Subscription | Format-List
+      azurePowerShellVersion: 'latestVersion'
+      pwsh: true
+      failOnStandardError: true

@@ -10,51 +10,7 @@ schedules:
     - main
 trigger: none
 
-# variables:
-# # - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
-# # should contain 'containerRegistry', 'containerRegistryConnection' -> name of Container Registry Service Connection
-# # - name: 'containerRegistry'
-# #   value: 'ericvanimages'
-# # - name: 'containerRegistryConnection'
-# #   value: 'ericvanimages'
-# - name: 'tags'
-#   value: 'latest'
-# - name: 'imageName'
-#   value: 'pipelineagent/ubuntu'
-# - name: 'scriptDirectory'
-#   value: '$(Build.SourcesDirectory)/scripts'
-# - name: 'toolsImageName'
-#   value: pipelineagent/ubuntu
-# - name: 'toolsImageFQName'
-#   value: $(containerRegistry).azurecr.io/$(toolsImageName):$(Build.BuildId)
-# - name: 'vmImage'
-#   value: ubuntu-latest
-
 jobs:
-# - job: ubuntuContainer
-#   displayName: Container job
-#   pool:
-#     vmImage: 'ubuntu-latest'
-#   container:
-#     image: $(toolsImageFQName)
-#     endpoint: containerEndpoint
-#   steps:
-#   - bash: |
-#       echo Hello from Ubuntu
-#       lsb_release -d
-#     displayName: 'Ubuntu info'
-#   - pwsh: |
-#       az -v
-#     displayName: 'Azure CLI info'
-#   - pwsh: |
-#       Write-Host "`$PSVersionTable.OS"
-#       $PSVersionTable.OS
-#       Get-InstalledModule | Sort-Object -Property Name
-#     displayName: 'PowerShell info'
-#   - pwsh: |
-#       terraform -v
-#     displayName: 'Terraform info'
-
 - template: image-info-template.yml
   parameters:
     name: test

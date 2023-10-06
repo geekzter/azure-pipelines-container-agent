@@ -89,35 +89,6 @@ jobs:
         $(date)
         $(Build.SourceBranchName)
 
-# - job: test
-#   dependsOn: build
-#   displayName: Test tools image
-#   pool:
-#     vmImage: 'ubuntu-latest'
-#   container:
-#     image: $(toolsImageFQName)
-#     endpoint: containerEndpoint
-#     # endpoint: $(containerEndpoint)
-#     # endpoint: ${{ variables.containerRegistry }}
-#     # endpoint: $[ variables['containerRegistry'] ]
-
-#   steps:
-#   - bash: |
-#       echo Hello from Ubuntu
-#       lsb_release -d
-#     displayName: 'Ubuntu info'
-#   - pwsh: |
-#       az -v
-#     displayName: 'Azure CLI info'
-#   - pwsh: |
-#       Write-Host "`$PSVersionTable.OS"
-#       $PSVersionTable.OS
-#       Get-InstalledModule | Sort-Object -Property Name
-#     displayName: 'PowerShell info'
-#   - pwsh: |
-#       terraform -v
-#     displayName: 'Terraform info'
-
 - template: image-info-template.yml
   parameters:
     name: test
