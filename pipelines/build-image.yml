@@ -99,8 +99,8 @@ jobs:
     image: $(toolsImageFQName)
     # endpoint: ericvanimages
     # endpoint: $(containerEndpoint)
-    endpoint: ${{ variables.containerRegistry }}
-    # endpoint: $[ variables['ericvanimages'] ]
+    # endpoint: ${{ variables.containerRegistry }}
+    endpoint: $[ variables['containerRegistry'] ]
 
   steps:
   - script: echo hello $(containerRegistry).azurecr.io/$(toolsImageName)
