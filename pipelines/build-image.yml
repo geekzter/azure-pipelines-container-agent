@@ -25,8 +25,10 @@ variables:
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
 - name: 'tags'
   value: 'latest'
-- name: 'imageName'
+- name: 'baseImageName'
   value: 'pipelineagent/ubuntu'
+- name: 'agentImageName'
+  value: 'pipelineagent/ubuntu-agent'
 - name: 'imageTag'
   value: ${{ parameters.imageTag }}
 - name: 'scriptDirectory'
@@ -34,24 +36,48 @@ variables:
 
 steps:
 - task: Docker@2
-  displayName: Build image
+  displayName: Build base image
   inputs:
     command: build
     containerRegistry: '$(containerRegistry)'
-    # Dockerfile: 'images/ubuntu/Dockerfile'
-    repository: $(imageName)
+    Dockerfile: 'images/ubuntu/Dockerfile'
+    repository: $(baseImageName)
     tags: |
       $(imageTag)
       $(date)
       $(Build.SourceBranchName)
 
 - task: Docker@2
-  displayName: Push image
+  displayName: Push base image
   inputs:
     command: push
     containerRegistry: '$(containerRegistry)'
-    repository: $(imageName)
+    repository: $(baseImageName)
     tags: |
       $(imageTag)
       $(date)
       $(Build.SourceBranchName)
+
+- task: Docker@2
+  displayName: Build agent image
+  inputs:
+    command: build
+    containerRegistry: '$(containerRegistry)'
+    Dockerfile: 'images/ubuntu-agent/Dockerfile'
+    repository: $(agentImageName)
+    tags: |
+      $(imageTag)
+      $(date)
+      $(Build.SourceBranchName)
+
+- task: Docker@2
+  displayName: Push base image
+  inputs:
+    command: push
+    containerRegistry: '$(containerRegistry)'
+    repository: $(agentImageName)
+    tags: |
+      $(imageTag)
+      $(date)
+      $(Build.SourceBranchName)
+
