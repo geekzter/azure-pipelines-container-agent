@@ -61,6 +61,7 @@ steps:
 - task: Docker@2
   displayName: Build agent image
   inputs:
+    arguments: '--build-arg BASE_IMAGE=$(containerRegistry).azurecr.io/$(baseImageName) --quiet'
     command: build
     containerRegistry: '$(containerRegistry)'
     Dockerfile: 'images/ubuntu-agent/Dockerfile'
