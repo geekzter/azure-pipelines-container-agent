@@ -15,9 +15,6 @@ schedules:
     include:
     - main
 
-pool:
-  vmImage: 'ubuntu-latest' 
-
 variables:
 - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
 # should contain 'containerRegistry' -> name of Container Registry Service Connection
@@ -34,51 +31,68 @@ variables:
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
 
-steps:
-- task: Docker@2
-  displayName: Build base image
-  inputs:
-    command: build
-    containerRegistry: '$(containerRegistry)'
-    Dockerfile: 'images/ubuntu/Dockerfile'
-    repository: $(baseImageName)
-    tags: |
-      $(imageTag)
-      $(date)
-      $(Build.SourceBranchName)
+jobs:
+- job: build
+  displayName: Build images
+  pool:
+    vmImage: 'ubuntu-latest'
 
-- task: Docker@2
-  displayName: Push base image
-  inputs:
-    command: push
-    containerRegistry: '$(containerRegistry)'
-    repository: $(baseImageName)
-    tags: |
-      $(imageTag)
-      $(date)
-      $(Build.SourceBranchName)
+  steps:
+  - task: Docker@2
+    displayName: Build base image
+    inputs:
+      command: build
+      containerRegistry: '$(containerRegistry)'
+      Dockerfile: 'images/ubuntu/Dockerfile'
+      repository: $(baseImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.SourceBranchName)
 
-- task: Docker@2
-  displayName: Build agent image
-  inputs:
-    arguments: '--build-arg BASE_IMAGE=$(containerRegistry).azurecr.io/$(baseImageName) --quiet'
-    command: build
-    containerRegistry: '$(containerRegistry)'
-    Dockerfile: 'images/ubuntu-agent/Dockerfile'
-    repository: $(agentImageName)
-    tags: |
-      $(imageTag)
-      $(date)
-      $(Build.SourceBranchName)
+  - task: Docker@2
+    displayName: Push base image
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: $(baseImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.SourceBranchName)
 
-- task: Docker@2
-  displayName: Push agent image
-  inputs:
-    command: push
-    containerRegistry: '$(containerRegistry)'
-    repository: $(agentImageName)
-    tags: |
-      $(imageTag)
-      $(date)
-      $(Build.SourceBranchName)
+  - task: Docker@2
+    displayName: Build agent image
+    inputs:
+      arguments: '--build-arg BASE_IMAGE=$(containerRegistry).azurecr.io/$(baseImageName)'
+      command: build
+      containerRegistry: '$(containerRegistry)'
+      Dockerfile: 'images/ubuntu-agent/Dockerfile'
+      repository: $(agentImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.SourceBranchName)
 
+  - task: Docker@2
+    displayName: Push agent image
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: $(agentImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.SourceBranchName)
+
+- job: test
+  dependsOn: build
+  displayName: Build images
+  pool:
+    vmImage: 'ubuntu-latest'
+  container:
+    image: $(containerRegistry).azurecr.io/$(baseImageName):latest
+    endpoint: '$(containerRegistry)'
+
+  steps:
+  - script: echo hello
