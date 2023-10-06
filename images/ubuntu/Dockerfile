@@ -66,7 +66,7 @@ RUN apt-get install -y azure-cli \
                        dotnet-sdk-7.0 \
                        powershell
 
-RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,AzureAD,Microsoft.Graph -Scope AllUsers -Repository PSGallery -Force'
+RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,Microsoft.Graph -Scope AllUsers -Repository PSGallery -Force'
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64
