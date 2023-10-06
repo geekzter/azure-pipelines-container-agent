@@ -98,7 +98,8 @@ jobs:
     # image: $(containerRegistry).azurecr.io/$(toolsImageName):latest
     image: $(toolsImageFQName)
     # endpoint: ericvanimages
-    endpoint: $(containerEndpoint)
+    endpoint: '6f77cc85-9c47-4d59-8071-3e3321c93aaa'
+    # endpoint: $(containerEndpoint)
     # endpoint: ${{ variables.containerRegistry }}
     # endpoint: $[ variables['containerRegistry'] ]
 
