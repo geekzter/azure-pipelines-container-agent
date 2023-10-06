@@ -71,7 +71,7 @@ steps:
       $(Build.SourceBranchName)
 
 - task: Docker@2
-  displayName: Push base image
+  displayName: Push agent image
   inputs:
     command: push
     containerRegistry: '$(containerRegistry)'

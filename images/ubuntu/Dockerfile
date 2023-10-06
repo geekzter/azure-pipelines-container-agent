@@ -71,9 +71,9 @@ RUN apt-get install -y azure-cli \
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64
 
-WORKDIR /azp
+# WORKDIR /azp
 
-COPY ./start.sh .
-RUN chmod +x start.sh
+# COPY ./start.sh .
+# RUN chmod +x start.sh
 
-ENTRYPOINT [ "./start.sh" ]
+# ENTRYPOINT [ "./start.sh" ]
