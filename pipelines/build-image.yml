@@ -89,19 +89,36 @@ jobs:
         $(date)
         $(Build.SourceBranchName)
 
-- job: test
-  dependsOn: build
-  displayName: Test tools image
-  pool:
-    vmImage: 'ubuntu-latest'
-  container:
-    # image: $(containerRegistry).azurecr.io/$(toolsImageName):latest
-    image: $(toolsImageFQName)
-    # endpoint: ericvanimages
-    endpoint: '6f77cc85-9c47-4d59-8071-3e3321c93aaa'
-    # endpoint: $(containerEndpoint)
-    # endpoint: ${{ variables.containerRegistry }}
-    # endpoint: $[ variables['containerRegistry'] ]
+# - job: test
+#   dependsOn: build
+#   displayName: Test tools image
+#   pool:
+#     vmImage: 'ubuntu-latest'
+#   container:
+#     image: $(toolsImageFQName)
+#     endpoint: containerEndpoint
+#     # endpoint: $(containerEndpoint)
+#     # endpoint: ${{ variables.containerRegistry }}
+#     # endpoint: $[ variables['containerRegistry'] ]
 
-  steps:
-  - script: echo hello $(toolsImageFQName)
+#   steps:
+#   - bash: |
+#       echo Hello from Ubuntu
+#       lsb_release -d
+#     displayName: 'Ubuntu info'
+#   - pwsh: |
+#       az -v
+#     displayName: 'Azure CLI info'
+#   - pwsh: |
+#       Write-Host "`$PSVersionTable.OS"
+#       $PSVersionTable.OS
+#       Get-InstalledModule | Sort-Object -Property Name
+#     displayName: 'PowerShell info'
+#   - pwsh: |
+#       terraform -v
+#     displayName: 'Terraform info'
+
+  - template: image-info-template.yml
+    parameters:
+      name: test
+      dependsOn: build

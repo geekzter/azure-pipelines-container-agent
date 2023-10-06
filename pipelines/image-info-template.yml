@@ -1,0 +1,57 @@
+parameters:
+- name: name
+  displayName: Name
+  type: string
+  default: toolsContainer
+- name: dependsOn
+  type: object
+  default: null
+- name: displayName
+  displayName: Display Name
+  type: string
+  default: Tools Container Info
+- name: imageName
+  displayName: Image Name
+  type: string
+  default: 'pipelineagent/ubuntu'
+
+jobs:
+- job: toolsContainer
+  dependsOn: ${{ parameters.dependsOn }}
+  displayName: Container job
+  variables:
+  - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
+  # should contain 'containerRegistry', 'containerRegistryConnection' -> name of Container Registry Service Connection
+  - name: 'tags'
+    value: 'latest'
+  - name: 'imageName'
+    value: 'pipelineagent/ubuntu'
+  - name: 'scriptDirectory'
+    value: '$(Build.SourcesDirectory)/scripts'
+  - name: 'toolsImageName'
+    value: pipelineagent/ubuntu
+  - name: 'toolsImageFQName'
+    value: $(containerRegistry).azurecr.io/$(toolsImageName):$(Build.BuildId)
+  - name: 'vmImage'
+    value: ubuntu-latest
+  pool:
+    vmImage: 'ubuntu-latest'
+  container:
+    image: $(toolsImageFQName)
+    endpoint: containerEndpoint
+  steps:
+  - bash: |
+      echo Hello from Ubuntu
+      lsb_release -d
+    displayName: 'Ubuntu info'
+  - pwsh: |
+      az -v
+    displayName: 'Azure CLI info'
+  - pwsh: |
+      Write-Host "`$PSVersionTable.OS"
+      $PSVersionTable.OS
+      Get-InstalledModule | Sort-Object -Property Name
+    displayName: 'PowerShell info'
+  - pwsh: |
+      terraform -v
+    displayName: 'Terraform info'

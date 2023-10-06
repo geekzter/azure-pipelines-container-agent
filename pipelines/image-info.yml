@@ -23,20 +23,21 @@ variables:
   value: 'pipelineagent/ubuntu'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
+- name: 'toolsImageName'
+  value: pipelineagent/ubuntu
+- name: 'toolsImageFQName'
+  value: $(containerRegistry).azurecr.io/$(toolsImageName):$(Build.BuildId)
 - name: 'vmImage'
   value: ubuntu-latest
 
 jobs:
 - job: ubuntuContainer
   displayName: Container job
-  container:
-    # image: ${{ variables.containerRegistry }}.azurecr.io/$(imageName):$(tags)
-    # endpoint: ${{ variables.containerRegistryConnection }}
-    image: ericvanimages.azurecr.io/pipelineagent/ubuntu:agentless
-    endpoint: ericvanimages
   pool:
-    name: Azure Pipelines
-    vmImage: $(vmImage)
+    vmImage: 'ubuntu-latest'
+  container:
+    image: $(toolsImageFQName)
+    endpoint: containerEndpoint
   steps:
   - bash: |
       echo Hello from Ubuntu
