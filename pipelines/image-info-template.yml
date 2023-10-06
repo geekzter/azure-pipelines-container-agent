@@ -54,6 +54,7 @@ jobs:
       inlineScript: az -v
   - task: AzurePowerShell@5
     inputs:
+      azurePowerShellVersion: 'latestVersion'
       azureSubscription: '${{ parameters.azureServiceConnection }}'
       failOnStandardError: true
       inline: |
