@@ -39,27 +39,25 @@ jobs:
   - bash: |
       echo Hello from Ubuntu
       lsb_release -d
-    displayName: 'Ubuntu info'
+    displayName: 'bash: Ubuntu info'
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
       $PSVersionTable.OS
       Get-InstalledModule | Sort-Object -Property Name
-    displayName: 'PowerShell info'
-  - pwsh: terraform -v
-    displayName: 'Terraform info'
+    displayName: 'pwsh: PowerShell info'
   - task: AzureCLI@2
     inputs:
       azureSubscription: '${{ parameters.azureServiceConnection }}'
-      scriptType: pscore
+      failOnStandardError: true
       scriptLocation: inlineScript
       inlineScript: az -v
   - task: AzurePowerShell@5
     inputs:
       azureSubscription: '${{ parameters.azureServiceConnection }}'
-      scriptType: inlineScript
+      failOnStandardError: true
       inline: |
         Get-AzContext Format-List
         Get-AzContext | Select-Object -ExpandProperty Subscription | Format-List
-      azurePowerShellVersion: 'latestVersion'
-      pwsh: true
-      failOnStandardError: true
+      scriptType: inlineScript
+  - pwsh: terraform -v
+    displayName: 'Terraform info'
