@@ -93,4 +93,5 @@ jobs:
   parameters:
     name: test
     dependsOn: build
+    displayName: Test tools container
     imageTag: $(Build.BuildId)

@@ -47,9 +47,6 @@ jobs:
     displayName: 'PowerShell info'
   - pwsh: terraform -v
     displayName: 'Terraform info'
-  - pwsh: |
-      az -v
-    displayName: 'Azure CLI info'
   - task: AzureCLI@2
     inputs:
       azureSubscription: '${{ parameters.azureServiceConnection }}'
