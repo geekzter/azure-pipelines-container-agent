@@ -98,17 +98,19 @@ variables:
   value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)-$(Build.BuildId)#$(TF_WORKSPACE)'
 - name: date
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
+- name: 'imageRepository'
+  value: 'pipelineagent/ubuntu-agent'
 - ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
     # CI: Use image produced in same build
   - name: 'imageTag'
     value: $(Build.BuildId)
-  - name: 'TF_VAR_container_repository'
+  - name: 'TF_VAR_container_image'
     value: 'pipelineagent/ubuntu-agent:$(Build.BuildId)'
 - ${{ else }}:
     # CD: Use latest image
   - name: 'imageTag'
     value: 'latest'
-  - name: 'TF_VAR_container_repository'
+  - name: 'TF_VAR_container_image'
     value: 'pipelineagent/ubuntu-agent:latest'
 - name: 'jobTimeOutMinutes'
   value: 60
@@ -435,14 +437,14 @@ jobs:
         chartPath: "helm/pipeline-keda-agents"
         releaseName: "pipeline-keda-agents"
         valueFile: "helm/pipeline-keda-agents/values.yaml,$(terraform.helm_environment_values_file_abs_path)"
-          # linux.image.tag=$(imageTag)
         overrideValues: |
-          image.repository=$(terraform.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
+          image.repository=$(terraform.container_registry_name).azurecr.io/$(imageRepository)
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
           linux.azureDevOps.orgUrl=$(System.CollectionUri)
           linux.azureDevOps.capability=$(correlationCapability)
           linux.azureDevOps.poolName=$(terraform.aks_agent_pool_name)
           linux.image.acrLoginServer=$(terraform.container_registry_name)
+          linux.image.tag=$(imageTag)
           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
           linux.trigger.poolId=$(terraform.aks_agent_pool_id)
           storage.accountName=$(terraform.diagnostics_storage_account_name)

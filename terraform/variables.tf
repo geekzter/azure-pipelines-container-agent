@@ -62,14 +62,14 @@ variable configure_access_control {
   type                         = bool
 }
 
+variable container_image {
+  default                      = "pipelineagent/ubuntu-agent"
+  nullable                     = false
+}
 variable container_registry_id {
   description                  = "Container Registry resource id"
   default                      = null
   nullable                     = true
-}
-variable container_repository {
-  default                      = "pipelineagent/ubuntu-agent"
-  nullable                     = false
 }
 
 variable create_agent_pools {

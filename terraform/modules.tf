@@ -69,7 +69,7 @@ module container_registry {
 
   agent_identity_principal_id  = local.agent_identity_principal_id
   configure_access_control     = var.configure_access_control
-  container_image              = var.container_repository
+  container_image              = var.container_image
   container_registry_id        = var.container_registry_id
   github_repo_access_token     = var.github_repo_access_token
   location                     = azurerm_resource_group.rg.location
@@ -85,7 +85,7 @@ module container_app_agents {
   container_app                = false
   container_job                = true
   container_registry_id        = module.container_registry.container_registry_id
-  container_repository         = var.container_repository
+  container_image              = var.container_image
   devops_url                   = local.devops_url
   devops_pat                   = var.devops_pat
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
