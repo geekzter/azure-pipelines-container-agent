@@ -36,9 +36,6 @@ jobs:
     value: ${{ parameters.imageTag }}
   pool:
     vmImage: 'ubuntu-latest'
-  container:
-    image: $(toolsImageFQName)
-    endpoint: containerEndpoint
   steps:
   - task: Docker@2
     displayName: Build tools image
