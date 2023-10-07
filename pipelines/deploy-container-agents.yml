@@ -98,13 +98,18 @@ variables:
   value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)-$(Build.BuildId)#$(TF_WORKSPACE)'
 - name: date
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
-- name: 'imageTag'
-  ${{ if or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual')) }}:
+- ${{ if or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual')) }}:
     # CI: Use image produced in same build
+  - name: 'imageTag'
     value: $(Build.BuildId)
-  ${{ else }}:
+  - name: 'TF_VAR_container_repository'
+    value: 'pipelineagent/ubuntu-agent:$(Build.BuildId)'
+- ${{ else }}:
     # CD: Use latest image
+  - name: 'imageTag'
     value: 'latest'
+  - name: 'TF_VAR_container_repository'
+    value: 'pipelineagent/ubuntu-agent:latest'
 - name: 'jobTimeOutMinutes'
   value: 60
 - name: 'pool'
@@ -125,8 +130,6 @@ variables:
   value: 'aks-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
-- name: 'TF_VAR_container_repository'
-  value: 'pipelineagent/ubuntu-agent:$(imageTag)'
 - name: 'TF_VAR_deploy_aks'
   value: ${{ lower(or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'TF_VAR_deploy_bastion'
