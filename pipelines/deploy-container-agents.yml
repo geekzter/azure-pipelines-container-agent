@@ -380,6 +380,7 @@ jobs:
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Add KEDA Helm repo"
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       inputs:
         connectionType: 'Azure Resource Manager'
@@ -393,6 +394,7 @@ jobs:
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Update KEDA Helm repo"
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscription: '$(subscriptionConnection)'
@@ -405,6 +407,7 @@ jobs:
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Install KEDA Helm chart"
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscription: '$(subscriptionConnection)'
@@ -421,6 +424,7 @@ jobs:
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Deploy agent to AKS"
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         azureSubscription: '$(subscriptionConnection)'
         azureResourceGroup: '$(terraform.resource_group_name)'
