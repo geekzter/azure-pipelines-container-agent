@@ -96,16 +96,21 @@ variables:
   value: 'yes_without_prompt'
 - name: 'correlationCapability'
   value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)'
-- name: 'jobTimeOutMinutes'
-  value: 60
 - name: date
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
+- name: 'imageTag'
+  ${{ if or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual')) }}:
+    # CI: Use image produced in same build
+    value: $(Build.BuildId)
+  ${{ else }}:
+    # CD: Use latest image
+    value: 'latest'
+- name: 'jobTimeOutMinutes'
+  value: 60
 - name: 'pool'
   value: 'Azure Pipelines'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
-- name: 'tags'
-  value: 'latest'
 - name: 'terraformArtifactName'
   value: 'terraform-$(System.PlanId)'
 - name: 'terraformDirectory'
@@ -163,40 +168,25 @@ variables:
 
 jobs:    
 - ${{ if parameters.buildImage }}:
-  - job: buildImage
-    displayName: 'Build Container Agent image'
-    timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
+  - template: build-image-template.yml
+    parameters:
+      name: buildImage
+      displayName: Build images
+      imageTag: $(imageTag)
 
-    pool:
-      name: '$(pool)'
-      vmImage: $(vmImage)
-
-    steps:
-    - task: Docker@1
-      displayName: Build image
-      inputs:
-        azureSubscriptionEndpoint: $(containerSubscriptionConnection)
-        azureContainerRegistry: $(containerRegistry).azurecr.io
-        command: build
-        repository: $(TF_VAR_container_repository)
-        tags: |
-          latest
-          $(date)
-
-    - task: Docker@1
-      displayName: Push image
-      inputs:
-        azureSubscriptionEndpoint: $(containerSubscriptionConnection)
-        azureContainerRegistry: $(containerRegistry).azurecr.io
-        command: push
-        repository: $(TF_VAR_container_repository)
-        tags: |
-          latest
-          $(date)
+- ${{ if parameters.buildImage }}:
+  - template: image-info-template.yml
+    parameters:
+      name: testImage
+      dependsOn: buildImage
+      displayName: Test tools image
+      imageTag: $(imageTag)
 
 - job: provision
   ${{ if parameters.buildImage }}:
-    dependsOn: buildImage
+    dependsOn: 
+    - buildImage
+    - testImage
   ${{ if eq(parameters.containerEngine, 'Container App') }}:
     displayName: 'Provision Container App infrastructure'
   ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
