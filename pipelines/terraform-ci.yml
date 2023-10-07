@@ -131,8 +131,6 @@ variables:
   value: 'azure-pipelines-container-agent'
 - name: 'TF_VAR_run_id'
   value: '$(Build.BuildId)'
-
-
 - name: 'vmImage'
   value: 'ubuntu-latest'
 

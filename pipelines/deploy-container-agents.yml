@@ -435,6 +435,7 @@ jobs:
         chartPath: "helm/pipeline-keda-agents"
         releaseName: "pipeline-keda-agents"
         valueFile: "helm/pipeline-keda-agents/values.yaml,$(terraform.helm_environment_values_file_abs_path)"
+          # linux.image.tag=$(imageTag)
         overrideValues: |
           image.repository=$(terraform.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
@@ -442,7 +443,6 @@ jobs:
           linux.azureDevOps.capability=$(correlationCapability)
           linux.azureDevOps.poolName=$(terraform.aks_agent_pool_name)
           linux.image.acrLoginServer=$(terraform.container_registry_name)
-          linux.image.tag=$(imageTag)
           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
           linux.trigger.poolId=$(terraform.aks_agent_pool_id)
           storage.accountName=$(terraform.diagnostics_storage_account_name)
