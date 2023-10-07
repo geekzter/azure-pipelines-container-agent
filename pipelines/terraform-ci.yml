@@ -127,8 +127,6 @@ variables:
   value: 'false'
 - name: 'TF_VAR_devops_url'
   value: '$(System.CollectionUri)'
-- name: 'TF_VAR_environment_variables'
-  value: '{PIPELINE_DEMO_JOB_CAPABILITY="$(correlationCapability)"}'
 - name: 'TF_VAR_repository'
   value: 'azure-pipelines-container-agent'
 - name: 'TF_VAR_run_id'
