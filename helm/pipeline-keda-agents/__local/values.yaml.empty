@@ -1,5 +1,5 @@
 image:
-  repository: "<ACR>.azurecr.io/pipelineagent/ubuntu"
+  repository: "<ACR>.azurecr.io/pipelineagent/ubuntu-agent"
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
@@ -7,7 +7,7 @@ image:
 linux:
   image:
     acrLoginServer: "<ACR>"
-    # name: pipelineagent/ubuntu
+    # name: pipelineagent/ubuntu-agent
     # tag: latest
 
   azureDevOps:

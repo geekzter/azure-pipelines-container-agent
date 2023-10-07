@@ -1,0 +1,140 @@
+parameters:
+- name: containerEngine
+  displayName: Container Engine
+  type: string
+  default: 'Container App'
+  values:
+  - 'Container App'
+  - Kubernetes
+- name: numberOfJobs
+  displayName: Number of parallel jobs to create
+  type: number
+  default: 1
+- name: sleepTimeMinutes
+  displayName: Sleep time in minutes
+  type: number
+  default: 0
+- name: startAKSNodes
+  displayName: Start Nodes
+  type: boolean
+  default: true
+- name: workspace
+  displayName: Terraform Workspace
+  type: string
+  default: cd
+  values:
+  - ci
+  - cd
+  - cd1
+  - cd2
+  - cd3
+  - cd3
+  - k8s125
+  - k8s126
+  - test
+  - test1
+  - test2
+  - test3
+  - default
+
+name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.workspace }}-$(Build.BuildId) (${{ parameters.containerEngine }})
+
+pr: none
+schedules:
+- cron: '0 0 * * *'
+  displayName: 'Daily build (0:00 UTC)'
+  # Run when there are no changes
+  always: 'true'
+  branches:
+    include:
+    - main
+trigger: none
+
+variables:
+  - group: 'container-image-info' # Should define 'subscriptionConnection' variable
+  - name: 'scriptDirectory'
+    value: '$(Build.SourcesDirectory)/scripts'
+  - name: 'agentPool'
+    ${{ if eq(parameters.containerEngine, 'Container App') }}:
+      value: 'aca-container-agents-${{ parameters.workspace }}'
+    ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+      value: 'aks-container-agents-${{ parameters.workspace }}'
+
+jobs:
+- ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+  - job: prepareCluster
+    displayName: Prepare AKS
+    pool:
+      name: Azure Pipelines
+    steps:
+    - task: AzureCLI@2
+      continueOnError: true
+      displayName: 'Start AKS Nodes'
+      name: aks
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          Write-Host "az graph query -q `"resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '$(agentPool)'`""
+          if (!(az extension list --query "[?name=='resource-graph'].version" -o tsv)) {
+            Write-Host "Adding Azure CLI extension 'resource-graph'..."
+            az extension add -n resource-graph -y
+          }
+          az graph query -q "resources | where type =~ 'Microsoft.ContainerService/managedClusters' and tags.pipelineAgentPoolName =~ '$(agentPool)'" `
+                        -a `
+                        --query "data" `
+                        -o json `
+                        | ConvertFrom-Json `
+                        | Set-Variable aks
+
+          if ($aks) {
+            if ($${{ and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}) {
+              Write-Host "Starting AKS $(agentPool) nodes..."
+              az aks start -n $aks.name -g $aks.resourceGroup
+            }
+            Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]true"
+          } else {
+            Write-Host "##vso[task.setvariable variable=aksExists;isOutput=true]false"
+            Write-Host "##vso[task.logissue type=warning]No AKS found with tag pipelineAgentPoolName='$(agentPool)'"
+          }
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'
+
+- job: ubuntuContainer
+  ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
+    condition: and(succeeded(), eq(dependencies.prepareCluster.outputs['aks.aksExists'], 'true'))
+    dependsOn: prepareCluster
+  strategy:
+    parallel: ${{ parameters.numberOfJobs }}
+  ${{ if le(parameters.numberOfJobs, 1) }}:
+    displayName: Single ${{ parameters.containerEngine }} job
+  ${{ else }}:
+    displayName: Parallel ${{ parameters.containerEngine }} job
+  pool:
+    name: $(agentPool)
+    demands:
+    - agent.os -equals Linux
+    - KUBERNETES_SERVICE_HOST
+    - ${{ if eq(parameters.containerEngine, 'Container App') }}:
+      - CONTAINER_APP_NAME
+  steps:
+  - bash: |
+      echo Hello from Ubuntu
+      lsb_release -d
+    displayName: 'Ubuntu info'
+  - pwsh: |
+      az -v
+    displayName: 'Azure CLI info'
+  - pwsh: |
+      Write-Host "`$PSVersionTable.OS"
+      $PSVersionTable.OS
+      Get-InstalledModule | Sort-Object -Property Name
+    displayName: 'PowerShell info'
+  - pwsh: |
+      terraform -v
+    displayName: 'Terraform info'
+  - ${{ if gt(parameters.sleepTimeMinutes, 0) }}:
+    - pwsh: |
+        Start-Sleep -Duration (New-TimeSpan -Minutes ${{ parameters.sleepTimeMinutes }})
+      displayName: 'Sleep ${{ parameters.sleepTimeMinutes }} minutes'

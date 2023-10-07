@@ -1,4 +1,4 @@
-# Expaned from https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#create-and-build-the-dockerfile-1
+# Expanded from https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#create-and-build-the-dockerfile-1
 FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
@@ -17,7 +17,6 @@ RUN apt-get install -y -qq --no-install-recommends \
     wget
 
 # Google repo
-# RUN curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 RUN curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg
 RUN echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | \
     tee /etc/apt/sources.list.d/kubernetes.list
@@ -65,15 +64,8 @@ RUN apt-get install -y azure-cli \
                        dotnet-sdk-6.0 \
                        dotnet-sdk-7.0 \
                        powershell
-# BUG: qemu: uncaught target signal 11 (Segmentation fault) - core dumped
-# RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,AzureAD,SqlServer -Scope AllUsers -Repository PSGallery -Force'
+
+RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,Microsoft.Graph -Scope AllUsers -Repository PSGallery -Force'
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64
-
-WORKDIR /azp
-
-COPY ./start.sh .
-RUN chmod +x start.sh
-
-ENTRYPOINT [ "./start.sh" ]

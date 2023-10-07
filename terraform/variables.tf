@@ -68,7 +68,7 @@ variable container_registry_id {
   nullable                     = true
 }
 variable container_repository {
-  default                      = "pipelineagent/ubuntu"
+  default                      = "pipelineagent/ubuntu-agent"
   nullable                     = false
 }
 

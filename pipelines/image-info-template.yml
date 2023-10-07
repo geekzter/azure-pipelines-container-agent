@@ -1,0 +1,65 @@
+parameters:
+- name: name
+  displayName: Name
+  type: string
+  default: toolsContainer
+- name: dependsOn
+  type: object
+  default: null
+- name: displayName
+  displayName: Display Name
+  type: string
+  default: Tools Container Info
+- name: imageTag
+  displayName: Image tag
+  type: string
+  default: latest
+- name: azureServiceConnection
+  displayName: Azure Service Connection
+  type: string
+  default: my-azure-subscription
+
+jobs:
+- job: ${{ parameters.name }}
+  dependsOn: ${{ parameters.dependsOn }}
+  displayName: ${{ parameters.displayName }}
+  variables:
+  - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
+  # should contain 'containerRegistry', 'containerRegistryConnection' -> name of Container Registry Service Connection
+  - name: 'toolsImageFQName'
+    value: $(containerRegistry).azurecr.io/pipelineagent/ubuntu:${{ parameters.imageTag }}
+  - name: 'vmImage'
+    value: ubuntu-latest
+  pool:
+    vmImage: 'ubuntu-latest'
+  container:
+    image: $(toolsImageFQName)
+    endpoint: containerEndpoint
+  steps:
+  - bash: |
+      echo Hello from Ubuntu
+      lsb_release -d
+    displayName: 'bash: Ubuntu info'
+  - pwsh: |
+      Write-Host "`$PSVersionTable.OS"
+      $PSVersionTable.OS
+      Get-InstalledModule | Sort-Object -Property Name
+    displayName: 'pwsh: PowerShell info'
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: '${{ parameters.azureServiceConnection }}'
+      failOnStandardError: true
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: az -v
+  - task: AzurePowerShell@5
+    inputs:
+      azurePowerShellVersion: 'latestVersion'
+      azureSubscription: '${{ parameters.azureServiceConnection }}'
+      failOnStandardError: true
+      inline: |
+        Get-AzContext Format-List
+        Get-AzContext | Select-Object -ExpandProperty Subscription | Format-List
+      scriptType: inlineScript
+  - pwsh: terraform -v
+    displayName: 'Terraform info'
