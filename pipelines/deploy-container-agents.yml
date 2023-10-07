@@ -95,17 +95,29 @@ variables:
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
   value: 'yes_without_prompt'
 - name: 'correlationCapability'
-  value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)'
-- name: 'jobTimeOutMinutes'
-  value: 60
+  value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)-$(Build.BuildId)#$(TF_WORKSPACE)'
 - name: date
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
+- name: 'imageRepository'
+  value: 'pipelineagent/ubuntu-agent'
+- ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
+    # CI: Use image produced in same build
+  - name: 'imageTag'
+    value: $(Build.BuildId)
+  - name: 'TF_VAR_container_image'
+    value: 'pipelineagent/ubuntu-agent:$(Build.BuildId)'
+- ${{ else }}:
+    # CD: Use latest image
+  - name: 'imageTag'
+    value: 'latest'
+  - name: 'TF_VAR_container_image'
+    value: 'pipelineagent/ubuntu-agent:latest'
+- name: 'jobTimeOutMinutes'
+  value: 60
 - name: 'pool'
   value: 'Azure Pipelines'
 - name: 'scriptDirectory'
   value: '$(Build.SourcesDirectory)/scripts'
-- name: 'tags'
-  value: 'latest'
 - name: 'terraformArtifactName'
   value: 'terraform-$(System.PlanId)'
 - name: 'terraformDirectory'
@@ -120,8 +132,6 @@ variables:
   value: 'aks-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
-- name: 'TF_VAR_container_repository'
-  value: 'pipelineagent/ubuntu-agent'
 - name: 'TF_VAR_deploy_aks'
   value: ${{ lower(or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'TF_VAR_deploy_bastion'
@@ -163,40 +173,37 @@ variables:
 
 jobs:    
 - ${{ if parameters.buildImage }}:
-  - job: buildImage
-    displayName: 'Build Container Agent image'
-    timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
+  - template: build-image-template.yml
+    parameters:
+      name: buildImage
+      ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
+        # CI: Use image produced in same build
+        displayName: Build images ($(Build.BuildId))
+        imageTag: $(Build.BuildId)
+      ${{ else }}:
+        # CD: Use latest image
+        displayName: Build images (latest)
+        imageTag: latest
 
-    pool:
-      name: '$(pool)'
-      vmImage: $(vmImage)
-
-    steps:
-    - task: Docker@1
-      displayName: Build image
-      inputs:
-        azureSubscriptionEndpoint: $(containerSubscriptionConnection)
-        azureContainerRegistry: $(containerRegistry).azurecr.io
-        command: build
-        repository: $(TF_VAR_container_repository)
-        tags: |
-          latest
-          $(date)
-
-    - task: Docker@1
-      displayName: Push image
-      inputs:
-        azureSubscriptionEndpoint: $(containerSubscriptionConnection)
-        azureContainerRegistry: $(containerRegistry).azurecr.io
-        command: push
-        repository: $(TF_VAR_container_repository)
-        tags: |
-          latest
-          $(date)
+- ${{ if parameters.buildImage }}:
+  - template: image-info-template.yml
+    parameters:
+      name: testImage
+      dependsOn: buildImage
+      ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
+        # CI: Use image produced in same build
+        displayName: Test tools image ($(Build.BuildId))
+        imageTag: $(Build.BuildId)
+      ${{ else }}:
+        # CD: Use latest image
+        displayName: Test tools image (latest)
+        imageTag: latest
 
 - job: provision
   ${{ if parameters.buildImage }}:
-    dependsOn: buildImage
+    dependsOn: 
+    - buildImage
+    - testImage
   ${{ if eq(parameters.containerEngine, 'Container App') }}:
     displayName: 'Provision Container App infrastructure'
   ${{ if eq(parameters.containerEngine, 'Kubernetes') }}:
@@ -377,6 +384,7 @@ jobs:
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Add KEDA Helm repo"
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
       continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
       inputs:
         connectionType: 'Azure Resource Manager'
@@ -390,6 +398,7 @@ jobs:
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Update KEDA Helm repo"
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscription: '$(subscriptionConnection)'
@@ -402,6 +411,7 @@ jobs:
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Install KEDA Helm chart"
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         connectionType: 'Azure Resource Manager'
         azureSubscription: '$(subscriptionConnection)'
@@ -418,6 +428,7 @@ jobs:
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Deploy agent to AKS"
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
         azureSubscription: '$(subscriptionConnection)'
         azureResourceGroup: '$(terraform.resource_group_name)'
@@ -429,12 +440,13 @@ jobs:
         releaseName: "pipeline-keda-agents"
         valueFile: "helm/pipeline-keda-agents/values.yaml,$(terraform.helm_environment_values_file_abs_path)"
         overrideValues: |
-          image.repository=$(terraform.container_registry_name).azurecr.io/$(TF_VAR_container_repository)
+          image.repository=$(terraform.container_registry_name).azurecr.io/$(imageRepository)
           linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
           linux.azureDevOps.orgUrl=$(System.CollectionUri)
           linux.azureDevOps.capability=$(correlationCapability)
           linux.azureDevOps.poolName=$(terraform.aks_agent_pool_name)
           linux.image.acrLoginServer=$(terraform.container_registry_name)
+          linux.image.tag=$(imageTag)
           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
           linux.trigger.poolId=$(terraform.aks_agent_pool_id)
           storage.accountName=$(terraform.diagnostics_storage_account_name)
@@ -485,7 +497,7 @@ jobs:
       # - CONTAINER_APP_NAME -equals $[ dependencies.provision.outputs['apply.container_app_name'] ]
       # - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(correlationCapability)
       # Repeat capability expression as there is no nested variable expansion inside demands
-      - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+      - PIPELINE_DEMO_JOB_CAPABILITY_ACA -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)-$(Build.BuildId)#$(TF_WORKSPACE)
 
     steps:
     - checkout: self
@@ -519,7 +531,7 @@ jobs:
       - agent.os -equals Linux
       # - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(correlationCapability)
       # Repeat capability expression as there is no nested variable expansion inside demands
-      - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)#$(TF_WORKSPACE)
+      - PIPELINE_DEMO_JOB_CAPABILITY_AKS -equals $(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)-$(Build.BuildId)#$(TF_WORKSPACE)
 
     steps:
     - checkout: self

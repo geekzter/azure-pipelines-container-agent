@@ -175,7 +175,7 @@ resource azapi_resource agent_container_app {
       }
       template                 = {
         containers             = [{
-          image                = "${local.container_registry_name}.azurecr.io/${var.container_repository}"
+          image                = "${local.container_registry_name}.azurecr.io/${var.container_image}"
           name                 = "pipeline-agent-app"
           env                  = local.environment_variables_template
           resources            = {
@@ -318,7 +318,7 @@ resource azapi_resource agent_container_job {
         containers             = [
           {
             env                = local.environment_variables_template
-            image              = "${local.container_registry_name}.azurecr.io/${var.container_repository}"
+            image              = "${local.container_registry_name}.azurecr.io/${var.container_image}"
             name               = "pipeline-agent"
             resources          = {
               cpu              = var.pipeline_agent_cpu

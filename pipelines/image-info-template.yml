@@ -9,7 +9,7 @@ parameters:
 - name: displayName
   displayName: Display Name
   type: string
-  default: Tools Container Info
+  default: Tools container info
 - name: imageTag
   displayName: Image tag
   type: string
@@ -28,8 +28,6 @@ jobs:
   # should contain 'containerRegistry', 'containerRegistryConnection' -> name of Container Registry Service Connection
   - name: 'toolsImageFQName'
     value: $(containerRegistry).azurecr.io/pipelineagent/ubuntu:${{ parameters.imageTag }}
-  - name: 'vmImage'
-    value: ubuntu-latest
   pool:
     vmImage: 'ubuntu-latest'
   container:

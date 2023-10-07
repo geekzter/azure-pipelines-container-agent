@@ -1,8 +1,8 @@
 variable container_app {
     type = bool
 }
+variable container_image {}
 variable container_registry_id {}
-variable container_repository {}
 variable container_job {
     type = bool
 }

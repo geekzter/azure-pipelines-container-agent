@@ -1,0 +1,85 @@
+parameters:
+- name: name
+  displayName: Name
+  type: string
+  default: toolsContainer
+- name: dependsOn
+  type: object
+  default: null
+- name: displayName
+  displayName: Display Name
+  type: string
+  default: Build container images
+- name: imageTag
+  displayName: Image tag
+  type: string
+  default: latest
+
+jobs:
+- job: ${{ parameters.name }}
+  dependsOn: ${{ parameters.dependsOn }}
+  displayName: ${{ parameters.displayName }}
+  variables:
+  - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
+  # should contain 'containerRegistry' -> name of Container Registry Service Connection
+  - name: date
+    value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
+  - name: 'agentImageName'
+    value: pipelineagent/ubuntu-agent
+  - name: 'toolsImageName'
+    value: pipelineagent/ubuntu
+  - name: 'toolsImageFQName'
+    value: $(containerRegistry).azurecr.io/$(toolsImageName):$(Build.BuildId)
+  - name: 'imageTag'
+    value: ${{ parameters.imageTag }}
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: Docker@2
+    displayName: Build tools image
+    inputs:
+      command: build
+      containerRegistry: '$(containerRegistry)'
+      Dockerfile: 'images/ubuntu/Dockerfile'
+      repository: $(toolsImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.BuildId)
+        $(Build.SourceBranchName)
+
+  - task: Docker@2
+    displayName: Push tools image
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: $(toolsImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.BuildId)
+        $(Build.SourceBranchName)
+
+  - task: Docker@2
+    displayName: Build agent image
+    inputs:
+      arguments: '--build-arg BASE_IMAGE=$(toolsImageFQName)'
+      command: build
+      containerRegistry: '$(containerRegistry)'
+      Dockerfile: 'images/ubuntu-agent/Dockerfile'
+      repository: $(agentImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.SourceBranchName)
+
+  - task: Docker@2
+    displayName: Push agent image
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: $(agentImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.SourceBranchName)
