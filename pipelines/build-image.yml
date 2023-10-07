@@ -15,9 +15,9 @@ schedules:
     include:
     - main
 
-# variables:
-# - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
-# # should contain 'containerRegistry' -> name of Container Registry Service Connection
+variables:
+- group: 'build-container-agent-image' # shared with deploy-container-agents.yml
+# should contain 'containerRegistry' -> name of Container Registry Service Connection
 # - name: date
 #   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
 # - name: 'tags'
