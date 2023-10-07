@@ -175,7 +175,12 @@ jobs:
     parameters:
       name: buildImage
       displayName: Build images
-      imageTag: $(imageTag)
+      ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
+        # CI: Use image produced in same build
+        imageTag: $(Build.BuildId)
+      ${{ else }}:
+        # CD: Use latest image
+        imageTag: latest
 
 - ${{ if parameters.buildImage }}:
   - template: image-info-template.yml
@@ -183,7 +188,12 @@ jobs:
       name: testImage
       dependsOn: buildImage
       displayName: Test tools image
-      imageTag: $(imageTag)
+      ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
+        # CI: Use image produced in same build
+        imageTag: $(Build.BuildId)
+      ${{ else }}:
+        # CD: Use latest image
+        imageTag: latest
 
 - job: provision
   ${{ if parameters.buildImage }}:
