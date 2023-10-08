@@ -1,6 +1,6 @@
 {
     "build": {
-        "dockerfile": "images/ubuntu/Dockerfile"
+        "dockerfile": "../images/ubuntu/Dockerfile"
     },
     "customizations": {
         "vscode": {
