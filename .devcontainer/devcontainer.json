@@ -7,7 +7,6 @@
             "extensions": [
                 "4ops.terraform",
                 "ms-azure-devops.azure-pipelines",
-                "ms-vscode.azure-account",
                 "ms-azuretools.vscode-azurecontainerapps",
                 "ms-azuretools.vscode-azureresourcegroups",
                 "ms-azuretools.vscode-azureterraform",
@@ -17,6 +16,7 @@
                 "ms-azuretools.vscode-docker-tools",
                 "ms-azuretools.vscode-docker",
                 "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "ms-vscode.azure-account",
                 "ms-vscode.azurecli",
                 "ms-vscode.powershell"
             ],
