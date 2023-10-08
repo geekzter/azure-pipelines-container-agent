@@ -1,0 +1,16 @@
+{
+    "build": {
+        "dockerfile": "images/ubuntu/Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "4ops.terraform",
+                "ms-azuretools.vscode-azureterraform",
+                "ms-vscode.azurecli",
+                "ms-vscode.PowerShell"
+            ]
+        }
+    },
+    "forwardPorts": []
+}
