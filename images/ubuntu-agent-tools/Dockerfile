@@ -28,6 +28,9 @@ RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/h
 
 RUN apt-get update
 
+# Hashicorp packages
+RUN apt-get install -y packer
+
 # Tools as packages
 RUN apt-get install -y -qq --no-install-recommends \
     ansible \
@@ -41,7 +44,7 @@ RUN apt-get install -y azure-functions-core-tools \
                        dotnet-sdk-6.0 \
                        dotnet-sdk-7.0
 
-RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,Microsoft.Graph -Scope AllUsers -Repository PSGallery -Force'
+RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,Microsoft.Graph,SqlServer -Scope AllUsers -Repository PSGallery -Force'
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64

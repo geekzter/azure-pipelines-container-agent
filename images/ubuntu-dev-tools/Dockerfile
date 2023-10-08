@@ -35,11 +35,13 @@ RUN echo "deb [arch=`dpkg --print-architecture`] https://packages.microsoft.com/
 RUN apt-get update
 
 # Hashicorp packages
-RUN apt-get install -y packer terraform
+RUN apt-get install -y terraform
 
 # Microsoft packages
 RUN apt-get install -y azure-cli \
                        powershell
+
+RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64
