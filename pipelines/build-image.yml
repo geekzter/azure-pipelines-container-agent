@@ -29,5 +29,5 @@ jobs:
   parameters:
     name: test
     dependsOn: build
-    displayName: Test tools image
+    displayName: Test agent tools image
     imageTag: $(Build.BuildId)
