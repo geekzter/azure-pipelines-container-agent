@@ -178,8 +178,8 @@ jobs:
       name: buildImage
       ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
         # CI: Use image produced in same build
-        displayName: Build images (${{ variables.Build.BuildId }})
-        imageTag: ${{ variables.Build.BuildId }}
+        displayName: Build images (${{ variables['Build.BuildId'] }})
+        imageTag: ${{ variables['Build.BuildId'] }}
       ${{ else }}:
         # CD: Use latest image
         displayName: Build images (latest)
@@ -191,8 +191,8 @@ jobs:
     dependsOn: buildImage
     ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
       # CI: Use image produced in same build
-      displayName: Test tools image (${{ variables.Build.BuildId }})
-      imageTag: ${{ variables.Build.BuildId }}
+      displayName: Test tools image (${{ variables['Build.BuildId'] }})
+      imageTag: ${{ variables['Build.BuildId'] }}
     ${{ else }}:
       # CD: Use latest image
       displayName: Test tools image (latest)
