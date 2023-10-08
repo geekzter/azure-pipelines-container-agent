@@ -192,7 +192,7 @@ jobs:
     ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
       # CI: Use image produced in same build
       displayName: Test tools image (BuildId)
-      imageTag: $$(Build.BuildId)
+      imageTag: $(Build.BuildId)
     ${{ else }}:
       # CD: Use latest image
       displayName: Test tools image (latest)
