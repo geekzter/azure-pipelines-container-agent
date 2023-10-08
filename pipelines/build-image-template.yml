@@ -27,11 +27,11 @@ jobs:
   - name: 'agentImageName'
     value: pipelineagent/ubuntu-agent
   - name: 'agentToolsImageName'
-    value: pipelineagent/ubuntu-dev-tools
+    value: pipelineagent/ubuntu-agent-tools
   - name: 'agentToolsImageFQName'
     value: $(containerRegistry).azurecr.io/$(agenttoolsImageName):$(Build.BuildId)
   - name: 'devToolsImageName'
-    value: pipelineagent/ubuntu-agent-tools
+    value: pipelineagent/ubuntu-dev-tools
   - name: 'devToolsImageFQName'
     value: $(containerRegistry).azurecr.io/$(devtoolsImageName):$(Build.BuildId)
   - name: 'imageTag'
