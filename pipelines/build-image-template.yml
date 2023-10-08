@@ -26,22 +26,26 @@ jobs:
     value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
   - name: 'agentImageName'
     value: pipelineagent/ubuntu-agent
-  - name: 'toolsImageName'
-    value: pipelineagent/ubuntu
-  - name: 'toolsImageFQName'
-    value: $(containerRegistry).azurecr.io/$(toolsImageName):$(Build.BuildId)
+  - name: 'agentToolsImageName'
+    value: pipelineagent/ubuntu-dev-tools
+  - name: 'agentToolsImageFQName'
+    value: $(containerRegistry).azurecr.io/$(agenttoolsImageName):$(Build.BuildId)
+  - name: 'devToolsImageName'
+    value: pipelineagent/ubuntu-agent-tools
+  - name: 'devToolsImageFQName'
+    value: $(containerRegistry).azurecr.io/$(devtoolsImageName):$(Build.BuildId)
   - name: 'imageTag'
     value: ${{ parameters.imageTag }}
   pool:
     vmImage: 'ubuntu-latest'
   steps:
   - task: Docker@2
-    displayName: Build tools image
+    displayName: Build dev tools image
     inputs:
       command: build
       containerRegistry: '$(containerRegistry)'
       Dockerfile: 'images/ubuntu/Dockerfile'
-      repository: $(toolsImageName)
+      repository: $(devToolsImageName)
       tags: |
         $(imageTag)
         $(date)
@@ -49,11 +53,37 @@ jobs:
         $(Build.SourceBranchName)
 
   - task: Docker@2
-    displayName: Push tools image
+    displayName: Push dev tools image
     inputs:
       command: push
       containerRegistry: '$(containerRegistry)'
-      repository: $(toolsImageName)
+      repository: $(devToolsImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.BuildId)
+        $(Build.SourceBranchName)
+
+  - task: Docker@2
+    displayName: Build agent tools image
+    inputs:
+      arguments: '--build-arg BASE_IMAGE=$(devToolsImageFQName)'
+      command: build
+      containerRegistry: '$(containerRegistry)'
+      Dockerfile: 'images/ubuntu-dev-tools/Dockerfile'
+      repository: $(agentToolsImageName)
+      tags: |
+        $(imageTag)
+        $(date)
+        $(Build.BuildId)
+        $(Build.SourceBranchName)
+
+  - task: Docker@2
+    displayName: Push agent tools image
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: $(agentToolsImageName)
       tags: |
         $(imageTag)
         $(date)
@@ -63,10 +93,10 @@ jobs:
   - task: Docker@2
     displayName: Build agent image
     inputs:
-      arguments: '--build-arg BASE_IMAGE=$(toolsImageFQName)'
+      arguments: '--build-arg BASE_IMAGE=$(agentToolsImageFQName)'
       command: build
       containerRegistry: '$(containerRegistry)'
-      Dockerfile: 'images/ubuntu-agent/Dockerfile'
+      Dockerfile: 'images/ubuntu-agent-tools/Dockerfile'
       repository: $(agentImageName)
       tags: |
         $(imageTag)
