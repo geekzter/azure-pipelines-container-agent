@@ -44,7 +44,7 @@ jobs:
     inputs:
       command: build
       containerRegistry: '$(containerRegistry)'
-      Dockerfile: 'images/ubuntu/Dockerfile'
+      Dockerfile: 'images/ubuntu-dev-tools/Dockerfile'
       repository: $(devToolsImageName)
       tags: |
         $(imageTag)
@@ -70,7 +70,7 @@ jobs:
       arguments: '--build-arg BASE_IMAGE=$(devToolsImageFQName)'
       command: build
       containerRegistry: '$(containerRegistry)'
-      Dockerfile: 'images/ubuntu-dev-tools/Dockerfile'
+      Dockerfile: 'images/ubuntu-agent-tools/Dockerfile'
       repository: $(agentToolsImageName)
       tags: |
         $(imageTag)
@@ -96,7 +96,7 @@ jobs:
       arguments: '--build-arg BASE_IMAGE=$(agentToolsImageFQName)'
       command: build
       containerRegistry: '$(containerRegistry)'
-      Dockerfile: 'images/ubuntu-agent-tools/Dockerfile'
+      Dockerfile: 'images/ubuntu-agent/Dockerfile'
       repository: $(agentImageName)
       tags: |
         $(imageTag)
