@@ -38,5 +38,6 @@
             },          
         }
     },
-    "forwardPorts": []
+    "forwardPorts": [],
+    "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log"
 }

@@ -13,6 +13,7 @@ RUN apt-get install -y -qq --no-install-recommends \
     jq \
     lsb-release \
     software-properties-common \
+    tmux \
     wget
 
 # Hashicorp repo
@@ -42,6 +43,11 @@ RUN apt-get install -y azure-cli \
                        powershell
 
 RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
+
+# Use geekzter/bootstrap-os for PowerShell setup
+RUN git clone https://github.com/geekzter/bootstrap-os.git ~/bootstrap-os
+RUN ~/bootstrap-os/common/common_setup.ps1 -NoPackages
+RUN ~/bootstrap-os/common/functions/functions.ps1
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64
