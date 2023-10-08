@@ -9,7 +9,10 @@
                 "ms-azuretools.vscode-azureterraform",
                 "ms-vscode.azurecli",
                 "ms-vscode.PowerShell"
-            ]
+            ],
+            "settings": {
+                "terminal.integrated.shell.linux": "/usr/bin/pwsh"
+            }            
         }
     },
     "forwardPorts": []
