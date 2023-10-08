@@ -14,18 +14,6 @@ RUN apt-get install -y -qq --no-install-recommends \
     software-properties-common \
     wget
 
-# Google repo
-RUN curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg
-RUN echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | \
-    tee /etc/apt/sources.list.d/kubernetes.list
-
-# Helm repo
-RUN curl https://baltocdn.com/helm/signing.asc | \
-    gpg --dearmor | \
-    tee /usr/share/keyrings/helm.gpg > /dev/null
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | \
-    tee /etc/apt/sources.list.d/helm-stable-debian.list
-
 RUN apt-get update
 
 # Hashicorp packages
@@ -34,8 +22,6 @@ RUN apt-get install -y packer
 # Tools as packages
 RUN apt-get install -y -qq --no-install-recommends \
     ansible \
-    helm \
-    kubectl \
     python2-minimal \
     unzip
 
