@@ -16,6 +16,18 @@ RUN apt-get install -y -qq --no-install-recommends \
     tmux \
     wget
 
+# Google repo
+RUN curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg
+RUN echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | \
+    tee /etc/apt/sources.list.d/kubernetes.list
+
+# Helm repo
+RUN curl https://baltocdn.com/helm/signing.asc | \
+    gpg --dearmor | \
+    tee /usr/share/keyrings/helm.gpg > /dev/null
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | \
+    tee /etc/apt/sources.list.d/helm-stable-debian.list
+
 # Hashicorp repo
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | \
     gpg --dearmor | \
@@ -41,6 +53,11 @@ RUN apt-get install -y terraform
 # Microsoft packages
 RUN apt-get install -y azure-cli \
                        powershell
+
+# Tools as packages
+RUN apt-get install -y -qq --no-install-recommends \
+    helm \
+    kubectl
 
 RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
 

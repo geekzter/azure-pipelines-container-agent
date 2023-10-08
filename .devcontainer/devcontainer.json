@@ -5,7 +5,7 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "4ops.terraform",
+                "hashicorp.terraform",
                 "ms-azure-devops.azure-pipelines",
                 "ms-azuretools.vscode-azurecontainerapps",
                 "ms-azuretools.vscode-azureresourcegroups",
@@ -15,9 +15,12 @@
                 "ms-azuretools.vscode-docker-remote",
                 "ms-azuretools.vscode-docker-tools",
                 "ms-azuretools.vscode-docker",
+                "ms-kubernetes-tools.vscode-aks-tools",
                 "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "ms-vscode.azure-account",
                 "ms-vscode.azurecli",
-                "ms-vscode.powershell"
+                "ms-vscode.powershell",
+                "vscode-icons-team.vscode-icons"
             ],
             "settings": {
                 "[PowerShell]": {
