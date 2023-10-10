@@ -89,6 +89,9 @@ schedules:
     - main
 
 variables:
+- group: 'build-container-agent-image' # shared with build-image.yml
+  # should contain:
+  # containerRegistry -> name of Container Registry Service Connection
 - group: 'pipeline-container-agents' # shared with deploy-container-agents.yml
   # should contain:
   # subscriptionConnection -> name of Azure Registry Service Connection
