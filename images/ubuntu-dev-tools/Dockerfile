@@ -59,12 +59,14 @@ RUN apt-get install -y -qq --no-install-recommends \
     helm \
     kubectl
 
-RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
+# RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
 
 # Use geekzter/bootstrap-os for PowerShell setup
 RUN mkdir -p /home/vscode/src
 RUN git clone https://github.com/geekzter/bootstrap-os.git /home/vscode/src/bootstrap-os
-RUN /home/vscode/src/bootstrap-os/common/common_setup.ps1 -NoPackages
+# RUN /home/vscode/src/bootstrap-os/common/common_setup.ps1 -NoPackages
+# RUN pwsh -Command 'Set-PSDebug -Trace 1;/home/vscode/src/bootstrap-os/common/common_setup.ps1 -NoPackages'
+RUN pwsh -Command 'Set-PSDebug -Trace 1;/home/vscode/src/bootstrap-os/common/bootstrap_pwsh.ps1 -NoPackages'
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64

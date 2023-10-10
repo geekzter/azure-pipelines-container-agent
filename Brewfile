@@ -3,9 +3,10 @@
 
 brew "azure-cli"
 brew "azure/kubelogin/kubelogin"
-cask "docker"
+brew "devcontainer"
 brew "jq"
 brew "kubernetes-cli"
 brew "kubernetes-helm"
+brew "podman"
 cask "powershell"
 brew "terraform" 
