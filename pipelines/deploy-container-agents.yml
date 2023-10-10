@@ -223,7 +223,7 @@ jobs:
   pool:
     name: '$(pool)'
     vmImage: $(vmImage)
-  ${{ if parameters.containerJob }}:
+  ${{ if parameters.asContainerJob }}:
     container:
       image: $(toolsImageFQName)
       endpoint: containerEndpoint
