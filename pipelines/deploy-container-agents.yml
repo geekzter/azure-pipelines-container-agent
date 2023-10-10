@@ -218,6 +218,8 @@ jobs:
     displayName: 'Provision Kubernetes (AKS) infrastructure'
   ${{ if eq(parameters.containerEngine, 'Both') }}:
     displayName: 'Provision Container App and Kubernetes (AKS) infrastructure'
+  ${{ if eq(parameters.containerEngine, 'None') }}:
+    displayName: 'Provision infrastructure'
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
   pool:
@@ -603,6 +605,11 @@ jobs:
     pool:
       name: '$(pool)'
       vmImage: $(vmImage)
+
+    ${{ if parameters.asContainerJob }}:
+      container:
+        image: $(toolsImageFQName)
+        endpoint: containerEndpoint
 
     variables:
       terraformVersion: $[ coalesce(dependencies.provision.outputs['terraformConfig.version'],'latest') ]
