@@ -13,6 +13,10 @@ parameters:
   - cd1
   - cd2
   - cd3
+- name: asContainerJob
+  displayName: Run as container job
+  type: boolean
+  default: false
 - name: clear
   displayName: Clear State
   type: boolean
@@ -85,6 +89,9 @@ schedules:
     - main
 
 variables:
+- group: 'build-container-agent-image' # shared with build-image.yml
+  # should contain:
+  # containerRegistry -> name of Container Registry Service Connection
 - group: 'pipeline-container-agents' # shared with deploy-container-agents.yml
   # should contain:
   # subscriptionConnection -> name of Azure Registry Service Connection
@@ -131,6 +138,8 @@ variables:
   value: 'azure-pipelines-container-agent'
 - name: 'TF_VAR_run_id'
   value: '$(Build.BuildId)'
+- name: 'toolsImageFQName'
+  value: $(containerRegistry).azurecr.io/pipelineagent/ubuntu-agent-tools:latest
 - name: 'vmImage'
   value: 'ubuntu-latest'
 
@@ -139,6 +148,10 @@ jobs:
   displayName: Create strategy
   pool:
     name: Azure Pipelines
+  ${{ if parameters.asContainerJob }}:
+    container:
+      image: $(toolsImageFQName)
+      endpoint: containerEndpoint
   steps:
   - pwsh: |
       $strategyHash = @{}
@@ -265,6 +278,10 @@ jobs:
   pool:
     name: '$(pool)'
     vmImage: $(vmImage)
+  ${{ if parameters.asContainerJob }}:
+    container:
+      image: $(toolsImageFQName)
+      endpoint: containerEndpoint
 
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
