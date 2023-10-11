@@ -13,7 +13,7 @@ param (
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [string]
-    $ImageName="ubuntu",
+    $ImageName="ubuntu-dev-tools",
 
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
@@ -46,7 +46,7 @@ param (
 . (Join-Path $PSScriptRoot functions.ps1)
 
 try {
-    Join-Path (Split-Path $(pwd)) images ubuntu | Push-Location
+    Join-Path (Split-Path $(pwd)) images $ImageName | Push-Location
 
     if (!$Push) {
         # Local Docker build
