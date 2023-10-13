@@ -50,7 +50,7 @@ param (
 . (Join-Path $PSScriptRoot functions.ps1)
 
 
-Start-Docker
+Start-ContainerEngine
 Write-Host "Starting container agent with name '${AgentName}'..."
 docker run --platform $Platform `
            -e AZP_AGENT_NAME=$AgentName `

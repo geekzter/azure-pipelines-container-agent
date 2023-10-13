@@ -208,6 +208,19 @@ function Set-PipelineVariablesFromTerraform () {
     }
 }
 
+function Start-ContainerEngine () {
+    Get-Alias Docker | Set-Variable dockerAlias
+
+    switch ($dockerAlias.Definition) {
+        "podman" {
+            Start-Podman
+        }
+        default {
+            Start-Docker
+        }
+    }
+}
+
 function Start-Docker () {
     Get-Process docker -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id | Set-Variable dockerProcessId
 
@@ -238,6 +251,14 @@ function Start-Docker () {
         Write-Host "." -NoNewline
     } while (!$(docker stats --no-stream 2>$null))
     Write-Host "✓"
+}
+
+function Start-Podman () {
+    podman machine inspect | ConvertFrom-Json | Where-Object State -ieq running | Set-Variable podmanMachines
+    if (!$podmanMachines) {
+        Write-Host "Starting Podman..."
+        podman machine start
+    }
 }
 
 function Validate-ExitCode (

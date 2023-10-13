@@ -13,7 +13,7 @@ param (
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [string]
-    $ImageName="ubuntu",
+    $ImageName="ubuntu-dev-tools",
 
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
@@ -27,7 +27,7 @@ param (
 
     [parameter(Mandatory=$false)]
     [string]
-    $Tag="ubuntu",
+    $Tag="scripted",
 
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
@@ -46,11 +46,19 @@ param (
 . (Join-Path $PSScriptRoot functions.ps1)
 
 try {
-    Join-Path (Split-Path $(pwd)) images ubuntu | Push-Location
+    $imageDirectory = Join-Path (Split-Path $(pwd)) images $ImageName
+    $dockerFile = Join-Path $imageDirectory Dockerfile
+    if (Test-Path $dockerFile) {
+        Write-Verbose "Using ${dockerFile}"
+    } else {
+        Write-Warning "${dockerFile} does not exist"
+        exit
+    }
+    Push-Location $imageDirectory
 
     if (!$Push) {
-        # Local Docker build
-        Start-Docker
+        # Local build
+        Start-ContainerEngine
         docker build --platform $Platform -t ${Repository}/${ImageName}:${ImageName} .  
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
