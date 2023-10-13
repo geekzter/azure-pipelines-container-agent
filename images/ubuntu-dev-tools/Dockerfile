@@ -51,22 +51,34 @@ RUN apt-get update
 RUN apt-get install -y terraform
 
 # Microsoft packages
-RUN apt-get install -y azure-cli \
-                       powershell
+RUN apt-get install -y azure-cli 
+
+# PowerShell, do not rely on apt as no arm64 package is available
+ARG PS_VERSION=7.3.8
+ARG PS_PACKAGE=powershell-${PS_VERSION}-linux-arm64.tar.gz
+# ARG PS_PACKAGE=powershell-${PS_VERSION}-linux-${TARGETARCH}.tar.gz
+ARG PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE}
+RUN echo $PS_PACKAGE_URL
+# RUN curl -L -o /tmp/powershell.tar.gz https://github.com/PowerShell/PowerShell/releases/download/v7.3.8/powershell-7.3.8-linux-arm64.tar.gz
+RUN curl -L -o /tmp/powershell.tar.gz $PS_PACKAGE_URL
+RUN mkdir -p /opt/microsoft/powershell/7
+RUN tar zxf /tmp/powershell.tar.gz -C /opt/microsoft/powershell/7
+RUN chmod +x /opt/microsoft/powershell/7/pwsh
+RUN ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh
 
 # Tools as packages
 RUN apt-get install -y -qq --no-install-recommends \
     helm \
     kubectl
 
-# RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
+RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module PowerShellGet -Force -AllowClobber'
+RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module Microsoft.PowerShell.PSResourceGet -Repository PSGallery -Force'
+RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
 
 # Use geekzter/bootstrap-os for PowerShell setup
 RUN mkdir -p /home/vscode/src
 RUN git clone https://github.com/geekzter/bootstrap-os.git /home/vscode/src/bootstrap-os
-# RUN /home/vscode/src/bootstrap-os/common/common_setup.ps1 -NoPackages
-# RUN pwsh -Command 'Set-PSDebug -Trace 1;/home/vscode/src/bootstrap-os/common/common_setup.ps1 -NoPackages'
-RUN pwsh -Command 'Set-PSDebug -Trace 1;/home/vscode/src/bootstrap-os/common/bootstrap_pwsh.ps1 -NoPackages'
+RUN /home/vscode/src/bootstrap-os/common/common_setup.ps1 -NoPackages
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
-ENV TARGETARCH=linux-x64
+# ENV TARGETARCH=linux-x64

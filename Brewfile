@@ -3,7 +3,7 @@
 
 brew "azure-cli"
 brew "azure/kubelogin/kubelogin"
-brew "devcontainer"
+# brew "devcontainer"
 brew "jq"
 # cask "docker"
 brew "helm"
