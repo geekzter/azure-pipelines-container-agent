@@ -38,9 +38,15 @@
                 },
                 "files.defaultLanguage": "powershell",
                 "terminal.integrated.defaultProfile.linux": "pwsh"
-            },          
+            }          
         }
     },
     "forwardPorts": [],
-    "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log"
+    "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log",
+    "runArgs": [
+      "--userns=keep-id"
+    ],
+    "containerEnv": {
+      "HOME": "/home/vscode"
+    }
 }

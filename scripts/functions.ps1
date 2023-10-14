@@ -254,6 +254,11 @@ function Start-Docker () {
 }
 
 function Start-Podman () {
+    if (!(Get-Command podman)) {
+        Write-Warning "Podman is not installed"
+        return
+    }
+
     podman machine inspect | ConvertFrom-Json | Where-Object State -ieq running | Set-Variable podmanMachines
     if (!$podmanMachines) {
         Write-Host "Starting Podman..."

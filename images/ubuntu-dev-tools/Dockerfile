@@ -1,4 +1,5 @@
 FROM ubuntu:20.04
+ARG VSCODE_HOME=/home/vscode
 ARG TARGETARCH
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
@@ -45,13 +46,18 @@ RUN wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/pac
     echo "deb [arch=`dpkg --print-architecture`] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | \
     tee /etc/apt/sources.list.d/azure-cli.list
 
-# Tools as packages
+# Tools
 RUN apt-get update && \
     apt-get install -y -qq --no-install-recommends \
     azure-cli\
     helm \
     kubectl \
-    terraform
+    terraform \
+    && az extension add -n azure-devops -y \
+    && az extension add -n azure-firewall -y \
+    && az extension add -n bastion -y \
+    && az extension add -n containerapp -y \
+    && az extension add -n resource-graph -y
 
 # PowerShell, do not rely on apt as no arm64 package is available
 ARG PS_VERSION=7.3.8
@@ -71,7 +77,6 @@ RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh && \
     pwsh -NoProfile -NonInteractive -Command 'Install-Module PowerShellGet -Force -AllowClobber;Install-Module -Name Microsoft.PowerShell.PSResourceGet,Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
 
-# Use geekzter/bootstrap-os for PowerShell setup
-RUN mkdir -p /home/vscode/src && \
-    git clone https://github.com/geekzter/bootstrap-os.git /home/vscode/src/bootstrap-os && \
-    /home/vscode/src/bootstrap-os/common/common_setup.ps1 -NoPackages
+RUN mkdir -p ${VSCODE_HOME}/src \
+    && git clone https://github.com/geekzter/bootstrap-os.git ${VSCODE_HOME}/src/bootstrap-os
+

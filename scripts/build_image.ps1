@@ -25,6 +25,10 @@ param (
     [switch]
     $LocalBuild=$false,
 
+    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
+    [switch]
+    $BuildDevContainer=$false,
+
     [parameter(Mandatory=$false,ParameterSetName='AcrBuild')]
     [switch]
     $AcrBuild=$false,
@@ -38,7 +42,7 @@ param (
     [string]
     $Tag="scripted",
 
-    [parameter(Mandatory=$false,ParameterSetName='DockerBuild')]
+    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
     [switch]
     $Scan=$false
 ) 
@@ -76,6 +80,16 @@ try {
         }
         docker images --filter=reference="${Repository}/${ImageName}:*" --filter=reference="${Registry}/${Repository}/${ImageName}:*"
     } 
+
+    if ($BuildDevContainer) {
+        if ((Get-Command devcontainer)) {
+            devcontainer build --workspace-folder $(Split-Path $PSScriptRoot -Parent)
+        } else {
+            Write-Warning "devcontainer-cli is not installed"
+            return
+        }
+    }
+
     if ($AcrBuild) {
         # ACR build
         Login-Az -DisplayMessages
