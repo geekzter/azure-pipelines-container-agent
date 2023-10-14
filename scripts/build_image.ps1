@@ -9,6 +9,7 @@
     ./build_image.ps1 -Push
 #> 
 #Requires -Version 7.2
+[CmdLetBinding(DefaultParameterSetName='LocalBuild')]
 param ( 
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
@@ -20,6 +21,14 @@ param (
     [string]
     $Repository="pipelineagent",
 
+    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
+    [switch]
+    $LocalBuild=$false,
+
+    [parameter(Mandatory=$false,ParameterSetName='AcrBuild')]
+    [switch]
+    $AcrBuild=$false,
+
     [parameter(Mandatory=$true,ParameterSetName='AcrBuild')]
     [parameter(Mandatory=$false)]
     [string]
@@ -28,15 +37,6 @@ param (
     [parameter(Mandatory=$false)]
     [string]
     $Tag="scripted",
-
-    [parameter(Mandatory=$false)]
-    [ValidateNotNull()]
-    [string]
-    $Platform="linux/amd64",
-
-    [parameter(Mandatory=$false,ParameterSetName='AcrBuild')]
-    [switch]
-    $Push=$false,
 
     [parameter(Mandatory=$false,ParameterSetName='DockerBuild')]
     [switch]
@@ -56,10 +56,10 @@ try {
     }
     Push-Location $imageDirectory
 
-    if (!$Push) {
+    if ($LocalBuild) {
         # Local build
         Start-ContainerEngine
-        docker build --platform $Platform -t ${Repository}/${ImageName}:${ImageName} .  
+        docker build -t ${Repository}/${ImageName}:${ImageName} .  
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
@@ -75,7 +75,8 @@ try {
             docker scan $ImageName --accept-license
         }
         docker images --filter=reference="${Repository}/${ImageName}:*" --filter=reference="${Registry}/${Repository}/${ImageName}:*"
-    } else {
+    } 
+    if ($AcrBuild) {
         # ACR build
         Login-Az -DisplayMessages
         az acr build -t ${Repository}/${ImageName}:acr `
@@ -84,7 +85,7 @@ try {
                      -t ${Repository}/${ImageName}:$((Get-Date).ToString("yyyyMMdd")) `
                      -r $Registry `
                      . `
-                     --platform $Platform
+                     --platform linux/amd64
 
         az acr repository show-tags -n $Registry `
                                     --repository ${Repository}/${ImageName} `

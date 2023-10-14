@@ -209,7 +209,7 @@ function Set-PipelineVariablesFromTerraform () {
 }
 
 function Start-ContainerEngine () {
-    Get-Alias Docker | Set-Variable dockerAlias
+    Get-Alias Docker -ErrorAction SilentlyContinue | Set-Variable dockerAlias
 
     switch ($dockerAlias.Definition) {
         "podman" {
