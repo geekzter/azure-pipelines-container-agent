@@ -42,11 +42,5 @@
         }
     },
     "forwardPorts": [],
-    "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log",
-    "runArgs": [
-      "--userns=keep-id"
-    ],
-    "containerEnv": {
-      "HOME": "/home/vscode"
-    }
+    "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log"
 }

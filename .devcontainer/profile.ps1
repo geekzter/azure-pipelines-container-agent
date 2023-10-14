@@ -1,15 +1,6 @@
 #!/usr/bin/env pwsh
 #Requires -Version 7.2
 
-Write-Verbose "Importing functions..."
-$functionsPath = "${HOME}/src/bootstrap-os/common/functions"
-Get-ChildItem $functionsPath -filter "*.ps1" | ForEach-Object {
-    if ($printMessages) {
-        Write-Host "$($_.FullName) : loaded"
-    }
-    . $_.FullName
-}
-
 function global:Prompt {
     if ($GitPromptScriptBlock) {
         # Use Posh-Git: https://github.com/dahlbyk/posh-git/wiki/Customizing-Your-PowerShell-Prompt
@@ -42,6 +33,15 @@ function global:Prompt {
         $prompt += "$('#' * ($nestedPromptLevel + 1)) ";
     }
     if ($prompt) { "$prompt" } else { " " }
+}
+
+Write-Verbose "Importing functions..."
+$functionsPath = "${HOME}/src/bootstrap-os/common/functions"
+Get-ChildItem $functionsPath -filter "*.ps1" | ForEach-Object {
+    if ($printMessages) {
+        Write-Host "$($_.FullName) : loaded"
+    }
+    . $_.FullName
 }
 
 $repoDirectory = (Split-Path (Split-Path (Get-Item $MyInvocation.MyCommand.Path).Target -Parent) -Parent)
