@@ -19,6 +19,10 @@ parameters:
   displayName: Build agent image
   type: boolean
   default: true
+- name: asContainerJob
+  displayName: Run as container job
+  type: boolean
+  default: false
 - name: clear
   displayName: Clear Terraform state
   type: boolean
@@ -157,6 +161,11 @@ variables:
   value: '$(Build.BuildId)'
 - name: 'TF_WORKSPACE'
   value: '${{ parameters.workspace }}'
+- name: 'toolsImageFQName'
+  ${{ if parameters.buildImage }}:
+    value: $(containerRegistry).azurecr.io/pipelineagent/ubuntu-agent-tools:$(Build.BuildId)
+  ${{ else }}:
+    value: $(containerRegistry).azurecr.io/pipelineagent/ubuntu-agent-tools:latest
 - name: 'vmImage'
   value: 'ubuntu-latest'
 - group: 'build-container-agent-image' # shared with build-image.yml
@@ -209,11 +218,17 @@ jobs:
     displayName: 'Provision Kubernetes (AKS) infrastructure'
   ${{ if eq(parameters.containerEngine, 'Both') }}:
     displayName: 'Provision Container App and Kubernetes (AKS) infrastructure'
+  ${{ if eq(parameters.containerEngine, 'None') }}:
+    displayName: 'Provision infrastructure'
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
   pool:
     name: '$(pool)'
     vmImage: $(vmImage)
+  ${{ if parameters.asContainerJob }}:
+    container:
+      image: $(toolsImageFQName)
+      endpoint: containerEndpoint
 
   steps:
   - ${{ if not(parameters.unpinTerraform) }}:
@@ -590,6 +605,11 @@ jobs:
     pool:
       name: '$(pool)'
       vmImage: $(vmImage)
+
+    ${{ if parameters.asContainerJob }}:
+      container:
+        image: $(toolsImageFQName)
+        endpoint: containerEndpoint
 
     variables:
       terraformVersion: $[ coalesce(dependencies.provision.outputs['terraformConfig.version'],'latest') ]
