@@ -9,3 +9,6 @@ if (!(Test-Path $Profile)) {
     Write-Host "Linking ${Profile} -> ${profileTemplate}"
     New-Item -ItemType symboliclink -Path $Profile -Target $profileTemplate -Force | Out-Null
 }
+
+$scriptDirectory = (Join-Path $repoDirectory "scripts")
+$scriptDirectory/deploy.ps1 -Init

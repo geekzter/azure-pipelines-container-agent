@@ -15,6 +15,7 @@ backend.tf
 # VSCode
 **/.vscode/*
 *.code-workspace
+*.env
 
 # macOS
 *.DS_Store

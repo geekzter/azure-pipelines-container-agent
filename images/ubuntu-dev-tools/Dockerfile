@@ -57,7 +57,8 @@ RUN apt-get update && \
     && az extension add -n azure-firewall -y \
     && az extension add -n bastion -y \
     && az extension add -n containerapp -y \
-    && az extension add -n resource-graph -y
+    && az extension add -n resource-graph -y \
+    && curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
 # PowerShell, do not rely on apt as no arm64 package is available
 ARG PS_VERSION=7.3.8
@@ -69,7 +70,6 @@ RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     esac && \
     PS_PACKAGE=powershell-${PS_VERSION}-linux-${PS_ARCH}.tar.gz && \
     PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE} && \
-    echo $PS_PACKAGE_URL && \
     curl -L -o /tmp/powershell.tar.gz $PS_PACKAGE_URL && \
     mkdir -p /opt/microsoft/powershell/7 && \
     tar zxf /tmp/powershell.tar.gz -C /opt/microsoft/powershell/7 && \
@@ -79,4 +79,3 @@ RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
 
 RUN mkdir -p ${VSCODE_HOME}/src \
     && git clone https://github.com/geekzter/bootstrap-os.git ${VSCODE_HOME}/src/bootstrap-os
-
