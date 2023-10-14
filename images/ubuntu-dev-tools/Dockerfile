@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-22.04
 ARG VSCODE_HOME=/home/vscode
 ARG TARGETARCH
 ENV DEBIAN_FRONTEND=noninteractive
