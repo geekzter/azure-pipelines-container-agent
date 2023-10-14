@@ -11,4 +11,4 @@ if (!(Test-Path $Profile)) {
 }
 
 $scriptDirectory = (Join-Path $repoDirectory "scripts")
-$scriptDirectory/deploy.ps1 -Init
+. $scriptDirectory/deploy.ps1 -Init
