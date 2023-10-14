@@ -10,5 +10,5 @@ if (!(Test-Path $Profile)) {
     New-Item -ItemType symboliclink -Path $Profile -Target $profileTemplate -Force | Out-Null
 }
 
-$scriptDirectory = (Join-Path $repoDirectory "scripts")
+$scriptDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) "scripts")
 . $scriptDirectory/deploy.ps1 -Init
