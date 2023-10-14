@@ -19,7 +19,7 @@
                 "ms-kubernetes-tools.vscode-kubernetes-tools",
                 "ms-vscode.azure-account",
                 "ms-vscode.azurecli",
-                "ms-vscode.powershell",
+                // "ms-vscode.powershell",
                 "vscode-icons-team.vscode-icons"
             ],
             "settings": {
