@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-22.04
-ARG VSCODE_HOME=/home/vscode
+ARG USER=vscode
 ARG TARGETARCH
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
@@ -77,5 +77,7 @@ RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh && \
     pwsh -NoProfile -NonInteractive -Command 'Install-Module PowerShellGet -Force -AllowClobber;Install-Module -Name Microsoft.PowerShell.PSResourceGet,Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
 
-RUN mkdir -p ${VSCODE_HOME}/src \
-    && git clone https://github.com/geekzter/bootstrap-os.git ${VSCODE_HOME}/src/bootstrap-os
+RUN mkdir -p /home/${USER}/src \
+    && git clone https://github.com/geekzter/bootstrap-os.git /home/${USER}/src/bootstrap-os
+
+# RUN usermod -a -G dialout $USER && usermod -a -G root $USER
