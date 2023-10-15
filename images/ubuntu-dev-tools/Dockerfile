@@ -75,11 +75,8 @@ RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     mkdir -p /opt/microsoft/powershell/7 && \
     tar zxf /tmp/powershell.tar.gz -C /opt/microsoft/powershell/7 && \
     chmod +x /opt/microsoft/powershell/7/pwsh && \
-    ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh 
-    # && \
-    # pwsh -NoProfile -NonInteractive -Command 'Install-Module PowerShellGet -Force -AllowClobber;Install-Module -Name Microsoft.PowerShell.PSResourceGet,Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
+    ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh && \
+    pwsh -NoProfile -NonInteractive -Command 'Install-Module PowerShellGet -Force -AllowClobber;Install-Module -Name Microsoft.PowerShell.PSResourceGet,Oh-My-Posh,Posh-Git,PSReadLine,Terminal-Icons -Scope AllUsers -Repository PSGallery -Force'
 
-# RUN mkdir -p /home/${USER}/src \
-#     && git clone https://github.com/geekzter/bootstrap-os.git /home/${USER}/src/bootstrap-os
-
-# RUN usermod -a -G dialout $USER && usermod -a -G root $USER
+RUN mkdir -p /home/${USER}/src \
+    && git clone https://github.com/geekzter/bootstrap-os.git /home/${USER}/src/bootstrap-os
