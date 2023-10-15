@@ -80,4 +80,4 @@ RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
 RUN mkdir -p /home/${USER}/src \
     && git clone https://github.com/geekzter/bootstrap-os.git /home/${USER}/src/bootstrap-os
 
-# RUN usermod -a -G dialout $USER && usermod -a -G root $USER
+RUN usermod -a -G dialout $USER && usermod -a -G root $USER

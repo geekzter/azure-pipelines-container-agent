@@ -1,12 +1,12 @@
 #!/usr/bin/env pwsh
 <# 
 .SYNOPSIS 
-    Builds the container agent image
+    Builds a container image
 
 .EXAMPLE
-    ./build_image.ps1
+    ./build_image.ps1 -Local
 .EXAMPLE
-    ./build_image.ps1 -Push
+    ./build_image.ps1 -DevContainer
 #> 
 #Requires -Version 7.2
 [CmdLetBinding(DefaultParameterSetName='LocalBuild')]
@@ -23,15 +23,15 @@ param (
 
     [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
     [switch]
-    $LocalBuild=$false,
+    $Local=$false,
 
     [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
     [switch]
-    $BuildDevContainer=$false,
+    $DevContainer=$false,
 
     [parameter(Mandatory=$false,ParameterSetName='AcrBuild')]
     [switch]
-    $AcrBuild=$false,
+    $Acr=$false,
 
     [parameter(Mandatory=$true,ParameterSetName='AcrBuild')]
     [parameter(Mandatory=$false)]
@@ -60,7 +60,7 @@ try {
     }
     Push-Location $imageDirectory
 
-    if ($LocalBuild) {
+    if ($Local) {
         # Local build
         Start-ContainerEngine
         docker build -t ${Repository}/${ImageName}:${ImageName} .  
@@ -81,7 +81,8 @@ try {
         docker images --filter=reference="${Repository}/${ImageName}:*" --filter=reference="${Registry}/${Repository}/${ImageName}:*"
     } 
 
-    if ($BuildDevContainer) {
+    if ($DevContainer) {
+        Start-ContainerEngine
         if ((Get-Command devcontainer)) {
             devcontainer build --workspace-folder $(Split-Path $PSScriptRoot -Parent)
         } else {
@@ -90,7 +91,7 @@ try {
         }
     }
 
-    if ($AcrBuild) {
+    if ($Acr) {
         # ACR build
         Login-Az -DisplayMessages
         az acr build -t ${Repository}/${ImageName}:acr `
