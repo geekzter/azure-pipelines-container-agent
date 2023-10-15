@@ -70,6 +70,7 @@ RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     esac && \
     PS_PACKAGE=powershell-${PS_VERSION}-linux-${PS_ARCH}.tar.gz && \
     PS_PACKAGE_URL=https://github.com/PowerShell/PowerShell/releases/download/v${PS_VERSION}/${PS_PACKAGE} && \
+    apt-get install -y libc6 libgcc1 libgcc-s1 libgssapi-krb5-2 libicu70 liblttng-ust1 libssl3 libstdc++6 libunwind8 zlib1g && \
     curl -L -o /tmp/powershell.tar.gz $PS_PACKAGE_URL && \
     mkdir -p /opt/microsoft/powershell/7 && \
     tar zxf /tmp/powershell.tar.gz -C /opt/microsoft/powershell/7 && \
