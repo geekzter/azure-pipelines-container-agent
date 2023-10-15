@@ -1,14 +1,15 @@
 #!/usr/bin/env pwsh
 <# 
 .SYNOPSIS 
-    Builds the container agent image
+    Builds a container image
 
 .EXAMPLE
-    ./build_image.ps1
+    ./build_image.ps1 -Local
 .EXAMPLE
-    ./build_image.ps1 -Push
+    ./build_image.ps1 -DevContainer
 #> 
 #Requires -Version 7.2
+[CmdLetBinding(DefaultParameterSetName='LocalBuild')]
 param ( 
     [parameter(Mandatory=$false)]
     [ValidateNotNull()]
@@ -20,6 +21,18 @@ param (
     [string]
     $Repository="pipelineagent",
 
+    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
+    [switch]
+    $Local=$false,
+
+    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
+    [switch]
+    $DevContainer=$false,
+
+    [parameter(Mandatory=$false,ParameterSetName='AcrBuild')]
+    [switch]
+    $Acr=$false,
+
     [parameter(Mandatory=$true,ParameterSetName='AcrBuild')]
     [parameter(Mandatory=$false)]
     [string]
@@ -27,18 +40,9 @@ param (
 
     [parameter(Mandatory=$false)]
     [string]
-    $Tag="ubuntu",
+    $Tag="scripted",
 
-    [parameter(Mandatory=$false)]
-    [ValidateNotNull()]
-    [string]
-    $Platform="linux/amd64",
-
-    [parameter(Mandatory=$false,ParameterSetName='AcrBuild')]
-    [switch]
-    $Push=$false,
-
-    [parameter(Mandatory=$false,ParameterSetName='DockerBuild')]
+    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
     [switch]
     $Scan=$false
 ) 
@@ -46,12 +50,20 @@ param (
 . (Join-Path $PSScriptRoot functions.ps1)
 
 try {
-    Join-Path (Split-Path $(pwd)) images $ImageName | Push-Location
+    $imageDirectory = Join-Path (Split-Path $(pwd)) images $ImageName
+    $dockerFile = Join-Path $imageDirectory Dockerfile
+    if (Test-Path $dockerFile) {
+        Write-Verbose "Using ${dockerFile}"
+    } else {
+        Write-Warning "${dockerFile} does not exist"
+        exit
+    }
+    Push-Location $imageDirectory
 
-    if (!$Push) {
-        # Local Docker build
-        Start-Docker
-        docker build --platform $Platform -t ${Repository}/${ImageName}:${ImageName} .  
+    if ($Local) {
+        # Local build
+        Start-ContainerEngine
+        docker build -t ${Repository}/${ImageName}:${ImageName} .  
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
@@ -67,7 +79,19 @@ try {
             docker scan $ImageName --accept-license
         }
         docker images --filter=reference="${Repository}/${ImageName}:*" --filter=reference="${Registry}/${Repository}/${ImageName}:*"
-    } else {
+    } 
+
+    if ($DevContainer) {
+        Start-ContainerEngine
+        if ((Get-Command devcontainer)) {
+            devcontainer build --workspace-folder $(Split-Path $PSScriptRoot -Parent)
+        } else {
+            Write-Warning "devcontainer-cli is not installed"
+            return
+        }
+    }
+
+    if ($Acr) {
         # ACR build
         Login-Az -DisplayMessages
         az acr build -t ${Repository}/${ImageName}:acr `
@@ -76,7 +100,7 @@ try {
                      -t ${Repository}/${ImageName}:$((Get-Date).ToString("yyyyMMdd")) `
                      -r $Registry `
                      . `
-                     --platform $Platform
+                     --platform linux/amd64
 
         az acr repository show-tags -n $Registry `
                                     --repository ${Repository}/${ImageName} `

@@ -6,5 +6,8 @@ $profileTemplate = (Join-Path $PSScriptRoot profile.ps1)
 
 # Link PowerShell Profile
 if (!(Test-Path $Profile)) {
-    New-Item -ItemType symboliclink -Path $Profile -Target $profileTemplate -Force | Select-Object -ExpandProperty Name
+    Write-Host "Linking ${Profile} -> ${profileTemplate}"
+    New-Item -ItemType symboliclink -Path $Profile -Target $profileTemplate -Force | Out-Null
 }
+
+terraform -chdir="$(Join-Path (Split-Path $PSScriptRoot -Parent) terraform)" init -input=false

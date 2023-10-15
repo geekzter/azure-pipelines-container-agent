@@ -3,9 +3,13 @@
 
 brew "azure-cli"
 brew "azure/kubelogin/kubelogin"
-cask "docker"
+# brew "devcontainer" # use cli installed with ms-vscode-remote.remote-containers
 brew "jq"
+# cask "docker"
+brew "helm"
 brew "kubernetes-cli"
-brew "kubernetes-helm"
+# brew "podman"
 cask "powershell"
 brew "terraform" 
+brew "tflint"
+cask "visual-studio-code"

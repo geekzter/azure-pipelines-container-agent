@@ -22,7 +22,7 @@ parameters:
 - name: asContainerJob
   displayName: Run as container job
   type: boolean
-  default: false
+  default: true
 - name: clear
   displayName: Clear Terraform state
   type: boolean
