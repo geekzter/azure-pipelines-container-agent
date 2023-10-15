@@ -48,23 +48,23 @@
   //   "TF_STATE_backend_storage_container_name": "${localEnv:TF_STATE_backend_storage_container_name}",
   //   "TF_STATE_backend_resource_group_name": "${localEnv:TF_STATE_backend_resource_group_name}"
   // },
-  "remoteEnv": {
-    "ARM_SUBSCRIPTION_ID": "${localEnv:ARM_SUBSCRIPTION_ID}",
-    "ARM_TENANT_ID": "${localEnv:ARM_TENANT_ID}",
-    "TF_STATE_backend_storage_account_name": "${localEnv:TF_STATE_backend_storage_account_name}",
-    "TF_STATE_backend_storage_container_name": "${localEnv:TF_STATE_backend_storage_container_name}",
-    "TF_STATE_backend_resource_group_name": "${localEnv:TF_STATE_backend_resource_group_name}"
-  },
+  // "remoteEnv": {
+  //   "ARM_SUBSCRIPTION_ID": "${localEnv:ARM_SUBSCRIPTION_ID}",
+  //   "ARM_TENANT_ID": "${localEnv:ARM_TENANT_ID}",
+  //   "TF_STATE_backend_storage_account_name": "${localEnv:TF_STATE_backend_storage_account_name}",
+  //   "TF_STATE_backend_storage_container_name": "${localEnv:TF_STATE_backend_storage_container_name}",
+  //   "TF_STATE_backend_resource_group_name": "${localEnv:TF_STATE_backend_resource_group_name}"
+  // },
   "forwardPorts": [],
-  "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log",
+  // "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log",
   "runArgs": [
     // "--userns=keep-id"
     // "--userns=keep-id:uid=1000,gid=1000"
     // "--security-opt", "label=disable"
   ],
-  "containerUser": "vscode",
-  // "updateRemoteUserUID": true,
-  "containerEnv": {
-    "HOME": "/home/vscode"
-  }
+  // "containerUser": "vscode",
+  // // "updateRemoteUserUID": true,
+  // "containerEnv": {
+  //   "HOME": "/home/vscode"
+  // }
 }
