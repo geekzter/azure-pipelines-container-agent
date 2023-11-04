@@ -12,4 +12,12 @@ if (!(Test-Path $Profile)) {
 
 if ($env:CODESPACES) {
     terraform -chdir="$(Join-Path (Split-Path $PSScriptRoot -Parent) terraform)" init -input=false
+# } else {
+    # git config core.autocrlf true
+    # git config core.filemode true
+    # git config --global core.editor "code --wait"
+    # git config --global diff.tool vscode
+    # git config --global difftool.vscode.cmd "code --wait --diff `$LOCAL `$REMOTE"
+    # git config --global merge.tool vscode
+    # git config --global mergetool.vscode.cmd "code --wait `$MERGED"
 }

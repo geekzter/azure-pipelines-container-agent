@@ -35,6 +35,7 @@ err.out
 *.~*
 ~*.*
 *.log
+*.lock.*
 
 # Ignore local Helm chart values
 helm/*/__local/*
