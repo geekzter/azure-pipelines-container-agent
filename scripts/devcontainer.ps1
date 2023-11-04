@@ -18,7 +18,6 @@ param (
 
 . (Join-Path $PSScriptRoot functions.ps1)
 
-# Push-Location (Split-Path $PSScriptRoot -Parent)
 if (!(Get-Command devcontainer)) {
     Write-Warning "devcontainer-cli is not installed"
     return
