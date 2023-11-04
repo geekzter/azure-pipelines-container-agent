@@ -28,6 +28,30 @@ function Get-Agents(
     return $offlineAgentIds
 }
 
+function Get-ContainerEngine() {
+    Get-Alias Docker -ErrorAction SilentlyContinue | Set-Variable dockerAlias
+
+    switch ($dockerAlias.Definition) {
+        "podman" {
+            return "podman"
+        }
+        default {
+            return "docker"
+        }
+    }
+}
+
+function Get-DevContainerConfigPath () {
+    switch (Get-ContainerEngine) {
+        "podman" {
+            return (Join-Path (Split-Path $PSScriptRoot -Parent) .devcontainer podman devcontainer.json)
+        }
+        default {
+            return (Join-Path (Split-Path $PSScriptRoot -Parent) .devcontainer devcontainer.json)
+        }
+    }
+}
+
 function Get-TerraformDirectory {
     return (Join-Path (Split-Path $PSScriptRoot -Parent) "terraform")
 }
@@ -209,9 +233,7 @@ function Set-PipelineVariablesFromTerraform () {
 }
 
 function Start-ContainerEngine () {
-    Get-Alias Docker -ErrorAction SilentlyContinue | Set-Variable dockerAlias
-
-    switch ($dockerAlias.Definition) {
+    switch (Get-ContainerEngine) {
         "podman" {
             Start-Podman
         }

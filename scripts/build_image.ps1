@@ -84,7 +84,9 @@ try {
     if ($DevContainer) {
         Start-ContainerEngine
         if ((Get-Command devcontainer)) {
-            devcontainer build --workspace-folder $(Split-Path $PSScriptRoot -Parent)
+            $devContainerConfigPath = Get-DevContainerConfigPath
+            Write-Host "Building devcontainer using ${devContainerConfigPath}"
+            devcontainer build --config $devContainerConfigPath
         } else {
             Write-Warning "devcontainer-cli is not installed"
             return
