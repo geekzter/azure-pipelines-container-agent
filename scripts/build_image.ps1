@@ -4,14 +4,17 @@
     Builds a container image
 
 .EXAMPLE
-    ./build_image.ps1 -Local
+    ./build_image.ps1 -Acr -Registry <registry>
 .EXAMPLE
     ./build_image.ps1 -DevContainer
+.EXAMPLE
+    ./build_image.ps1 -Local
 #> 
 #Requires -Version 7.2
 [CmdLetBinding(DefaultParameterSetName='LocalBuild')]
 param ( 
-    [parameter(Mandatory=$false)]
+    [parameter(Mandatory=$false,ParameterSetName='AcrBuild')]
+    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
     [ValidateNotNull()]
     [string]
     $ImageName="ubuntu-dev-tools",
@@ -25,7 +28,7 @@ param (
     [switch]
     $Local=$false,
 
-    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
+    [parameter(Mandatory=$false,ParameterSetName='DevContainerBuild')]
     [switch]
     $DevContainer=$false,
 
