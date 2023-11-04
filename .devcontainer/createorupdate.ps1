@@ -10,4 +10,6 @@ if (!(Test-Path $Profile)) {
     New-Item -ItemType symboliclink -Path $Profile -Target $profileTemplate -Force | Out-Null
 }
 
-terraform -chdir="$(Join-Path (Split-Path $PSScriptRoot -Parent) terraform)" init -input=false
+if ($env:CODESPACES) {
+    terraform -chdir="$(Join-Path (Split-Path $PSScriptRoot -Parent) terraform)" init -input=false
+}

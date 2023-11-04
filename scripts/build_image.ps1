@@ -50,7 +50,7 @@ param (
 . (Join-Path $PSScriptRoot functions.ps1)
 
 try {
-    $imageDirectory = Join-Path (Split-Path $(pwd)) images $ImageName
+    $imageDirectory = Join-Path (Split-Path $PSScriptRoot) images $ImageName
     $dockerFile = Join-Path $imageDirectory Dockerfile
     if (Test-Path $dockerFile) {
         Write-Verbose "Using ${dockerFile}"

@@ -1,7 +1,7 @@
 {
   // "image": "mcr.microsoft.com/devcontainers/typescript-node",
   "build": {
-    "dockerfile": "../images/ubuntu-dev-tools/Dockerfile" 
+    "dockerfile": "../../images/ubuntu-dev-tools/Dockerfile" 
   },
   "customizations": {
     "vscode": {
@@ -58,8 +58,5 @@
   },
   "forwardPorts": [],
   "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log",
-  "runArgs": [
-    "--userns=keep-id:uid=1000,gid=1000" // Required for Podman
-  ],
   "containerUser": "vscode",
 }
