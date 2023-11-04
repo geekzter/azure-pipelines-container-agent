@@ -23,8 +23,12 @@
         "vscode-icons-team.vscode-icons"
       ],
       "settings": {
+        "dotfiles.repository": "",
+        "dotfiles.installCommand": "",
+        "dotfiles.targetPath": "",
+        "settingsSync.ignoredExtensions": [
+        ],
         "[PowerShell]": {
-          "editor.defaultFormatter": "ms-vscode.powershell",
           "editor.formatOnPaste": false,
           "editor.formatOnSave": true,
           "editor.formatOnType": true,
@@ -39,17 +43,17 @@
             "icon": "terminal-powershell"
           }
         },
-        "files.defaultLanguage": "powershell",
+        "files.defaultLanguage": "powershell"
       }
     }
   },
-  // "containerEnv": {
-  //   "ARM_SUBSCRIPTION_ID": "${localEnv:ARM_SUBSCRIPTION_ID}",
-  //   "ARM_TENANT_ID": "${localEnv:ARM_TENANT_ID}",
-  //   "TF_STATE_backend_storage_account_name": "${localEnv:TF_STATE_backend_storage_account_name}",
-  //   "TF_STATE_backend_storage_container_name": "${localEnv:TF_STATE_backend_storage_container_name}",
-  //   "TF_STATE_backend_resource_group_name": "${localEnv:TF_STATE_backend_resource_group_name}"
-  // },
+  "containerEnv": {
+    "ARM_SUBSCRIPTION_ID": "${localEnv:ARM_SUBSCRIPTION_ID}",
+    "ARM_TENANT_ID": "${localEnv:ARM_TENANT_ID}",
+    "TF_STATE_backend_storage_account_name": "${localEnv:TF_STATE_backend_storage_account_name}",
+    "TF_STATE_backend_storage_container_name": "${localEnv:TF_STATE_backend_storage_container_name}",
+    "TF_STATE_backend_resource_group_name": "${localEnv:TF_STATE_backend_resource_group_name}"
+  },
   "remoteEnv": {
     "ARM_SUBSCRIPTION_ID": "${localEnv:ARM_SUBSCRIPTION_ID}",
     "ARM_TENANT_ID": "${localEnv:ARM_TENANT_ID}",
@@ -58,9 +62,9 @@
     "TF_STATE_backend_resource_group_name": "${localEnv:TF_STATE_backend_resource_group_name}"
   },
   "forwardPorts": [],
-  "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/post-create.ps1 | tee ~/post-create.log",
+    "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/post-create.ps1 | tee ~/post-create.log",
   "runArgs": [
-    "--userns=keep-id:uid=1000,gid=1000" // Required for Podman
+    "--userns=keep-id:uid=1000,gid=1000" // Required for podman
   ],
   "containerUser": "vscode"
 }
