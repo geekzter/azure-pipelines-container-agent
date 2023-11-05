@@ -42,12 +42,20 @@ function Get-ContainerEngine() {
 }
 
 function Get-DevContainerConfigPath () {
+    $defaultContainerConfigPath = (Join-Path (Split-Path $PSScriptRoot -Parent) .devcontainer devcontainer.json)
     switch (Get-ContainerEngine) {
         "podman" {
-            return (Join-Path (Split-Path $PSScriptRoot -Parent) .devcontainer podman devcontainer.json)
+            $jsonDepth = 6
+            $podmanContainerConfigPath = (Join-Path (Split-Path $PSScriptRoot -Parent) .devcontainer podman devcontainer.json)
+            Get-Content $defaultContainerConfigPath | ConvertFrom-Json -Depth $jsonDepth | Set-Variable devcontainer
+            $devcontainer.build.dockerfile = "../$($devcontainer.build.dockerfile)"
+            $devcontainer.runArgs = [System.Collections.Arraylist]::New($devcontainer.runArgs)
+            $devcontainer.runArgs.Add("--userns=keep-id:uid=1000,gid=1000") | Out-Null
+            $devcontainer | ConvertTo-Json -Depth $jsonDepth | Set-Content -Path $podmanContainerConfigPath -Force
+            return $podmanContainerConfigPath
         }
         default {
-            return (Join-Path (Split-Path $PSScriptRoot -Parent) .devcontainer devcontainer.json)
+            return $defaultContainerConfigPath
         }
     }
 }

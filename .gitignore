@@ -26,6 +26,7 @@ data/
 data/*
 data/**
 */data/**
+.devcontainer/podman/devcontainer.json
 
 # Ignore temp files
 **/tmp**/*

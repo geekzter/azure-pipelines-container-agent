@@ -24,6 +24,11 @@
         "vscode-icons-team.vscode-icons"
       ],
       "settings": {
+        "dotfiles.repository": "",
+        "dotfiles.installCommand": "",
+        "dotfiles.targetPath": "",
+        "settingsSync.ignoredExtensions": [
+        ],
         "[PowerShell]": {
           "editor.defaultFormatter": "ms-vscode.powershell",
           "editor.formatOnPaste": false,
@@ -58,5 +63,7 @@
   },
   "forwardPorts": [],
   "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/post-create.ps1 | tee ~/post-create.log",
+  "runArgs": [
+  ],
   "containerUser": "vscode"
 }
