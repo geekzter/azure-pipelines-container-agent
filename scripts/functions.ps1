@@ -47,6 +47,7 @@ function Get-DevContainerConfigPath () {
         "podman" {
             $jsonDepth = 6
             $podmanContainerConfigPath = (Join-Path (Split-Path $PSScriptRoot -Parent) .devcontainer podman devcontainer.json)
+            New-Item -ItemType Directory -Force -Path $(Split-Path $podmanContainerConfigPath -Parent) | Out-Null
             Get-Content $defaultContainerConfigPath | ConvertFrom-Json -Depth $jsonDepth | Set-Variable devcontainer
             $devcontainer.build.dockerfile = "../$($devcontainer.build.dockerfile)"
             $devcontainer.runArgs = [System.Collections.Arraylist]::New($devcontainer.runArgs)
