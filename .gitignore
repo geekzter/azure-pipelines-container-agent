@@ -26,6 +26,7 @@ data/
 data/*
 data/**
 */data/**
+.devcontainer/podman/devcontainer.json
 
 # Ignore temp files
 **/tmp**/*
@@ -35,6 +36,7 @@ err.out
 *.~*
 ~*.*
 *.log
+*.lock.*
 
 # Ignore local Helm chart values
 helm/*/__local/*

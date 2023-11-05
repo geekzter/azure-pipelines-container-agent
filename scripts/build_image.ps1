@@ -4,14 +4,17 @@
     Builds a container image
 
 .EXAMPLE
-    ./build_image.ps1 -Local
+    ./build_image.ps1 -Acr -Registry <registry>
 .EXAMPLE
     ./build_image.ps1 -DevContainer
+.EXAMPLE
+    ./build_image.ps1 -Local
 #> 
 #Requires -Version 7.2
 [CmdLetBinding(DefaultParameterSetName='LocalBuild')]
 param ( 
-    [parameter(Mandatory=$false)]
+    [parameter(Mandatory=$false,ParameterSetName='AcrBuild')]
+    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
     [ValidateNotNull()]
     [string]
     $ImageName="ubuntu-dev-tools",
@@ -25,7 +28,7 @@ param (
     [switch]
     $Local=$false,
 
-    [parameter(Mandatory=$false,ParameterSetName='LocalBuild')]
+    [parameter(Mandatory=$false,ParameterSetName='DevContainerBuild')]
     [switch]
     $DevContainer=$false,
 
@@ -50,7 +53,7 @@ param (
 . (Join-Path $PSScriptRoot functions.ps1)
 
 try {
-    $imageDirectory = Join-Path (Split-Path $(pwd)) images $ImageName
+    $imageDirectory = Join-Path (Split-Path $PSScriptRoot) images $ImageName
     $dockerFile = Join-Path $imageDirectory Dockerfile
     if (Test-Path $dockerFile) {
         Write-Verbose "Using ${dockerFile}"
@@ -84,7 +87,9 @@ try {
     if ($DevContainer) {
         Start-ContainerEngine
         if ((Get-Command devcontainer)) {
-            devcontainer build --workspace-folder $(Split-Path $PSScriptRoot -Parent)
+            $devContainerConfigPath = Get-DevContainerConfigPath
+            Write-Host "Building devcontainer using ${devContainerConfigPath}"
+            devcontainer build --config $devContainerConfigPath
         } else {
             Write-Warning "devcontainer-cli is not installed"
             return

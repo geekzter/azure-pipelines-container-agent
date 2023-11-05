@@ -197,7 +197,9 @@ jobs:
 - template: image-info-template.yml
   parameters:
     name: testImage
-    dependsOn: buildImage
+    ${{ if parameters.buildImage }}:
+      dependsOn: 
+      - buildImage
     ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
       # CI: Use image produced in same build
       displayName: Test tools image (BuildId)

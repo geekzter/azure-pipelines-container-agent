@@ -63,9 +63,11 @@ if (Get-Command tmux -ErrorAction SilentlyContinue) {
     }
 }
 
-Write-Host ""
+if (Get-Command Add-PoshGitToProfile -ErrorAction SilentlyContinue) {
+    Add-PoshGitToProfile 3>$null
+}
+
 Set-Location $repoDirectory/scripts
-Write-Host "$($PSStyle.Bold)1)$($PSStyle.Reset) To prevent losing (or to reconnect to) a terminal session, type $($PSStyle.Bold)ct <terraform workspace>$($PSStyle.Reset)"
-Write-Host "$($PSStyle.Bold)2)$($PSStyle.Reset) To provision infrastructure, run $($PSStyle.Bold)$repoDirectory/scripts/deploy.ps1 -Apply$($PSStyle.Reset)"
-Write-Host "$($PSStyle.Bold)3)$($PSStyle.Reset) To destroy infrastructure, run $($PSStyle.Bold)$repoDirectory/scripts/deploy.ps1 -Destroy$($PSStyle.Reset)"
+Write-Host ""
+"Review the README at $($PSStyle.Bold){0}$($PSStyle.Reset) on how to build container images and provision container agents"  -f "${repoDirectory}/README.md" | Write-Host
 Write-Host ""

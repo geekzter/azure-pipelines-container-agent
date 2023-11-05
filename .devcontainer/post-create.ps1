@@ -1,5 +1,6 @@
 #!/usr/bin/env pwsh
 # Runs post create commands to prep Codespace for project
+Write-Host $MyInvocation.line 
 
 # This will be the location where we save a PowerShell profile
 $profileTemplate = (Join-Path $PSScriptRoot profile.ps1)
@@ -10,4 +11,6 @@ if (!(Test-Path $Profile)) {
     New-Item -ItemType symboliclink -Path $Profile -Target $profileTemplate -Force | Out-Null
 }
 
-terraform -chdir="$(Join-Path (Split-Path $PSScriptRoot -Parent) terraform)" init -input=false
+if ($env:CODESPACES) {
+    terraform -chdir="$(Join-Path (Split-Path $PSScriptRoot -Parent) terraform)" init -input=false
+}

@@ -1,6 +1,7 @@
 {
+  // "image": "mcr.microsoft.com/devcontainers/typescript-node",
   "build": {
-    "dockerfile": "../images/ubuntu-dev-tools/Dockerfile"
+    "dockerfile": "../images/ubuntu-dev-tools/Dockerfile" 
   },
   "customizations": {
     "vscode": {
@@ -23,6 +24,11 @@
         "vscode-icons-team.vscode-icons"
       ],
       "settings": {
+        "dotfiles.repository": "",
+        "dotfiles.installCommand": "",
+        "dotfiles.targetPath": "",
+        "settingsSync.ignoredExtensions": [
+        ],
         "[PowerShell]": {
           "editor.defaultFormatter": "ms-vscode.powershell",
           "editor.formatOnPaste": false,
@@ -56,15 +62,8 @@
     "TF_STATE_backend_resource_group_name": "${localEnv:TF_STATE_backend_resource_group_name}"
   },
   "forwardPorts": [],
-  "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/createorupdate.ps1 | tee ~/post-create.log",
+  "postCreateCommand": "/usr/bin/pwsh -nop -f ./.devcontainer/post-create.ps1 | tee ~/post-create.log",
   "runArgs": [
-    // "--userns=keep-id"
-    // "--userns=keep-id:uid=1000,gid=1000"
-    // "--security-opt", "label=disable"
   ],
-  "containerUser": "vscode",
-  // // "updateRemoteUserUID": true,
-  "containerEnv": {
-    "HOME": "/home/vscode"
-  }
+  "containerUser": "vscode"
 }

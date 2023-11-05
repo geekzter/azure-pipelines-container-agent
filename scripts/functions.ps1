@@ -28,6 +28,39 @@ function Get-Agents(
     return $offlineAgentIds
 }
 
+function Get-ContainerEngine() {
+    Get-Alias Docker -ErrorAction SilentlyContinue | Set-Variable dockerAlias
+
+    switch ($dockerAlias.Definition) {
+        "podman" {
+            return "podman"
+        }
+        default {
+            return "docker"
+        }
+    }
+}
+
+function Get-DevContainerConfigPath () {
+    $defaultContainerConfigPath = (Join-Path (Split-Path $PSScriptRoot -Parent) .devcontainer devcontainer.json)
+    switch (Get-ContainerEngine) {
+        "podman" {
+            $jsonDepth = 6
+            $podmanContainerConfigPath = (Join-Path (Split-Path $PSScriptRoot -Parent) .devcontainer podman devcontainer.json)
+            New-Item -ItemType Directory -Force -Path $(Split-Path $podmanContainerConfigPath -Parent) | Out-Null
+            Get-Content $defaultContainerConfigPath | ConvertFrom-Json -Depth $jsonDepth | Set-Variable devcontainer
+            $devcontainer.build.dockerfile = "../$($devcontainer.build.dockerfile)"
+            $devcontainer.runArgs = [System.Collections.Arraylist]::New($devcontainer.runArgs)
+            $devcontainer.runArgs.Add("--userns=keep-id:uid=1000,gid=1000") | Out-Null
+            $devcontainer | ConvertTo-Json -Depth $jsonDepth | Set-Content -Path $podmanContainerConfigPath -Force
+            return $podmanContainerConfigPath
+        }
+        default {
+            return $defaultContainerConfigPath
+        }
+    }
+}
+
 function Get-TerraformDirectory {
     return (Join-Path (Split-Path $PSScriptRoot -Parent) "terraform")
 }
@@ -209,9 +242,7 @@ function Set-PipelineVariablesFromTerraform () {
 }
 
 function Start-ContainerEngine () {
-    Get-Alias Docker -ErrorAction SilentlyContinue | Set-Variable dockerAlias
-
-    switch ($dockerAlias.Definition) {
+    switch (Get-ContainerEngine) {
         "podman" {
             Start-Podman
         }
