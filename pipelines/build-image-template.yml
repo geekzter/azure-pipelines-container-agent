@@ -20,10 +20,6 @@ jobs:
   dependsOn: ${{ parameters.dependsOn }}
   displayName: ${{ parameters.displayName }}
   variables:
-  - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
-  # should contain 'containerRegistry' -> name of Container Registry Service Connection
-  - group: 'pipeline-container-agents' # shared with terraform-ci.yml
-  # should contain 'subscriptionConnection'
   - name: date
     value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
   - name: 'agentImageName'
