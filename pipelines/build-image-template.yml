@@ -114,18 +114,18 @@ jobs:
         $(date)
         $(Build.SourceBranchName)
 
-    - task: AzureCLI@2
-      displayName: 'Purge container images'
-      continueOnError: true # Continue clean up
-      retryCountOnTaskFailure: ${{ parameters.retryCount }}
-      inputs:
-        azureSubscription: '$(subscriptionConnection)'
-        scriptType: pscore
-        scriptLocation: inlineScript
-        inlineScript: |
-          az acr run --cmd "acr purge --filter '$(devToolsImageName):.*'   --ago 30d --untagged" --registry $(containerRegistry)
-          az acr run --cmd "acr purge --filter '$(agentToolsImageName):.*' --ago 30d --untagged" --registry $(containerRegistry)
-          az acr run --cmd "acr purge --filter '$(agentImageName):.*'      --ago 30d --untagged" --registry $(containerRegistry)
-        addSpnToEnvironment: true
-        useGlobalConfig: true
-        failOnStandardError: true
+  - task: AzureCLI@2
+    displayName: 'Purge container images'
+    continueOnError: true # Continue clean up
+    retryCountOnTaskFailure: ${{ parameters.retryCount }}
+    inputs:
+      azureSubscription: '$(subscriptionConnection)'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        az acr run --cmd "acr purge --filter '$(devToolsImageName):.*'   --ago 30d --untagged" --registry $(containerRegistry)
+        az acr run --cmd "acr purge --filter '$(agentToolsImageName):.*' --ago 30d --untagged" --registry $(containerRegistry)
+        az acr run --cmd "acr purge --filter '$(agentImageName):.*'      --ago 30d --untagged" --registry $(containerRegistry)
+      addSpnToEnvironment: true
+      useGlobalConfig: true
+      failOnStandardError: true
