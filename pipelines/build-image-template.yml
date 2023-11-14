@@ -117,7 +117,6 @@ jobs:
   - task: AzureCLI@2
     displayName: 'Purge container images'
     continueOnError: true # Continue clean up
-    retryCountOnTaskFailure: ${{ parameters.retryCount }}
     inputs:
       azureSubscription: '$(subscriptionConnection)'
       scriptType: pscore
