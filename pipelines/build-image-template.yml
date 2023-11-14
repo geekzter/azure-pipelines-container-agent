@@ -125,4 +125,4 @@ jobs:
         az acr run --cmd "acr purge --filter '$(agentImageName):.*'      --ago 30d --untagged" --registry $(containerRegistry) /dev/null
       addSpnToEnvironment: true
       useGlobalConfig: true
-      failOnStandardError: true
+      failOnStandardError: false
