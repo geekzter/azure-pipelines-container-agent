@@ -185,14 +185,8 @@ jobs:
   - template: build-image-template.yml
     parameters:
       name: buildImage
-      ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
-        # CI: Use image produced in same build
-        displayName: Build images (BuildId)
-        imageTag: $(Build.BuildId)
-      ${{ else }}:
-        # CD: Use latest image
-        displayName: Build images (latest)
-        imageTag: latest
+      displayName: Build images (BuildId)
+      imageTag: latest
 
 - template: image-info-template.yml
   parameters:

@@ -20,8 +20,6 @@ jobs:
   dependsOn: ${{ parameters.dependsOn }}
   displayName: ${{ parameters.displayName }}
   variables:
-  - group: 'build-container-agent-image' # shared with deploy-container-agents.yml
-  # should contain 'containerRegistry' -> name of Container Registry Service Connection
   - name: date
     value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
   - name: 'agentImageName'
@@ -101,6 +99,7 @@ jobs:
       tags: |
         $(imageTag)
         $(date)
+        $(Build.BuildId)
         $(Build.SourceBranchName)
 
   - task: Docker@2
@@ -112,4 +111,20 @@ jobs:
       tags: |
         $(imageTag)
         $(date)
+        $(Build.BuildId)
         $(Build.SourceBranchName)
+
+  - task: AzureCLI@2
+    displayName: 'Purge container images'
+    continueOnError: true # Continue clean up
+    inputs:
+      azureSubscription: '$(subscriptionConnection)'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        az acr run --cmd "acr purge --filter '$(devToolsImageName):.*'   --ago 30d --untagged" --registry $(containerRegistry) /dev/null
+        az acr run --cmd "acr purge --filter '$(agentToolsImageName):.*' --ago 30d --untagged" --registry $(containerRegistry) /dev/null
+        az acr run --cmd "acr purge --filter '$(agentImageName):.*'      --ago 30d --untagged" --registry $(containerRegistry) /dev/null
+      addSpnToEnvironment: true
+      useGlobalConfig: true
+      failOnStandardError: false
