@@ -3,6 +3,8 @@ parameters:
   displayName: Image tag
   type: string
   default: latest
+
+name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-${{ parameters.imageTag }}-$(Build.BuildId)
   
 trigger: none
 
@@ -23,7 +25,7 @@ jobs:
   parameters:
     name: build
     displayName: Build images
-    imageTag: latest
+    imageTag: ${{ parameters.imageTag }}
 
 - template: image-info-template.yml
   parameters:
