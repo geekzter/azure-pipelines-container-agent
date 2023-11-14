@@ -120,9 +120,9 @@ jobs:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        az acr run --cmd "acr purge --filter '$(devToolsImageName):.*'   --ago 30d --untagged" --registry $(containerRegistry)
-        az acr run --cmd "acr purge --filter '$(agentToolsImageName):.*' --ago 30d --untagged" --registry $(containerRegistry)
-        az acr run --cmd "acr purge --filter '$(agentImageName):.*'      --ago 30d --untagged" --registry $(containerRegistry)
+        az acr run --cmd "acr purge --filter '$(devToolsImageName):.*'   --ago 30d --untagged" --registry $(containerRegistry) /dev/null
+        az acr run --cmd "acr purge --filter '$(agentToolsImageName):.*' --ago 30d --untagged" --registry $(containerRegistry) /dev/null
+        az acr run --cmd "acr purge --filter '$(agentImageName):.*'      --ago 30d --untagged" --registry $(containerRegistry) /dev/null
       addSpnToEnvironment: true
       useGlobalConfig: true
       failOnStandardError: true
