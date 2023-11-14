@@ -23,7 +23,7 @@ jobs:
   parameters:
     name: build
     displayName: Build images
-    imageTag: $(Build.BuildId)
+    imageTag: latest
 
 - template: image-info-template.yml
   parameters:
