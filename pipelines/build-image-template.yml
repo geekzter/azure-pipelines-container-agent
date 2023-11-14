@@ -99,6 +99,7 @@ jobs:
       tags: |
         $(imageTag)
         $(date)
+        $(Build.BuildId)
         $(Build.SourceBranchName)
 
   - task: Docker@2
@@ -110,6 +111,7 @@ jobs:
       tags: |
         $(imageTag)
         $(date)
+        $(Build.BuildId)
         $(Build.SourceBranchName)
 
   - task: AzureCLI@2
