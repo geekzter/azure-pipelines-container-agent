@@ -46,4 +46,6 @@ docker run -e AZP_AGENT_NAME=${AgentName} `
            -e AZP_POOL=${PoolName} `
            -e AZP_TOKEN=${Token} `
            -e AZP_URL=${OrganizationUrl} `
-           ${Repository}/${ImageName}
+           -it `
+           ${Repository}/${ImageName} `
+           /bin/bash

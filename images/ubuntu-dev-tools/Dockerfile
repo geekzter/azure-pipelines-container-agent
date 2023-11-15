@@ -17,6 +17,9 @@ RUN apt-get update && \
     tmux \
     wget
 
+# Go lang, https://github.com/golang/go/wiki/Ubuntu
+RUN sudo add-apt-repository ppa:longsleep/golang-backports
+
 # Google repo
 RUN curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | \
@@ -50,6 +53,7 @@ RUN wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/pac
 RUN apt-get update && \
     apt-get install -y -qq --no-install-recommends \
     azure-cli\
+    golang-go \
     helm \
     kubectl \
     terraform \
@@ -61,7 +65,7 @@ RUN apt-get update && \
     && curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
 # PowerShell, do not rely on apt as no arm64 package is available
-ARG PS_VERSION=7.3.8
+ARG PS_VERSION=7.3.9
 RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) PS_ARCH='x64';; \
