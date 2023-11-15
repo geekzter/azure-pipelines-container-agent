@@ -65,7 +65,7 @@ RUN apt-get update && \
     && curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
 # PowerShell, do not rely on apt as no arm64 package is available
-ARG PS_VERSION=7.3.8
+ARG PS_VERSION=7.3.9
 RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) PS_ARCH='x64';; \
