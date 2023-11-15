@@ -50,6 +50,7 @@ RUN wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/pac
 RUN apt-get update && \
     apt-get install -y -qq --no-install-recommends \
     azure-cli\
+    golang \
     helm \
     kubectl \
     terraform \
