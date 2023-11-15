@@ -59,5 +59,7 @@ jobs:
         Get-AzContext Format-List
         Get-AzContext | Select-Object -ExpandProperty Subscription | Format-List
       scriptType: inlineScript
+  - pwsh: go version
+    displayName: 'go lang version'
   - pwsh: terraform -v
-    displayName: 'Terraform info'
+    displayName: 'Terraform version'
