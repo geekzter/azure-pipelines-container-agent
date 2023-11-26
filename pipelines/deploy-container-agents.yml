@@ -562,9 +562,9 @@ jobs:
     dependsOn: 
       - provision
       # - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
-      - acaAgent
+      # - acaAgent
       # - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-      - aksAgent
+      # - aksAgent
     ${{ if ne(variables['Build.Reason'],'Manual') }}:
       displayName: 'Destroy infrastructure (always on pr/schedule)'
       condition: succeededOrFailed()
