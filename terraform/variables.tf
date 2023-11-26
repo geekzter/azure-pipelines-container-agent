@@ -140,7 +140,7 @@ variable environment_variables {
 
 variable gateway_type {
   type                         = string
-  default                      = "NoGateway"
+  default                      = "NATGateway"
   nullable                     = false
   validation {
     condition                  = var.gateway_type == "Firewall" || var.gateway_type == "NATGateway" || var.gateway_type == "NoGateway"

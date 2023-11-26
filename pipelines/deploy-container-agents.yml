@@ -40,19 +40,6 @@ parameters:
   - Container App
   - Kubernetes 
   - Both
-- name: networkType
-  displayName: Network type
-  type: string
-  default: NATGateway
-  values:
-  - None
-  - NoGateway
-  - NATGateway
-  - Firewall 
-- name: deployBastion
-  displayName: Deploy bastion host
-  type: boolean
-  default: false
 - name: retryCount
   displayName: Task retry count
   type: number
@@ -140,19 +127,12 @@ variables:
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_deploy_aks'
   value: ${{ lower(or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both'))) }}
-- name: 'TF_VAR_deploy_bastion'
-  value: '${{ lower(parameters.deployBastion) }}'
 - name: 'TF_VAR_deploy_container_app'
   value: ${{ lower(or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both'))) }}
-- name: 'TF_VAR_deploy_network'
-  value: ${{ lower(ne(parameters.networkType, 'None')) }}
 - name: 'TF_VAR_devops_project'
   value: '$(System.TeamProject)'
 - name: 'TF_VAR_devops_url'
   value: '$(System.CollectionUri)'
-- ${{ if ne(parameters.networkType, 'None') }}:
-  - name: 'TF_VAR_gateway_type'
-    value: '${{ parameters.networkType }}'
 - name: 'TF_VAR_environment_variables'
   value: '{PIPELINE_DEMO_JOB_CAPABILITY_ACA="$(correlationCapability)"}'
 - name: 'TF_VAR_repository'
