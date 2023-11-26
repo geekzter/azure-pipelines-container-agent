@@ -181,6 +181,7 @@ variables:
   # TF_VAR_agent_identity_resource_id -> Resource id of pre-created User-assigned Managed Identity used to access Container Registry
   # TF_VAR_container_registry_id -> Resource id of pre-created Container Registry
   # TF_VAR_devops_pat -> Personal Access Token used by agent to register itself, requires Agent Pools read & manage scope.
+- group: 'pipeline-container-agents-${{ parameters.workspace }}'
 
 jobs:    
 - ${{ if parameters.buildImage }}:
