@@ -356,7 +356,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+          # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
           if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
             Write-Host "Terraform workspace '$(TF_WORKSPACE)' already exists"
@@ -377,7 +377,6 @@ jobs:
         failOnStandardError: true
         workingDirectory: '$(terraformDirectory)'
       env:
-        ARM_USE_AZUREAD: true
         ARM_USE_CLI: true
 
     - ${{ if eq(parameters.clear, true) }}:

@@ -318,7 +318,6 @@ jobs:
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
     env:
-      ARM_USE_AZUREAD: true
       ARM_USE_CLI: true
 
   - publish: $(terraformDirectory)
