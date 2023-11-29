@@ -360,9 +360,11 @@ jobs:
 
           if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
             Write-Host "Terraform workspace '$(TF_WORKSPACE)' already exists"
+            terraform workspace select $(TF_WORKSPACE)
             terraform workspace select $(TF_WORKSPACE) 2>$null
           } else {
             Write-Host "Creating Terraform workspace '$(TF_WORKSPACE)'..."
+            terraform workspace new $(TF_WORKSPACE)
             terraform workspace new $(TF_WORKSPACE) 2>$null
           }
           if ((terraform workspace show) -eq '$(TF_WORKSPACE)') {
