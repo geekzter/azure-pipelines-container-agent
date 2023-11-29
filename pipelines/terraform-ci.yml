@@ -335,7 +335,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+          # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
           $env:TF_WORKSPACE = 'default' # Workspace may not exist yet
 
@@ -356,7 +356,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+          # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
           if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
             Write-Host "Terraform workspace '$(TF_WORKSPACE)' already exists"
@@ -386,7 +386,7 @@ jobs:
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
-            $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+            # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
             $terraformState = (terraform state pull | ConvertFrom-Json)
             if ($terraformState.resources) {
@@ -412,7 +412,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+          # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
           Write-Host "Terraform workspace: $(terraform workspace show)"
 
@@ -465,7 +465,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
-          $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+          # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
           ./deploy.ps1 -apply -force
         addSpnToEnvironment: true
         useGlobalConfig: true
@@ -481,7 +481,7 @@ jobs:
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
-            $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+            # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
             ./deploy.ps1 -apply -force
           addSpnToEnvironment: true
           useGlobalConfig: true
@@ -511,7 +511,7 @@ jobs:
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
-            $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+            # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
             ./deploy.ps1 -destroy -force
           addSpnToEnvironment: true
           useGlobalConfig: true
@@ -596,7 +596,7 @@ jobs:
           scriptType: pscore
           scriptLocation: inlineScript
           inlineScript: |
-            $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+            # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
             $terraformState = (terraform state pull | ConvertFrom-Json)
             if ($terraformState.resources) {
