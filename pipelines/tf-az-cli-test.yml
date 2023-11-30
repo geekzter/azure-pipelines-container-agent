@@ -99,7 +99,7 @@ jobs:
                 $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME --as-user --auth-mode login --account-name $env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
             }
         }
-        Write-Host "##vso[task.setvariable variable=ARM_SAS_TOKEN]${env:ARM_SAS_TOKEN}"
+        Write-Host "##vso[task.setvariable variable=ARM_SAS_TOKEN;isOutput=true]${env:ARM_SAS_TOKEN}"
       failOnStandardError: true
 
   # - task: AzureCLI@2
@@ -128,7 +128,8 @@ jobs:
       backendAzureRmContainerName: '$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)'
       backendAzureRmKey: '$(TF_STATE_CONTAINER_NAME)'
       workingDirectory: '$(terraformDirectory)'
-    # env:
+    env:
+      ARM_SAS_TOKEN: '$(createSasToken.ARM_SAS_TOKEN)'
       # ARM_USE_AZUREAD: true
 
   - task: AzureCLI@2
