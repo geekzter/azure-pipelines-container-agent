@@ -130,7 +130,7 @@ jobs:
       workingDirectory: '$(terraformDirectory)'
     env:
       ARM_SAS_TOKEN: '$(createSasToken.ARM_SAS_TOKEN)'
-      # ARM_USE_AZUREAD: true
+      ARM_USE_AZUREAD: false
 
   - task: AzureCLI@2
     name: terraformVariables
