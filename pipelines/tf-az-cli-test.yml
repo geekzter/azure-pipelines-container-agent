@@ -86,6 +86,22 @@ jobs:
     displayName: 'Copy backend.tf.sample to backend.tf'
     workingDirectory: '$(terraformDirectory)'
 
+  - task: AzureCLI@2
+    name: terraformVariables
+    displayName: 'Prepare Terraform variables'
+    inputs:
+      azureSubscription: '$(subscriptionConnection)'
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        if (!$env:ARM_ACCESS_KEY -and !$env:ARM_SAS_TOKEN) {
+            if ($env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME -and $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME) {
+                $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME --as-user --auth-mode login --account-name $env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
+            }
+        }
+        Write-Host "##vso[task.setvariable variable=ARM_SAS_TOKEN]${env:ARM_SAS_TOKEN}"
+      failOnStandardError: true
+
   # - task: AzureCLI@2
   #   displayName: 'Terraform init'
   #   inputs:
