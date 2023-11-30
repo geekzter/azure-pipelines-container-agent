@@ -87,8 +87,7 @@ jobs:
     workingDirectory: '$(terraformDirectory)'
 
   - task: AzureCLI@2
-    name: terraformVariables
-    displayName: 'Prepare Terraform variables'
+    displayName: 'Create SAS token'
     inputs:
       azureSubscription: '$(subscriptionConnection)'
       scriptType: pscore
