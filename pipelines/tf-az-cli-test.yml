@@ -77,6 +77,11 @@ jobs:
   - checkout: self
     submodules: true
 
+  - task: TerraformInstaller@0
+    displayName: 'Install Terraform'
+    inputs:
+      terraformVersion: 'latest'
+
   - task: AzureCLI@2
     displayName: 'Terraform init'
     inputs:
