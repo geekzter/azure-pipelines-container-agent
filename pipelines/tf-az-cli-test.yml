@@ -86,6 +86,36 @@ jobs:
     displayName: 'Copy backend.tf.sample to backend.tf'
     workingDirectory: '$(terraformDirectory)'
 
+  # - task: TerraformTaskV4@4
+  #   displayName: Terraform Init
+  #   inputs:
+  #     provider: 'azurerm'
+  #     command: 'init'
+  #     backendServiceArm: '$(subscriptionConnection)'
+  #     backendAzureRmResourceGroupName: '$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)'
+  #     backendAzureRmStorageAccountName: '$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)'
+  #     backendAzureRmContainerName: '$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)'
+  #     backendAzureRmKey: 'terraform.tfstate'
+  #     workingDirectory: '$(terraformDirectory)'
+  #   env:
+  #     ARM_USE_AZUREAD: true
+
+  - task: TerraformCLI@0
+    displayName: 'terraform init'
+    inputs:
+      command: init
+      backendType: azurerm
+      backendServiceArm: '$(subscriptionConnection)'
+      # backendAzureRmSubscriptionId: 'my-backend-subscription-id'
+      # ensureBackend: true
+      backendAzureRmResourceGroupName: '$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)'
+      # backendAzureRmResourceGroupLocation: 'eastus'
+      backendAzureRmStorageAccountName: '$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)'
+      # backendAzureRmStorageAccountSku: 'Standard_RAGRS'
+      backendAzureRmContainerName: '$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)'
+      # azure blob file name
+      backendAzureRmKey: 'terraform.tfstate'
+
   - task: AzureCLI@2
     displayName: 'Terraform init'
     inputs:
@@ -96,7 +126,6 @@ jobs:
         $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
         # $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME --as-user --auth-mode login --account-name $env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
         # $(scriptDirectory)/deploy.ps1 -Init
-
         Write-Host 'terraform init  -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)"'
         terraform init  -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)"
         # terraform init
