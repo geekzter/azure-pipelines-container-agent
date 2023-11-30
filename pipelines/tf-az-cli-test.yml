@@ -128,7 +128,7 @@ jobs:
       backendAzureRmContainerName: '$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)'
       backendAzureRmKey: '$(TF_STATE_CONTAINER_NAME)'
       workingDirectory: '$(terraformDirectory)'
-    env:
+    # env:
       # ARM_USE_AZUREAD: true
 
   - task: AzureCLI@2
