@@ -117,6 +117,8 @@ jobs:
       useGlobalConfig: true
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
+    env:
+      ARM_USE_AZUREAD: true
 
   - task: AzureCLI@2
     name: terraformVariables
