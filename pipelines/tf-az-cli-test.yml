@@ -107,6 +107,7 @@ jobs:
       backendAzureRmStorageAccountName: '$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)'
       backendAzureRmContainerName: '$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)'
       backendAzureRmKey: '$(TF_STATE_CONTAINER_NAME)'
+      workingDirectory: '$(terraformDirectory)'
     env:
       ARM_USE_AZUREAD: true
 
