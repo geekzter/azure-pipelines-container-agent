@@ -102,37 +102,37 @@ jobs:
         Write-Host "##vso[task.setvariable variable=ARM_SAS_TOKEN;isOutput=true]${env:ARM_SAS_TOKEN}"
       failOnStandardError: true
 
-  - task: AzureCLI@2
-    displayName: 'Terraform init'
-    inputs:
-      azureSubscription: '$(subscriptionConnection)'
-      scriptType: pscore
-      scriptLocation: inlineScript
-      inlineScript: |
-        $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
-        # $(scriptDirectory)/deploy.ps1 -Init
-        Write-Host 'terraform init  -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)"'
-        terraform init  -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)"
-        # terraform init
-      addSpnToEnvironment: true
-      useGlobalConfig: true
-      failOnStandardError: true
-      workingDirectory: '$(terraformDirectory)'
-
-  # - task: TerraformTaskV4@4
-  #   displayName: Terraform init
+  # - task: AzureCLI@2
+  #   displayName: 'Terraform init'
   #   inputs:
-  #     provider: 'azurerm'
-  #     command: 'init'
-  #     backendServiceArm: '$(subscriptionConnection)'
-  #     backendAzureRmResourceGroupName: '$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)'
-  #     backendAzureRmStorageAccountName: '$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)'
-  #     backendAzureRmContainerName: '$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)'
-  #     backendAzureRmKey: 'terraform.tfstate'
+  #     azureSubscription: '$(subscriptionConnection)'
+  #     scriptType: pscore
+  #     scriptLocation: inlineScript
+  #     inlineScript: |
+  #       $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+  #       # $(scriptDirectory)/deploy.ps1 -Init
+  #       Write-Host 'terraform init  -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)"'
+  #       terraform init  -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)"
+  #       # terraform init
+  #     addSpnToEnvironment: true
+  #     useGlobalConfig: true
+  #     failOnStandardError: true
   #     workingDirectory: '$(terraformDirectory)'
-  #   env:
-  #     ARM_SAS_TOKEN: '$(createSasToken.ARM_SAS_TOKEN)'
-  #     ARM_USE_AZUREAD: false
+
+  - task: TerraformTaskV4@4
+    displayName: Terraform init
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      backendServiceArm: '$(subscriptionConnection)'
+      backendAzureRmResourceGroupName: '$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)'
+      backendAzureRmStorageAccountName: '$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)'
+      backendAzureRmContainerName: '$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)'
+      backendAzureRmKey: 'terraform.tfstate'
+      workingDirectory: '$(terraformDirectory)'
+    env:
+      # ARM_SAS_TOKEN: '$(createSasToken.ARM_SAS_TOKEN)'
+      ARM_USE_AZUREAD: true
 
   - task: AzureCLI@2
     name: terraformVariables
@@ -143,7 +143,7 @@ jobs:
       scriptLocation: inlineScript
       inlineScript: |
         # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
-        terraform output resource_suffix
+        terraform output
 
       addSpnToEnvironment: true
       useGlobalConfig: true
