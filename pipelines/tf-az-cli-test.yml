@@ -88,6 +88,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Create SAS token'
+    name: createSasToken
     inputs:
       azureSubscription: '$(subscriptionConnection)'
       scriptType: pscore
@@ -128,7 +129,7 @@ jobs:
       backendAzureRmKey: '$(TF_STATE_CONTAINER_NAME)'
       workingDirectory: '$(terraformDirectory)'
     env:
-      ARM_USE_AZUREAD: true
+      # ARM_USE_AZUREAD: true
 
   - task: AzureCLI@2
     name: terraformVariables
