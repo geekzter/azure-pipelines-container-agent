@@ -125,13 +125,13 @@ jobs:
 
   - task: AzureCLI@2
     name: terraformVariables
-    displayName: 'Terraform plan'
+    displayName: 'Terraform output'
     inputs:
       azureSubscription: '$(subscriptionConnection)'
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        terraform plan
+        terraform output
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
     env:
