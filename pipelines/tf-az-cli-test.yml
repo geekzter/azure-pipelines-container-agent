@@ -133,7 +133,7 @@ jobs:
                        -backend-config="client_id=${env:servicePrincipalId}" `
                        -backend-config="client_secret=${env:servicePrincipalKey}" `
                        -backend-config="oidc_token=${env:idToken}" `
-                       -backend-config="use_oidc=$([string]::IsNullOrEmpty($env:idToken).ToLower())"
+                       -backend-config="use_oidc=$((![string]::IsNullOrEmpty($env:idToken)).ToLower())"
         terraform output
 
         # Works
