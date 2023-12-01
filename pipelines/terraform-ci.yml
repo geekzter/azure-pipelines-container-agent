@@ -373,36 +373,21 @@ jobs:
         ARM_USE_AZUREAD: true
 
     - task: AzureCLI@2
-      displayName: 'Select Terraform workspace'
+      displayName: 'Create Terraform workspace'
       inputs:
         azureSubscription: '$(subscriptionConnection)'
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
           # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
-
-          if ((terraform workspace list) -match "\W+$(TF_WORKSPACE)$") {
-            Write-Host "Terraform workspace '$(TF_WORKSPACE)' already exists"
-            terraform workspace select $(TF_WORKSPACE)
-            terraform workspace select $(TF_WORKSPACE) 2>$null
-          } else {
-            Write-Host "Creating Terraform workspace '$(TF_WORKSPACE)'..."
-            terraform workspace new $(TF_WORKSPACE)
-            terraform workspace new $(TF_WORKSPACE) 2>$null
-          }
-          if ((terraform workspace show) -eq '$(TF_WORKSPACE)') {
-            Write-Host "Terraform workspace '$(TF_WORKSPACE)' selected"
-            exit 0
-          } else {
-            Write-Error "Terraform workspace '$(TF_WORKSPACE)' does not exist"
-            exit 1
-          } 
+          terraform workspace select -or-create=true $(TF_WORKSPACE)
         addSpnToEnvironment: true
         useGlobalConfig: true
         failOnStandardError: true
         workingDirectory: '$(terraformDirectory)'
       env:
         ARM_USE_CLI: true
+        TF_WORKSPACE: ''
 
     - ${{ if eq(parameters.clear, true) }}:
       - task: AzureCLI@2
