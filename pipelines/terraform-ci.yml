@@ -618,7 +618,7 @@ jobs:
             } else {
               Write-Host "No resources in Terraform state in workspace ${env:TF_WORKSPACE}..."
             }
-            terraform state pull 
+            # terraform state pull 
           failOnStandardError: true
           workingDirectory: '$(terraformDirectory)'
         env:
