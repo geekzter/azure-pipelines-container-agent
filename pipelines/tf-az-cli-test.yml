@@ -122,7 +122,7 @@ jobs:
                        -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
                        -backend-config="client_id=${env:servicePrincipalId}" `
                        -backend-config="client_secret=${env:servicePrincipalKey}" `
-                       -backend-config="oidc_token=${env:idToken}" ``
+                       -backend-config="oidc_token=${env:idToken}" `
                        -backend-config="subscription_id=$(az account show --query id -o tsv)" `
                        -backend-config="tenant_id=${env:tenantId}"
       addSpnToEnvironment: true
