@@ -107,9 +107,13 @@ jobs:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
+        # Populate ARM_* environment variables
         $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
         # $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME --as-user --auth-mode login --account-name $env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
-        # $(scriptDirectory)/deploy.ps1 -Init
+
+        # Works?
+        $(scriptDirectory)/deploy.ps1 -Init
+
         # Works
         # terraform init -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
         #                -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
@@ -120,15 +124,17 @@ jobs:
         #                -backend-config="client_id=${env:ARM_CLIENT_ID}" `
         #                -backend-config="oidc_token=${env:ARM_OIDC_TOKEN}" `
         #                -backend-config="use_oidc=${env:ARM_USE_OIDC}"
-        terraform init -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
-                       -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
-                       -backend-config="key=terraform.tfstate" `
-                       -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
-                       -backend-config="subscription_id=${env:ARM_SUBSCRIPTION_ID}" `
-                       -backend-config="tenant_id=${env:ARM_TENANT_ID}" `
-                       -backend-config="client_id=${env:ARM_CLIENT_ID}" `
-                       -backend-config="oidc_token=${env:ARM_OIDC_TOKEN}" `
-                       -backend-config="use_oidc=${env:ARM_USE_OIDC}"
+
+        # Doesn't work
+        # terraform init -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
+        #                -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
+        #                -backend-config="key=terraform.tfstate" `
+        #                -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
+        #                -backend-config="subscription_id=${env:ARM_SUBSCRIPTION_ID}" `
+        #                -backend-config="tenant_id=${env:ARM_TENANT_ID}" `
+        #                -backend-config="client_id=${env:ARM_CLIENT_ID}" `
+        #                -backend-config="oidc_token=${env:ARM_OIDC_TOKEN}" `
+        #                -backend-config="use_oidc=${env:ARM_USE_OIDC}"
       addSpnToEnvironment: true
       useGlobalConfig: true
       failOnStandardError: true
