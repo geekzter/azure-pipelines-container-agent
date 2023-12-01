@@ -335,7 +335,7 @@ jobs:
     #     scriptType: pscore
     #     scriptLocation: inlineScript
     #     inlineScript: |
-    #       $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+    #       # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
     #       $env:TF_WORKSPACE = 'default' # Workspace may not exist yet
 
@@ -358,14 +358,14 @@ jobs:
         inlineScript: |
           Copy-Item backend.tf.sample backend.tf
           terraform init -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
-                        -backend-config="key=terraform.tfstate" `
-                        -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
-                        -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
-                        -backend-config="client_id=${env:servicePrincipalId}" `
-                        -backend-config="client_secret=${env:servicePrincipalKey}" `
-                        -backend-config="oidc_token=${env:idToken}" `
-                        -backend-config="subscription_id=$(az account show --query id -o tsv)" `
-                        -backend-config="tenant_id=${env:tenantId}"
+                         -backend-config="key=terraform.tfstate" `
+                         -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
+                         -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
+                         -backend-config="client_id=${env:servicePrincipalId}" `
+                         -backend-config="client_secret=${env:servicePrincipalKey}" `
+                         -backend-config="oidc_token=${env:idToken}" `
+                         -backend-config="subscription_id=$(az account show --query id -o tsv)" `
+                         -backend-config="tenant_id=${env:tenantId}"
         addSpnToEnvironment: true
         failOnStandardError: true
         workingDirectory: '$(terraformDirectory)'
@@ -431,6 +431,8 @@ jobs:
           useGlobalConfig: true
           failOnStandardError: true
           workingDirectory: '$(terraformDirectory)'
+        env:
+          ARM_USE_CLI: true
 
     - task: AzureCLI@2
       displayName: 'Prepare Terraform variables'
@@ -482,6 +484,8 @@ jobs:
         useGlobalConfig: true
         failOnStandardError: true
         workingDirectory: '$(terraformDirectory)'
+      env:
+        ARM_USE_CLI: true
 
     - task: AzureCLI@2
       displayName: 'Terraform plan & apply'
@@ -498,6 +502,8 @@ jobs:
         useGlobalConfig: true
         failOnStandardError: true
         workingDirectory: '$(scriptDirectory)'      
+      env:
+        ARM_USE_CLI: true
 
     - ${{ if parameters.testReentrance }}:
       - task: AzureCLI@2
@@ -514,6 +520,8 @@ jobs:
           useGlobalConfig: true
           failOnStandardError: true
           workingDirectory: '$(scriptDirectory)'
+        env:
+          ARM_USE_CLI: true
           
     - ${{ if not(eq(parameters.destroy, 'Never')) }}:
       - pwsh: |
@@ -544,6 +552,8 @@ jobs:
           useGlobalConfig: true
           failOnStandardError: true
           workingDirectory: '$(scriptDirectory)'
+        env:
+          ARM_USE_CLI: true
 
     - ${{ if ne(parameters.destroy, 'Never') }}:
       - task: AzureCLI@2
@@ -640,3 +650,5 @@ jobs:
           useGlobalConfig: true
           failOnStandardError: true
           workingDirectory: '$(terraformDirectory)'
+        env:
+          ARM_USE_CLI: true
