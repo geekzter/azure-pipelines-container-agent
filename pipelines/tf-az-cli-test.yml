@@ -101,7 +101,7 @@ jobs:
   #     ARM_USE_AZUREAD: true
 
   - task: AzureCLI@2
-    displayName: 'Terraform init & output'
+    displayName: 'Terraform init'
     inputs:
       azureSubscription: '$(subscriptionConnection)'
       scriptType: pscore
@@ -125,13 +125,13 @@ jobs:
 
   - task: AzureCLI@2
     name: terraformVariables
-    displayName: 'Terraform output'
+    displayName: 'Terraform plan'
     inputs:
       azureSubscription: '$(subscriptionConnection)'
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        terraform output
+        terraform plan
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
     env:
