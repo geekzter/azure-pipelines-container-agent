@@ -115,17 +115,16 @@ jobs:
         #                -backend-config="tenant_id=${env:tenantId}" `
         #                -backend-config="client_id=${env:servicePrincipalId}" `
         #                -backend-config="client_secret=${env:servicePrincipalKey}" `
-        #                -backend-config="oidc_token=${env:idToken}" `
-        #                -backend-config="use_oidc=$((![string]::IsNullOrEmpty($env:idToken)).ToString().ToLower())"
-        terraform init -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
-                       -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
+        #                -backend-config="oidc_token=${env:idToken}"
+        terraform init -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
                        -backend-config="key=terraform.tfstate" `
                        -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
-                       -backend-config="subscription_id=$(az account show --query id -o tsv)" `
-                       -backend-config="tenant_id=${env:tenantId}" `
+                       -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
                        -backend-config="client_id=${env:servicePrincipalId}" `
                        -backend-config="client_secret=${env:servicePrincipalKey}" `
-                       -backend-config="oidc_token=${env:idToken}"
+                       -backend-config="oidc_token=${env:idToken}" ``
+                       -backend-config="subscription_id=$(az account show --query id -o tsv)" `
+                       -backend-config="tenant_id=${env:tenantId}"
       addSpnToEnvironment: true
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
