@@ -126,10 +126,10 @@ jobs:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
+        $env:TF_WORKSPACE = $null
         terraform workspace select -or-create=true $(TF_WORKSPACE)
       useGlobalConfig: true
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
     env:
       ARM_USE_CLI: true
-      TF_WORKSPACE: ''
