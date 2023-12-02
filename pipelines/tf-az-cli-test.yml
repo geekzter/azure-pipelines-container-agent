@@ -108,6 +108,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Terraform init'
+    name: init
     inputs:
       azureSubscription: '$(subscriptionConnection)'
       scriptType: pscore
@@ -175,8 +176,8 @@ jobs:
           Start-Sleep -Seconds (60 * 1)
         } while ($stopwatch.Elapsed.TotalMinutes -lt (30-1-1))
       workingDirectory: '$(terraformDirectory)'
-    # env:
-      # ARM_SAS_TOKEN: '$(ARM_SAS_TOKEN)'
+    env:
+      ARM_SAS_TOKEN: '$(init.ARM_SAS_TOKEN)'
 
   - task: AzureCLI@2
     name: terraformVariables
@@ -230,6 +231,7 @@ jobs:
         terraform state pull 
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
-    # env:
+    env:
+      ARM_SAS_TOKEN: '$(init.ARM_SAS_TOKEN)'
       # ARM_USE_AZUREAD: true
       # ARM_USE_CLI: true
