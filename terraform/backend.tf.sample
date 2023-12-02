@@ -7,6 +7,6 @@ terraform {
     #storage_account_name = "tfbackend"
     container_name       = "pipelinecontaineragents" 
     key                  = "terraform.tfstate"
-    use_oidc             = true
+    # use_oidc             = true
   }
 }
