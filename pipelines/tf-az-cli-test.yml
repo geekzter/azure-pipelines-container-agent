@@ -173,8 +173,8 @@ jobs:
 
           Write-Host "terraform output"
           terraform output
-          Write-Host "terraform state pull"
-          terraform state pull
+          # Write-Host "terraform state pull"
+          # terraform state pull
 
           Write-Host "Elapsed time: $($stopwatch.Elapsed.TotalMinutes) minutes, sleeping for 1 minutes..."
           Start-Sleep -Seconds (60 * 1)
