@@ -109,6 +109,12 @@ jobs:
       scriptLocation: inlineScript
       inlineScript: |
         Copy-Item backend.tf.sample backend.tf
+        # $env:ARM_OIDC_TOKEN = $env:idToken
+        # $env:ARM_USE_OIDC = (![string]::IsNullOrEmpty($env:idToken)).ToString().ToLower()
+        # $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME --as-user --auth-mode login --account-name $env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
+        # Write-Host "##vso[task.setvariable variable=ARM_SAS_TOKEN;]${env:ARM_SAS_TOKEN}"
+
+
         terraform init -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
                        -backend-config="key=terraform.tfstate" `
                        -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
@@ -145,6 +151,7 @@ jobs:
           Write-Host "Elapsed time: $($stopwatch.Elapsed.TotalMinutes) minutes, sleeping for 1 minutes..."
           Start-Sleep -Seconds (60 * 1)
         } while ($stopwatch.Elapsed.TotalMinutes -lt (30-1-1))
+      workingDirectory: '$(terraformDirectory)'
 
   - task: AzureCLI@2
     name: terraformVariables

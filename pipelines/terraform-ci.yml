@@ -605,6 +605,7 @@ jobs:
         ${{ if eq(parameters.destroy, 'On success') }}:
           condition: eq(variables['provisioningResult.result'],'success')
         inputs:
+          addSpnToEnvironment: true
           azureSubscription: '$(subscriptionConnection)'
           scriptType: pscore
           scriptLocation: inlineScript
