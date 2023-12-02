@@ -43,8 +43,8 @@ schedules:
     - main
 
 variables:
-- name: ARM_USE_AZUREAD
-  value: 'true'
+# - name: ARM_USE_AZUREAD
+  # value: 'true'
 - name: ARM_USE_CLI
   value: 'true'
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
@@ -81,6 +81,11 @@ jobs:
   steps:
   - checkout: self
     submodules: true
+
+  - bash: |
+      echo "##vso[task.setvariable variable=mySecretVal]secretvalue"
+  - bash: |
+      echo $(mySecretVal)
 
   - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
     displayName: 'Install Terraform'
