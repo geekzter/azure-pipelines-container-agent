@@ -82,10 +82,10 @@ jobs:
   - checkout: self
     submodules: true
 
-  - bash: |
-      echo "##vso[task.setvariable variable=mySecretVal]secretvalue"
-  - bash: |
-      echo $(mySecretVal)
+  # - bash: |
+  #     echo "##vso[task.setvariable variable=mySecretVal]secretvalue"
+  # - bash: |
+  #     echo $(mySecretVal)
 
   - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
     displayName: 'Install Terraform'
@@ -119,6 +119,7 @@ jobs:
         # $env:ARM_USE_OIDC = (![string]::IsNullOrEmpty($env:idToken)).ToString().ToLower()
         $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME --as-user --auth-mode login --account-name $env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
         Write-Host "##vso[task.setvariable variable=ARM_SAS_TOKEN;issecret=true]${env:ARM_SAS_TOKEN}"
+        Write-Host "##vso[task.setvariable variable=mySecretVal]secretvalue"
 
         # $(scriptDirectory)/deploy.ps1 -init
         Get-ChildItem -Path Env: -Recurse -Include ARM_*    
@@ -174,6 +175,8 @@ jobs:
           Start-Sleep -Seconds (60 * 1)
         } while ($stopwatch.Elapsed.TotalMinutes -lt (30-1-1))
       workingDirectory: '$(terraformDirectory)'
+    env:
+      ARM_SAS_TOKEN: '$(ARM_SAS_TOKEN)'
 
   - task: AzureCLI@2
     name: terraformVariables
