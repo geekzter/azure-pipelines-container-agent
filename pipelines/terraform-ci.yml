@@ -356,6 +356,7 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
+          $env:TF_WORKSPACE = 'default' # Workspace may not exist yet
           Copy-Item backend.tf.sample backend.tf
           terraform init -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
                          -backend-config="key=terraform.tfstate" `
