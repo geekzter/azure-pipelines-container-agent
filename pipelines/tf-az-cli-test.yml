@@ -91,6 +91,10 @@ jobs:
     displayName: 'Install Terraform'
     inputs:
       terraformVersion: 'latest'
+  
+  - bash: cp backend.tf.sample backend.tf
+    displayName: 'Copy backend.tf.sample to backend.tf'
+    workingDirectory: '$(terraformDirectory)'
 
   - task: TerraformTaskV4@4
     displayName: Terraform Init
