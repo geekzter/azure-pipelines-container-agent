@@ -42,6 +42,10 @@ schedules:
     - main
 
 variables:
+- name: ARM_USE_AZUREAD
+  value: 'true'
+- name: ARM_USE_CLI
+  value: 'true'
 - name: AZURE_CORE_ONLY_SHOW_ERRORS
   value: 'true'
 - name: AZURE_EXTENSION_USE_DYNAMIC_INSTALL
@@ -102,8 +106,8 @@ jobs:
       addSpnToEnvironment: true
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
-    env:
-      ARM_USE_AZUREAD: true
+    # env:
+      # ARM_USE_AZUREAD: true
 
   - task: AzureCLI@2
     name: terraformVariables
@@ -116,8 +120,8 @@ jobs:
         terraform output
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
-    env:
-      ARM_USE_CLI: true
+    # env:
+      # ARM_USE_CLI: true
 
   - task: AzureCLI@2
     displayName: 'Create Terraform workspace'
@@ -131,8 +135,8 @@ jobs:
       useGlobalConfig: true
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
-    env:
-      ARM_USE_CLI: true
+    # env:
+      # ARM_USE_CLI: true
 
   - task: AzureCLI@2
     displayName: 'Terraform state'
@@ -158,6 +162,6 @@ jobs:
         terraform state pull 
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
-    env:
+    # env:
       # ARM_USE_AZUREAD: true
-      ARM_USE_CLI: true
+      # ARM_USE_CLI: true
