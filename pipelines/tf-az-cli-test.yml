@@ -126,13 +126,14 @@ jobs:
       scriptType: pscore
       scriptLocation: inlineScript
       inlineScript: |
-        $env:TF_WORKSPACE = $null
+        # $env:TF_WORKSPACE = $null
         terraform workspace select -or-create=true $(TF_WORKSPACE)
       useGlobalConfig: true
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
     env:
       ARM_USE_CLI: true
+      TF_WORKSPACE: 'default'
 
   - task: AzureCLI@2
     displayName: 'Terraform state'
@@ -154,7 +155,7 @@ jobs:
           $terraformState | ConvertTo-Json | terraform state push -
         # } else {
           # Write-Host "No resources in Terraform state in workspace ${env:TF_WORKSPACE}..."
-        }
+        # }
         terraform state pull 
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
