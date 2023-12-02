@@ -111,6 +111,25 @@ jobs:
       # ARM_USE_AZUREAD: true
 
   - task: AzureCLI@2
+    displayName: '$(subscriptionConnection)'
+    inputs:
+      # addSpnToEnvironment: true
+      azureSubscription: $(subscriptionConnection)
+      failOnStandardError: true
+      powerShellIgnoreLASTEXITCODE: false
+      powerShellErrorActionPreference: Stop
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $stopwatch = [system.diagnostics.stopwatch]::StartNew()
+        do {
+          terraform output
+
+          Write-Host "Elapsed time: $($stopwatch.Elapsed.TotalMinutes) minutes, sleeping for 1 minutes..."
+          Start-Sleep -Seconds (60 * 1)
+        } while ($stopwatch.Elapsed.TotalMinutes -lt (30-1-1))
+
+  - task: AzureCLI@2
     name: terraformVariables
     displayName: 'Terraform output'
     inputs:
