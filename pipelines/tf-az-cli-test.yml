@@ -190,7 +190,7 @@ jobs:
         terraform output
       failOnStandardError: true
       workingDirectory: '$(terraformDirectory)'
-    env:
+    # env:
       # ARM_SAS_TOKEN: '$(init.ARM_SAS_TOKEN)'
       # ARM_USE_CLI: true
 
