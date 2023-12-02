@@ -156,7 +156,7 @@ jobs:
           $terraformState.outputs = New-Object PSObject # Empty output
           $terraformState.resources = @() # No resources
           $terraformState.serial++
-          # $terraformState | ConvertTo-Json | terraform state push -
+          $terraformState | ConvertTo-Json | terraform state push -
         # } else {
           # Write-Host "No resources in Terraform state in workspace ${env:TF_WORKSPACE}..."
         # }
