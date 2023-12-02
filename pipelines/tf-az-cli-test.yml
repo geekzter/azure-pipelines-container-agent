@@ -137,7 +137,9 @@ jobs:
       inlineScript: |
         $stopwatch = [system.diagnostics.stopwatch]::StartNew()
         do {
+          Write-Host "terraform output"
           terraform output
+          Write-Host "terraform state pull"
           terraform state pull
 
           Write-Host "Elapsed time: $($stopwatch.Elapsed.TotalMinutes) minutes, sleeping for 1 minutes..."
@@ -182,8 +184,7 @@ jobs:
       inlineScript: |
         # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
         terraform output
-        terraform state pull
-
+ 
         $terraformState = (terraform state pull | ConvertFrom-Json)
         # if ($terraformState.resources) {
           Write-Host "Clearing Terraform state in workspace ${env:TF_WORKSPACE}..."
