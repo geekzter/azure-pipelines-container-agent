@@ -479,8 +479,8 @@ jobs:
         scriptLocation: inlineScript
         inlineScript: |
           # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
-          # ./deploy.ps1 -apply -force
-          ./deploy.ps1 -plan -force
+          ./deploy.ps1 -apply -force
+          # ./deploy.ps1 -plan -force
         failOnStandardError: true
         workingDirectory: '$(scriptDirectory)'      
       env:
@@ -496,8 +496,8 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: |
             # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
-            # ./deploy.ps1 -apply -force
-            ./deploy.ps1 -plan -force
+            ./deploy.ps1 -apply -force
+            # ./deploy.ps1 -plan -force
           failOnStandardError: true
           workingDirectory: '$(scriptDirectory)'
         env:
@@ -625,4 +625,5 @@ jobs:
           failOnStandardError: true
           workingDirectory: '$(terraformDirectory)'
         env:
+          # ARM_USE_AZUREAD: true
           ARM_USE_CLI: true
