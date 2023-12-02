@@ -92,63 +92,63 @@ jobs:
     inputs:
       terraformVersion: 'latest'
 
-  # - task: TerraformTaskV4@4
-  #   displayName: Terraform Init
-  #   inputs:
-  #     provider: 'azurerm'
-  #     command: 'init'
-  #     backendServiceArm: '$(subscriptionConnection)'
-  #     backendAzureRmResourceGroupName: '$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)'
-  #     backendAzureRmStorageAccountName: '$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)'
-  #     backendAzureRmContainerName: '$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)'
-  #     backendAzureRmKey: 'terraform.tfstate'
-  #     workingDirectory: '$(terraformDirectory)'
-  #   env:
-  #     ARM_USE_AZUREAD: true
-
-  - task: AzureCLI@2
-    displayName: 'Terraform init'
-    name: init
+  - task: TerraformTaskV4@4
+    displayName: Terraform Init
     inputs:
-      azureSubscription: '$(subscriptionConnection)'
-      scriptType: pscore
-      scriptLocation: inlineScript
-      inlineScript: |
-        Copy-Item backend.tf.sample backend.tf
-        # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
-        # $env:ARM_OIDC_TOKEN = $env:idToken
-        # $env:ARM_USE_OIDC = (![string]::IsNullOrEmpty($env:idToken)).ToString().ToLower()
-        # $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME --as-user --auth-mode login --account-name $env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
-        # Write-Host "##vso[task.setvariable variable=ARM_SAS_TOKEN;issecret=true;isoutput=true]${env:ARM_SAS_TOKEN}"
-        # Write-Host "##vso[task.setvariable variable=mySecretVal]secretvalue"
-
-        # $(scriptDirectory)/deploy.ps1 -init
-
-
-        terraform init -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
-                       -backend-config="key=terraform.tfstate" `
-                       -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
-                       -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
-                       -backend-config="client_id=${env:servicePrincipalId}" `
-                       -backend-config="client_secret=${env:servicePrincipalKey}" `
-                       -backend-config="oidc_token=${env:idToken}" `
-                       -backend-config="subscription_id=$(az account show --query id -o tsv)" `
-                       -backend-config="tenant_id=${env:tenantId}"
-
-        # terraform init -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
-        #                -backend-config="key=terraform.tfstate" `
-        #                -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
-        #                -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)"
-
-        terraform output
-        terraform state pull
-
-        Get-ChildItem -Path Env: -Recurse -Include ARM_*    
-      addSpnToEnvironment: true
-      failOnStandardError: true
+      provider: 'azurerm'
+      command: 'init'
+      backendServiceArm: '$(subscriptionConnection)'
+      backendAzureRmResourceGroupName: '$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)'
+      backendAzureRmStorageAccountName: '$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)'
+      backendAzureRmContainerName: '$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)'
+      backendAzureRmKey: 'terraform.tfstate'
       workingDirectory: '$(terraformDirectory)'
-    # env:
-      # ARM_USE_AZUREAD: true
+    env:
+      ARM_USE_AZUREAD: true
+
+  # - task: AzureCLI@2
+  #   displayName: 'Terraform init'
+  #   name: init
+  #   inputs:
+  #     azureSubscription: '$(subscriptionConnection)'
+  #     scriptType: pscore
+  #     scriptLocation: inlineScript
+  #     inlineScript: |
+  #       Copy-Item backend.tf.sample backend.tf
+  #       # $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
+  #       # $env:ARM_OIDC_TOKEN = $env:idToken
+  #       # $env:ARM_USE_OIDC = (![string]::IsNullOrEmpty($env:idToken)).ToString().ToLower()
+  #       # $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME --as-user --auth-mode login --account-name $env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
+  #       # Write-Host "##vso[task.setvariable variable=ARM_SAS_TOKEN;issecret=true;isoutput=true]${env:ARM_SAS_TOKEN}"
+  #       # Write-Host "##vso[task.setvariable variable=mySecretVal]secretvalue"
+
+  #       # $(scriptDirectory)/deploy.ps1 -init
+
+
+  #       terraform init -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
+  #                      -backend-config="key=terraform.tfstate" `
+  #                      -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
+  #                      -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)" `
+  #                      -backend-config="client_id=${env:servicePrincipalId}" `
+  #                      -backend-config="client_secret=${env:servicePrincipalKey}" `
+  #                      -backend-config="oidc_token=${env:idToken}" `
+  #                      -backend-config="subscription_id=$(az account show --query id -o tsv)" `
+  #                      -backend-config="tenant_id=${env:tenantId}"
+
+  #       # terraform init -backend-config="container_name=$(TF_STATE_BACKEND_STORAGE_CONTAINER_NAME)" `
+  #       #                -backend-config="key=terraform.tfstate" `
+  #       #                -backend-config="resource_group_name=$(TF_STATE_BACKEND_RESOURCE_GROUP_NAME)" `
+  #       #                -backend-config="storage_account_name=$(TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME)"
+
+  #       terraform output
+  #       terraform state pull
+
+  #       Get-ChildItem -Path Env: -Recurse -Include ARM_*    
+  #     addSpnToEnvironment: true
+  #     failOnStandardError: true
+  #     workingDirectory: '$(terraformDirectory)'
+  #   # env:
+  #     # ARM_USE_AZUREAD: true
 
   - task: AzureCLI@2
     displayName: '$(subscriptionConnection)'
