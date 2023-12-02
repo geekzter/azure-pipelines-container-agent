@@ -169,8 +169,8 @@ jobs:
 
           Write-Host "terraform output"
           terraform output
-          # Write-Host "terraform state pull"
-          # terraform state pull
+          Write-Host "terraform state pull"
+          terraform state pull
 
           Write-Host "Elapsed time: $($stopwatch.Elapsed.TotalMinutes) minutes, sleeping for 1 minutes..."
           Start-Sleep -Seconds (60 * 1)
@@ -220,6 +220,7 @@ jobs:
         $env:ARM_SAS_TOKEN=$(az storage container generate-sas -n $env:TF_STATE_BACKEND_STORAGE_CONTAINER_NAME --as-user --auth-mode login --account-name $env:TF_STATE_BACKEND_STORAGE_ACCOUNT_NAME --permissions acdlrw --expiry (Get-Date).AddDays(7).ToString("yyyy-MM-dd") -o tsv)
         terraform output
  
+         terraform state pull
         $terraformState = (terraform state pull | ConvertFrom-Json)
         # if ($terraformState.resources) {
           Write-Host "Clearing Terraform state in workspace ${env:TF_WORKSPACE}..."
