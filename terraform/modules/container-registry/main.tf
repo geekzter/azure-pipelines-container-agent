@@ -21,25 +21,13 @@ resource azurerm_monitor_diagnostic_setting image_registry {
 
   enabled_log {
     category                   = "ContainerRegistryRepositoryEvents"
-
-    retention_policy {
-      enabled                  = false
-    }
   }
   enabled_log {
     category                   = "ContainerRegistryLoginEvents"
-
-    retention_policy {
-      enabled                  = false
-    }
   }
 
   metric {
     category                   = "AllMetrics"
-
-    retention_policy {
-      enabled                  = false
-    }
   }
 
   count                        = var.container_registry_id != null && var.container_registry_id != "" ? 0 : 1

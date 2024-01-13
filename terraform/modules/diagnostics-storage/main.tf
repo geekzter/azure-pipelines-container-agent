@@ -17,10 +17,6 @@ resource azurerm_monitor_diagnostic_setting diagnostics {
 
   metric {
     category                   = "Transaction"
-
-    retention_policy {
-      enabled                  = false
-    }
   }
 
   count                        = var.create_log_analytics_workspace ? 1 : 0
@@ -92,17 +88,9 @@ resource azurerm_monitor_diagnostic_setting monitor {
 
   enabled_log {
     category                   = "Audit"
-
-    retention_policy {
-      enabled                  = false
-    }
   }
   metric {
     category                   = "AllMetrics"
-
-    retention_policy {
-      enabled                  = false
-    }
   }
   count                        = var.create_log_analytics_workspace ? 1 : 0
 }

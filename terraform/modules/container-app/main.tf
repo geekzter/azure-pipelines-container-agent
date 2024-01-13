@@ -91,24 +91,12 @@ resource azurerm_monitor_diagnostic_setting agent_container_environment {
 
   enabled_log {
     category_group             = "audit"
-
-    retention_policy {
-      enabled                  = false
-    }
   }
   enabled_log {
     category_group             = "allLogs"
-
-    retention_policy {
-      enabled                  = false
-    }
   }
   metric {
     category                   = "AllMetrics"
-
-    retention_policy {
-      enabled                  = false
-    }
   }
 }
 
