@@ -1,37 +1,29 @@
-module aca_agent_pool {
+module azdo_agent_pools {
+  for_each                      = var.create_agent_pools ? toset(distinct([local.aca_agent_pool_name, local.aks_agent_pool_name])) : toset([])
   source                       = "./modules/agent-pool"
 
   authorize_queues             = var.authorize_agent_queues # Requires 'Read & execute' permission on Build (queue a build) scope
   create_queue_for_all_projects= false
   create_queue_for_project     = var.devops_project
-  pool_name                    = local.aca_agent_pool_name
-
-  count                        = var.create_agent_pools ? 1 : 0
+  pool_name                    = each.value
 }
 module aca_agent_pool_data {
   source                       = "./modules/agent-pool-data"
 
-  pool_name                    = var.aca_agent_pool_name
+  pool_name                    = local.aca_agent_pool_name
 
-  count                        = var.create_agent_pools ? 0 : 1
-}
-
-module aks_agent_pool {
-  source                       = "./modules/agent-pool"
-
-  authorize_queues             = var.authorize_agent_queues # Requires 'Read & execute' permission on Build (queue a build) scope
-  create_queue_for_all_projects= false
-  create_queue_for_project     = var.devops_project
-  pool_name                    = local.aks_agent_pool_name
-
-  count                        = var.create_agent_pools ? 1 : 0
+  depends_on                   = [ 
+    module.azdo_agent_pools 
+  ]
 }
 module aks_agent_pool_data {
   source                       = "./modules/agent-pool-data"
 
-  pool_name                    = var.aks_agent_pool_name
+  pool_name                    = local.aks_agent_pool_name
 
-  count                        = var.create_agent_pools ? 0 : 1
+  depends_on                   = [ 
+    module.azdo_agent_pools 
+  ]
 }
 
 module diagnostics_storage {
