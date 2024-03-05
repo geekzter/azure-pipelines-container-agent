@@ -8,32 +8,6 @@ module azdo_agent_pools {
   pool_name                    = each.value
 }
 
-# resource time_sleep pool_sleep {
-#   create_duration              = "10s"
-
-#   depends_on                   = [ 
-#     module.azdo_agent_pools 
-#   ]
-# }
-# module aca_agent_pool_data {
-#   source                       = "./modules/agent-pool-data"
-
-#   pool_name                    = local.aca_agent_pool_name
-
-#   depends_on                   = [ 
-#     time_sleep.pool_sleep
-#   ]
-# }
-# module aks_agent_pool_data {
-#   source                       = "./modules/agent-pool-data"
-
-#   pool_name                    = local.aks_agent_pool_name
-
-#   depends_on                   = [ 
-#     time_sleep.pool_sleep
-#   ]
-# }
-
 module diagnostics_storage {
   source                       = "./modules/diagnostics-storage"
 
@@ -100,7 +74,7 @@ module container_app_agents {
   pipeline_agent_memory        = var.pipeline_agent_memory
   pipeline_agent_number_max    = var.pipeline_agent_number_max
   pipeline_agent_number_min    = var.pipeline_agent_number_min
-  pipeline_agent_pool_id       = local.aca_agent_pool_id
+  pipeline_agent_pool_id       = module.azdo_agent_pools[local.aca_agent_pool_name].pool_id
   pipeline_agent_pool_name     = local.aca_agent_pool_name
   pipeline_agent_run_once      = var.pipeline_agent_run_once
   pipeline_agent_version_id    = var.pipeline_agent_version_id
@@ -111,7 +85,7 @@ module container_app_agents {
   tags                         = merge(
     azurerm_resource_group.rg.tags,
     {
-      pipelineAgentPoolId      = local.aca_agent_pool_id
+      pipelineAgentPoolId      = module.azdo_agent_pools[local.aca_agent_pool_name].pool_id
       pipelineAgentPoolName    = local.aca_agent_pool_name
       pipelineAgentPoolUrl     = local.aca_agent_pool_url
     }
