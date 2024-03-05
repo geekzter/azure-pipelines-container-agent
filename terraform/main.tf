@@ -8,7 +8,7 @@ resource random_string suffix {
 }
 
 locals {
-  aca_agent_pool_id            = module.azdo_agent_pools[local.aca_agent_pool_name].pool_id
+  # aca_agent_pool_id            = module.azdo_agent_pools[local.aca_agent_pool_name].pool_id
   aca_agent_pool_name          = var.create_agent_pools && (var.aca_agent_pool_name == "Default" || var.aca_agent_pool_name == "" || var.aca_agent_pool_name == null) ? "aca-${var.resource_project}-${terraform.workspace}" : var.aca_agent_pool_name
   aca_agent_pool_url           = "${local.devops_url}/_settings/agentpools?poolId=${module.azdo_agent_pools[local.aca_agent_pool_name].pool_id}&view=agents"
   admin_object_ids             = concat(var.admin_object_ids,[data.azurerm_client_config.default.object_id])
