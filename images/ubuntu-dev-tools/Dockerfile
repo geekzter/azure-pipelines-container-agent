@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-22.04
-ARG KUBERNETES_VERSION=1.29
+# ARG KUBERNETES_VERSION=1.29
 ARG USER=vscode
 ARG TARGETARCH
 ENV DEBIAN_FRONTEND=noninteractive
@@ -26,9 +26,9 @@ RUN sudo add-apt-repository ppa:longsleep/golang-backports
 #     echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | \
 #     tee /etc/apt/sources.list.d/kubernetes.list
 # Kubernetes repo
-RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v${KUBERNETES_VERSION}/deb/Release.key | \
+RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | \
     gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
-    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v${KUBERNETES_VERSION}/deb/ /' | \
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | \
     tee /etc/apt/sources.list.d/kubernetes.list
 
 # Helm repo
