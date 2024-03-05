@@ -9,7 +9,7 @@ module azdo_agent_pools {
 }
 
 resource time_sleep pool_sleep {
-  create_duration              = "300s"
+  create_duration              = "1800s"
 
   depends_on                   = [ 
     module.azdo_agent_pools 
