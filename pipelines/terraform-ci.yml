@@ -421,6 +421,7 @@ jobs:
             $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
           }
 
+          # Generate AzDO token if no PAT is set
           if (!$env:TF_VAR_devops_pat) {
             az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 `
                                         --query "accessToken" `
