@@ -311,7 +311,17 @@ jobs:
          Write-Host "##vso[task.setvariable variable=azdoToken;isOutput=true;issecret=true]${env:TF_VAR_devops_pat}"
           
         # List environment variables
-        Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+        Get-ChildItem -Path Env: `
+                      -Recurse `
+                      -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* `
+                      | ForEach-Object { 
+                          if ($_.Name -match 'SECRET|TOKEN|PAT') {
+                            $_.Value = '***'
+                          } 
+                          $_
+                        } `
+                      | Sort-Object -Property Name `
+                      | Format-Table -HideTableHeader
 
         # Convert uppercased Terraform environment variables to .auto.tfvars file
         foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
@@ -326,7 +336,13 @@ jobs:
           }
         } 
         Write-Host "Contents of ci.auto.tfvars:"
-        Get-Content ci.auto.tfvars | Sort-Object    
+        Get-Content ci.auto.tfvars | Sort-Object `
+                                   | ForEach-Object { 
+                                       if ($_.Name -match 'SECRET|TOKEN|PAT') {
+                                         $_.Value = '***'
+                                       } 
+                                       $_
+                                     } 
       addSpnToEnvironment: true
       useGlobalConfig: true
       failOnStandardError: true

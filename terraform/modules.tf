@@ -1,5 +1,5 @@
 module azdo_agent_pools {
-  for_each                      = var.create_agent_pools ? toset(distinct([local.aca_agent_pool_name, local.aks_agent_pool_name])) : toset([])
+  for_each                     = local.azdo_agent_pools
   source                       = "./modules/agent-pool"
 
   authorize_queues             = var.authorize_agent_queues # Requires 'Read & execute' permission on Build (queue a build) scope

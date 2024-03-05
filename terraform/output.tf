@@ -8,6 +8,10 @@ output aca_agent_pool_url {
   value                        = local.aca_agent_pool_url
 }
 
+output azdo_agent_pools {
+  value                        = local.azdo_agent_pools
+}
+
 output agent_diagnostics_file_share_url {
   value                        = module.diagnostics_storage.diagnostics_share_url
 }
