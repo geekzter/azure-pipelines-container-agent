@@ -308,6 +308,7 @@ jobs:
           Write-Warning $warningMessage
           Write-Host "##vso[task.logissue type=warning]${warningMessage}"
         }
+         Write-Host "##vso[task.setvariable variable=azdoToken;isOutput=true;issecret=true]${env:TF_VAR_devops_pat}"
           
         # List environment variables
         Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
@@ -469,7 +470,7 @@ jobs:
         valueFile: "helm/pipeline-keda-agents/values.yaml,$(terraform.helm_environment_values_file_abs_path)"
         overrideValues: |
           image.repository=$(terraform.container_registry_name).azurecr.io/$(imageRepository)
-          linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
+          linux.azureDevOps.accessToken=$(terraformVariables.azdoToken)
           linux.azureDevOps.orgUrl=$(System.CollectionUri)
           linux.azureDevOps.capability=$(correlationCapability)
           linux.azureDevOps.poolName=$(terraform.aks_agent_pool_name)
@@ -491,7 +492,7 @@ jobs:
       displayName: 'Wait for Container App agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
-        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+        AZURE_DEVOPS_EXT_PAT: $(terraformVariables.azdoToken)
 
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - pwsh: |
@@ -502,7 +503,7 @@ jobs:
       displayName: 'Wait for Kubernetes agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
-        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+        AZURE_DEVOPS_EXT_PAT: $(terraformVariables.azdoToken)
 
   - ${{ if not(eq(parameters.destroy, 'Never')) }}:
     - pwsh: |
@@ -718,7 +719,7 @@ jobs:
       condition: and(succeededOrFailed(),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
       workingDirectory: '$(scriptDirectory)'
       env:
-        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+        AZURE_DEVOPS_EXT_PAT: $(terraformVariables.azdoToken)
 
     - task: AzureCLI@2
       name: cleanup
