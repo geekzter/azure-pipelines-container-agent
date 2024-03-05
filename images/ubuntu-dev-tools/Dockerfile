@@ -22,10 +22,9 @@ RUN apt-get update && \
 RUN sudo add-apt-repository ppa:longsleep/golang-backports
 
 # Kubernetes repo
-RUN KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt | cut -d. -f-2) && \
-    curl -fsSL https://pkgs.k8s.io/core:/stable:/${KUBECTL_VERSION}/deb/Release.key | \
+RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/$(curl -L -s https://dl.k8s.io/release/stable.txt | cut -d. -f-2)/deb/Release.key | \
     gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
-    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/${KUBECTL_VERSION}/deb/ /' | \
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$(curl -L -s https://dl.k8s.io/release/stable.txt | cut -d. -f-2)/deb/ /' | \
     tee /etc/apt/sources.list.d/kubernetes.list
 
 # Helm repo
