@@ -8,31 +8,31 @@ module azdo_agent_pools {
   pool_name                    = each.value
 }
 
-resource time_sleep pool_sleep {
-  create_duration              = "10s"
+# resource time_sleep pool_sleep {
+#   create_duration              = "10s"
 
-  depends_on                   = [ 
-    module.azdo_agent_pools 
-  ]
-}
-module aca_agent_pool_data {
-  source                       = "./modules/agent-pool-data"
+#   depends_on                   = [ 
+#     module.azdo_agent_pools 
+#   ]
+# }
+# module aca_agent_pool_data {
+#   source                       = "./modules/agent-pool-data"
 
-  pool_name                    = local.aca_agent_pool_name
+#   pool_name                    = local.aca_agent_pool_name
 
-  depends_on                   = [ 
-    time_sleep.pool_sleep
-  ]
-}
-module aks_agent_pool_data {
-  source                       = "./modules/agent-pool-data"
+#   depends_on                   = [ 
+#     time_sleep.pool_sleep
+#   ]
+# }
+# module aks_agent_pool_data {
+#   source                       = "./modules/agent-pool-data"
 
-  pool_name                    = local.aks_agent_pool_name
+#   pool_name                    = local.aks_agent_pool_name
 
-  depends_on                   = [ 
-    time_sleep.pool_sleep
-  ]
-}
+#   depends_on                   = [ 
+#     time_sleep.pool_sleep
+#   ]
+# }
 
 module diagnostics_storage {
   source                       = "./modules/diagnostics-storage"
