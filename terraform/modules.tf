@@ -93,6 +93,7 @@ module container_app_agents {
   user_assigned_identity_id    = local.agent_identity_resource_id
 
   depends_on                   = [
+    module.azdo_agent_pools,
     module.container_registry,
     module.network
   ]
@@ -136,5 +137,8 @@ module aks_agents {
   user_assigned_identity_is_precreated=local.agent_identity_is_precreated
 
   count                        = var.deploy_aks ? 1 : 0
-  depends_on                   = [module.network]
+  depends_on                   = [
+    module.azdo_agent_pools,
+    module.network
+  ]
 }
