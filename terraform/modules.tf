@@ -7,13 +7,21 @@ module azdo_agent_pools {
   create_queue_for_project     = var.devops_project
   pool_name                    = each.value
 }
+
+resource time_sleep pool_sleep {
+  create_duration              = "60s"
+
+  depends_on                   = [ 
+    module.azdo_agent_pools 
+  ]
+}
 module aca_agent_pool_data {
   source                       = "./modules/agent-pool-data"
 
   pool_name                    = local.aca_agent_pool_name
 
   depends_on                   = [ 
-    module.azdo_agent_pools 
+    time_sleep.pool_sleep
   ]
 }
 module aks_agent_pool_data {
@@ -22,7 +30,7 @@ module aks_agent_pool_data {
   pool_name                    = local.aks_agent_pool_name
 
   depends_on                   = [ 
-    module.azdo_agent_pools 
+    time_sleep.pool_sleep
   ]
 }
 

@@ -302,7 +302,6 @@ jobs:
                                       --output json `
                                       | ConvertFrom-Json `
                                       | Set-Variable bearerToken
-          $bearerToken | Select-Object -ExcludeProperty accessToken | Format-List
           $env:TF_VAR_devops_pat = $bearerToken.accessToken
           $expiresOn = [DateTime]::Parse($bearerToken.expiresOn)
           $warningMessage = "AzDO token expires on $expiresOn (in $(($expiresOn - [DateTime]::Now).TotalMinutes) minutes). Agent creation will fail after that."
