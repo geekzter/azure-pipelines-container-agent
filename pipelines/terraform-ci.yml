@@ -421,6 +421,13 @@ jobs:
             $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
           }
 
+          if (!$env:TF_VAR_devops_pat) {
+            az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 `
+                                        --query "accessToken" `
+                                        --output tsv `
+                                        | Set-Item env:TF_VAR_devops_pat
+          }
+
           # Parse alternate strategy variables
           if ($$(substituteAlternateVariables)) {
             foreach ($alternateVar in $(Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_TF_VAR_*)) {
@@ -435,7 +442,17 @@ jobs:
           }
 
           # List environment variables
-          Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+          Get-ChildItem -Path Env: `
+                        -Recurse `
+                        -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* `
+                        | ForEach-Object { 
+                            if ($_.Name -match 'SECRET|TOKEN|PAT') {
+                              $_.Value = '***'
+                            } 
+                            $_
+                          } `
+                        | Sort-Object -Property Name `
+                        | Format-Table -HideTableHeader
 
           # Convert uppercased Terraform environment variables to .auto.tfvars file
           foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
@@ -450,7 +467,13 @@ jobs:
             }
           } 
           Write-Host "Contents of ci.auto.tfvars:"
-          Get-Content ci.auto.tfvars | Sort-Object
+          Get-Content ci.auto.tfvars | Sort-Object `
+                                     | ForEach-Object { 
+                                         if ($_.Name -match 'SECRET|TOKEN|PAT') {
+                                           $_.Value = '***'
+                                         } 
+                                         $_
+                                       } 
         addSpnToEnvironment: true
         useGlobalConfig: true
         failOnStandardError: true
