@@ -21,10 +21,6 @@ RUN apt-get update && \
 # Go lang, https://github.com/golang/go/wiki/Ubuntu
 RUN sudo add-apt-repository ppa:longsleep/golang-backports
 
-# # Google repo
-# RUN curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg && \
-#     echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | \
-#     tee /etc/apt/sources.list.d/kubernetes.list
 # Kubernetes repo
 RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/${KUBERNETES_VERSION}/deb/Release.key | \
     gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
