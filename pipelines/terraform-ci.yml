@@ -161,6 +161,7 @@ jobs:
         $strategyHash.Add("default",
           @{
             substituteAlternateVariables = $false
+            TF_VAR_create_agent_pools = 'true'
             TF_VAR_deploy_container_app = '$(deploy-container-app)'
             TF_VAR_deploy_aks = '$(deploy-aks)'
             TF_VAR_resource_suffix = '$(Build.BuildId)'
@@ -173,6 +174,7 @@ jobs:
           $strategyHash.Add("aca-default",
             @{
               substituteAlternateVariables = $false
+              TF_VAR_create_agent_pools = 'true'
               TF_VAR_resource_suffix = '$(Build.BuildId)'
               unpinTerraform = $${{ lower(eq(parameters.unpinTerraform, 'Yes')) }}
               unpinTerraformProviders = $${{ lower(eq(parameters.unpinTerraformProviders, 'Yes')) }}
