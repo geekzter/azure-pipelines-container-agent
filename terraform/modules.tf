@@ -9,7 +9,7 @@ module azdo_agent_pools {
 }
 
 module azdo_agent_pool_data {
-  for_each                     = local.azdo_agent_pools
+  for_each                     = var.create_agent_pools ? toset([]) : local.azdo_agent_pools
   source                       = "./modules/agent-pool-data"
 
   pool_name                    = each.value
