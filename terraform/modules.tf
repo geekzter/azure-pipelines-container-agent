@@ -61,7 +61,7 @@ module container_registry {
 #   container_registry_id        = module.container_registry.container_registry_id
 #   container_image              = var.container_image
 #   devops_url                   = local.devops_url
-#   devops_pat                   = var.devops_pat
+#   devops_pat                   = local.azdo_token
 #   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
 #   diagnostics_storage_share_name= module.diagnostics_storage.diagnostics_storage_name
 #   diagnostics_share_name       = module.diagnostics_storage.diagnostics_share_name

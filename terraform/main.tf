@@ -21,7 +21,6 @@ locals {
   aks_agent_pool_name          = var.create_agent_pools && (var.aks_agent_pool_name == "Default" || var.aks_agent_pool_name == "" || var.aks_agent_pool_name == null) ? "aks-${var.resource_project}-${terraform.workspace}" : var.aks_agent_pool_name
   aks_agent_pool_url           = "${local.devops_url}/_settings/agentpools?poolId=${local.aks_agent_pool_id}&view=agents"
   azdo_agent_pools             = var.create_agent_pools ? toset(distinct([local.aca_agent_pool_name, local.aks_agent_pool_name])) : toset([])
-  devops_url                   = replace(var.devops_url,"/\\/$/","")
 
   environment_variables        = merge(
     {
