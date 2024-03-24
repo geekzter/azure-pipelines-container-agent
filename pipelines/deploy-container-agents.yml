@@ -308,7 +308,7 @@ jobs:
           Write-Warning $warningMessage
           Write-Host "##vso[task.logissue type=warning]${warningMessage}"
         }
-         Write-Host "##vso[task.setvariable variable=azdoToken;isOutput=true;issecret=true]${env:TF_VAR_devops_pat}"
+        Write-Host "##vso[task.setvariable variable=azdoToken;isOutput=true;issecret=true]${env:TF_VAR_devops_pat}"
           
         # List environment variables
         Get-ChildItem -Path Env: `
