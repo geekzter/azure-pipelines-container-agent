@@ -1,12 +1,12 @@
-# output aca_agent_pool_id {
-#   value                        = module.azdo_agent_pools[local.aca_agent_pool_name].pool_id
-# }
-# output aca_agent_pool_name {
-#   value                        = local.aca_agent_pool_name
-# }
-# output aca_agent_pool_url {
-#   value                        = local.aca_agent_pool_url
-# }
+output aca_agent_pool_id {
+  value                        = module.azdo_agent_pools[local.aca_agent_pool_name].pool_id
+}
+output aca_agent_pool_name {
+  value                        = local.aca_agent_pool_name
+}
+output aca_agent_pool_url {
+  value                        = local.aca_agent_pool_url
+}
 
 output azdo_agent_pools {
   value                        = local.azdo_agent_pools
@@ -26,15 +26,15 @@ output azdo_agent_pools {
 #   value                        = local.agent_identity_principal_id
 # }
 
-# output aks_agent_pool_id {
-#   value                        = local.aks_agent_pool_id
-# }
-# output aks_agent_pool_name {
-#   value                        = local.aks_agent_pool_name
-# }
-# output aks_agent_pool_url {
-#   value                        = local.aks_agent_pool_url
-# }
+output aks_agent_pool_id {
+  value                        = local.aks_agent_pool_id
+}
+output aks_agent_pool_name {
+  value                        = local.aks_agent_pool_name
+}
+output aks_agent_pool_url {
+  value                        = local.aks_agent_pool_url
+}
 
 # output aks_id {
 #   value                        = var.deploy_aks ? module.aks_agents.0.aks_id : null

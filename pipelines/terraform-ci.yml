@@ -230,21 +230,21 @@ jobs:
         #       unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
         #     }
         #   )
-          $strategyHash.Add("aks-gw-nat",
-            @{
-              substituteAlternateVariables = $false
-              TF_VAR_aca_agent_pool_name = 'Default'
-              TF_VAR_aks_agent_pool_name = 'Default'
-              TF_VAR_create_agent_pools = 'false'
-              TF_VAR_deploy_container_app = 'false'
-              TF_VAR_deploy_aks = 'true'
-              TF_VAR_deploy_network = 'true'
-              TF_VAR_gateway_type = 'NATGateway'
-              TF_VAR_resource_suffix = '$(Build.BuildId)'
-              unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
-              unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
-            }
-          )
+          # $strategyHash.Add("aks-gw-nat",
+          #   @{
+          #     substituteAlternateVariables = $false
+          #     TF_VAR_aca_agent_pool_name = 'Default'
+          #     TF_VAR_aks_agent_pool_name = 'Default'
+          #     TF_VAR_create_agent_pools = 'false'
+          #     TF_VAR_deploy_container_app = 'false'
+          #     TF_VAR_deploy_aks = 'true'
+          #     TF_VAR_deploy_network = 'true'
+          #     TF_VAR_gateway_type = 'NATGateway'
+          #     TF_VAR_resource_suffix = '$(Build.BuildId)'
+          #     unpinTerraform = $${{ lower(or(eq(parameters.unpinTerraform, 'Yes'),eq(parameters.unpinTerraform, 'Strategy'))) }}
+          #     unpinTerraformProviders = $${{ lower(or(eq(parameters.unpinTerraformProviders, 'Yes'),eq(parameters.unpinTerraformProviders, 'Strategy'),ne(variables['Build.Reason'], 'Manual'))) }}
+          #   }
+          # )
         # }
       }
 
