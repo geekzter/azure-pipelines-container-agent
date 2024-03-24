@@ -1,5 +1,5 @@
 module azdo_agent_pools {
-  for_each                     = local.azdo_agent_pools
+  for_each                     = var.create_agent_pools ? local.azdo_agent_pools : toset([])
   source                       = "./modules/agent-pool"
 
   authorize_queues             = var.authorize_agent_queues # Requires 'Read & execute' permission on Build (queue a build) scope
@@ -8,6 +8,14 @@ module azdo_agent_pools {
   pool_name                    = each.value
 }
 
+module azdo_agent_pool_data {
+  for_each                     = local.azdo_agent_pools
+  source                       = "./modules/agent-pool-data"
+
+  pool_name                    = each.value
+
+  depends_on                   = [ module.azdo_agent_pools ]
+}
 module diagnostics_storage {
   source                       = "./modules/diagnostics-storage"
 

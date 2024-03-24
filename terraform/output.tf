@@ -1,5 +1,5 @@
 output aca_agent_pool_id {
-  value                        = module.azdo_agent_pools[local.aca_agent_pool_name].pool_id
+  value                        = local.aca_agent_pool_id
 }
 output aca_agent_pool_name {
   value                        = local.aca_agent_pool_name
