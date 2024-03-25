@@ -138,6 +138,8 @@ variables:
   value: 'aks-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
+- name: 'TF_VAR_create_agent_pools'
+  value: ${{ lower(ne(parameters.workspace, 'ci')) }}
 - name: 'TF_VAR_deploy_aks'
   value: ${{ lower(or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'TF_VAR_deploy_bastion'
@@ -173,7 +175,7 @@ variables:
 - group: 'build-container-agent-image' # shared with build-image.yml
   # should contain:
   # containerRegistry -> name of Container Registry Service Connection
-- group: 'pipeline-container-agents' # shared with terraform-ci.yml
+- group: 'pipeline-container-agents-cd' # shared with terraform-ci.yml
   # should contain:
   # subscriptionConnection -> name of Azure Registry Service Connection
   # TF_STATE_RESOURCE_GROUP_NAME, TF_STATE_STORAGE_ACCOUNT_NAME, TF_STATE_CONTAINER_NAME -> Terraform azurerm backend
@@ -500,26 +502,36 @@ jobs:
         waitForExecution: true
 
   - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
-    - pwsh: |
-        ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_ACA `
-                              -CapabilityValue $(correlationCapability) `
-                              -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(terraform.aca_agent_pool_id)
+    - task: AzureCLI@2
       displayName: 'Wait for Container App agents to come online'
-      workingDirectory: '$(scriptDirectory)'
-      env:
-        AZURE_DEVOPS_EXT_PAT: $(terraformVariables.azdoToken)
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_ACA `
+                                -CapabilityValue $(correlationCapability) `
+                                -OrganizationUrl $(System.CollectionUri) `
+                                -PoolId $(terraform.aca_agent_pool_id)
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'
 
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-    - pwsh: |
-        ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_AKS `
-                              -CapabilityValue $(correlationCapability) `
-                              -OrganizationUrl $(System.CollectionUri) `
-                              -PoolId $(terraform.aks_agent_pool_id)
+    - task: AzureCLI@2
       displayName: 'Wait for Kubernetes agents to come online'
-      workingDirectory: '$(scriptDirectory)'
-      env:
-        AZURE_DEVOPS_EXT_PAT: $(terraformVariables.azdoToken)
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          ./wait_for_agents.ps1 -CapabilityName PIPELINE_DEMO_JOB_CAPABILITY_AKS `
+                                -CapabilityValue $(correlationCapability) `
+                                -OrganizationUrl $(System.CollectionUri) `
+                                -PoolId $(terraform.aks_agent_pool_id)
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'
 
   - ${{ if not(eq(parameters.destroy, 'Never')) }}:
     - pwsh: |
@@ -728,14 +740,19 @@ jobs:
         failOnStandardError: true
         workingDirectory: '$(scriptDirectory)'
 
-    - pwsh: |
-        ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
-                                -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
+    - task: AzureCLI@2
       displayName: 'Tear down agent pools'
       condition: and(succeededOrFailed(),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
-      workingDirectory: '$(scriptDirectory)'
-      env:
-        AZURE_DEVOPS_EXT_PAT: $(terraformVariables.azdoToken)
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
+                                  -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'
 
     - task: AzureCLI@2
       name: cleanup

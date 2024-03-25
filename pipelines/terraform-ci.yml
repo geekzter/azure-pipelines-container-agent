@@ -92,7 +92,7 @@ variables:
 - group: 'build-container-agent-image' # shared with build-image.yml
   # should contain:
   # containerRegistry -> name of Container Registry Service Connection
-- group: 'pipeline-container-agents' # shared with deploy-container-agents.yml
+- group: 'pipeline-container-agents-ci' # shared with deploy-container-agents.yml
   # should contain:
   # subscriptionConnection -> name of Azure Registry Service Connection
   # TF_STATE_RESOURCE_GROUP_NAME, TF_STATE_STORAGE_ACCOUNT_NAME, TF_STATE_CONTAINER_NAME -> Terraform azurerm backend
