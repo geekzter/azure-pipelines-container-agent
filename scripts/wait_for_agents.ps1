@@ -24,12 +24,7 @@ param (
     [Parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [int]
-    $PoolId=1,
-
-    [parameter(Mandatory=$false,HelpMessage="PAT token with read access on 'Agent Pools' scope")]
-    [ValidateNotNull()]
-    [string]
-    $Token=($env:AZURE_DEVOPS_EXT_PAT ?? $env:AZDO_PERSONAL_ACCESS_TOKEN),
+    $PoolId=1
 
     [parameter(Mandatory=$false)]
     [int]
@@ -48,6 +43,7 @@ function Find-Agent () {
 }
 
 Write-Host $MyInvocation.line
+. (Join-Path $PSScriptRoot functions.ps1)
 
 if (!(Get-Command az -ErrorAction SilentlyContinue)) {
     Write-Warning "Azure CLI not found. Please install it."
@@ -58,8 +54,7 @@ if (!(az extension list --query "[?name=='azure-devops'].version" -o tsv)) {
     az extension add -n azure-devops -y
 }
 
-$Token | az devops login --organization $OrganizationUrl
-az devops configure --defaults organization=$OrganizationUrl
+Login-AzDO -OrganizationUrl $OrganizationUrl
 
 $stopWatch = New-Object -TypeName System.Diagnostics.Stopwatch     
 $stopWatch.Start()
