@@ -175,6 +175,7 @@ function Login-Az (
 
 function Login-AzDO (
     [parameter(Mandatory=$false)][string]$OrganizationUrl=($env:AZDO_ORG_SERVICE_URL ?? $env:SYSTEM_COLLECTIONURI),
+    [parameter(Mandatory=$false)][ref]$Token=($env:AZURE_DEVOPS_EXT_PAT ?? $env:AZDO_PERSONAL_ACCESS_TOKEN),
     [parameter(Mandatory=$false)][switch]$DisplayMessages=$false
 )
 {
@@ -188,6 +189,7 @@ function Login-AzDO (
     if ($aadToken) {
         Write-Debug "Obtained AAD token with 'az account get-access-token'"
         az account show -o json | ConvertFrom-Json | Set-Variable account
+        $Token.Value = $aadToken
         if ($account.user.type -eq 'user') {
             # Assume Terraform azuredevops module will use Entra ID AuthN directly for non-users
             $env:AZDO_PERSONAL_ACCESS_TOKEN ??= $aadToken # Terraform azuredevops provider
