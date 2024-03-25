@@ -138,6 +138,8 @@ variables:
   value: 'aks-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
+- name: 'TF_VAR_create_agent_pools'
+  value: ${{ ne(parameters.workspace, 'ci') }}
 - name: 'TF_VAR_deploy_aks'
   value: ${{ lower(or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'TF_VAR_deploy_bastion'
