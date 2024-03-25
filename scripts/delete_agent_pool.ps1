@@ -1,52 +1,49 @@
 #!/usr/bin/env pwsh
-<#
-    Deletes an Azure Pipelines agent pool
-#>
+<# 
+.SYNOPSIS 
+    Remove offline agents from an Azure Pipelines agent pool
+#> 
+#Requires -Version 7.2
+
 param ( 
-    [parameter(Mandatory=$false)][string]$AgentPoolName,
-    [parameter(Mandatory=$false)][string]$OrganizationUrl=($env:AZDO_ORG_SERVICE_URL ?? $env:SYSTEM_COLLECTIONURI)
+    [Parameter(Mandatory=$false)]
+    [ValidateNotNull()]
+    [string[]]
+    $PoolName,
+                
+    [Parameter(Mandatory=$false)]
+    [ValidateNotNull()]
+    [string]
+    $OrganizationUrl=($env:AZP_URL ?? $env:AZDO_ORG_SERVICE_URL)
 ) 
-Write-Verbose $MyInvocation.line 
+
+Write-Verbose $MyInvocation.line
+
+### Internal Functions
 . (Join-Path $PSScriptRoot functions.ps1)
-$OrganizationUrl = $OrganizationUrl.Trim('/')
-$apiVersion="7.1"
 
-if (!($AgentPoolName)) {
-    Write-Warning "AgentPoolName is empty"
-    exit
+if (!(Get-Command az -ErrorAction SilentlyContinue)) {
+    Write-Warning "Azure CLI not found. Please install it."
+    exit 1
+}
+if (!(az extension list --query "[?name=='azure-devops'].version" -o tsv)) {
+    Write-Host "Adding Azure CLI extension 'azure-devops'..."
+    az extension add -n azure-devops -y
 }
 
-Login-AzDO -OrganizationUrl $OrganizationUrl
+Login-AzDO -DisplayMessages:$false -OrganizationUrl $OrganizationUrl
 
-# GET https://dev.azure.com/{organization}/_apis/distributedtask/pools?poolName={poolName}&properties={properties}&poolType={poolType}&actionFilter={actionFilter}&api-version=7.1
+foreach ($pool in ($PoolName | Get-Unique)) {
+    az pipelines pool list --pool-name "${pool}" --query "[].id" -o tsv | Set-Variable poolId
 
-$requestHeaders = @{
-    Accept = "application/json"
-    Authorization = "Bearer $authHeader ${env:AZURE_DEVOPS_EXT_PAT}"
-    "Content-Type" = "application/json"
+    if (!$poolId) {
+        Write-Warning "Pool '${pool}' not found, nothing to delete."
+        continue
+    }
+    if ($poolId -eq 1) {
+        Write-Warning "Pool '${pool}' is the default pool, skipping delete operation."
+        continue
+    }
+    
+    Remove-AgentPool -PoolId $poolId -Token $env:AZURE_DEVOPS_EXT_PAT -OrganizationUrl $OrganizationUrl
 }
-$restPoolName = [Uri]::EscapeUriString($AgentPoolName)
-$requestUrl = "${OrganizationUrl}/_apis/distributedtask/pools?poolName=${restPoolName}&api-version=${apiVersion}"
-Write-Verbose "REST API Url: $requestUrl"
-Invoke-WebRequest -Uri $requestUrl `
-                  -Method Get `
-                  -Headers $requestHeaders `
-                  | ConvertFrom-Json `
-                  | Set-Variable pools
-
-if ($pools.count -eq 0) {
-    Write-Warning "No pools found with name ${AgentPoolName}"
-    exit
-} else {
-    $pool = $pools.value[0]
-    $poolId = $pool.id
-    $poolName = $pool.name
-}
-Write-Host "Deleting pool ${poolName} with id ${poolId}..."
-$requestUrl = "${OrganizationUrl}/_apis/distributedtask/pools/${poolId}?api-version=${apiVersion}"
-Write-Verbose "REST API Url: $requestUrl"
-Invoke-WebRequest -Uri $requestUrl `
-                  -Method Delete `
-                  -Headers $requestHeaders `
-                  | ConvertFrom-Json `
-                  | Set-Variable pools
