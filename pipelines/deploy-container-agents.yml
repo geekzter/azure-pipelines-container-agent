@@ -747,7 +747,7 @@ jobs:
         scriptLocation: inlineScript
         inlineScript: |
           ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
-                                  -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
+                                  -AgentPoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
         useGlobalConfig: true
         failOnStandardError: true
         workingDirectory: '$(scriptDirectory)'
