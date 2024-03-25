@@ -16,7 +16,7 @@ parameters:
 - name: asContainerJob
   displayName: Run as container job
   type: boolean
-  default: true
+  default: false
 - name: clear
   displayName: Clear State
   type: boolean
@@ -335,6 +335,8 @@ jobs:
         scriptType: pscore
         scriptLocation: inlineScript
         inlineScript: |
+          Write-Host "Using service connection '$(subscriptionConnection)'"
+
           $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
           $env:TF_WORKSPACE = 'default' # Workspace may not exist yet
@@ -421,6 +423,14 @@ jobs:
             $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
           }
 
+          # Generate AzDO token if no PAT is set
+          if (!$env:TF_VAR_devops_pat) {
+            az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 `
+                                        --query "accessToken" `
+                                        --output tsv `
+                                        | Set-Item env:TF_VAR_devops_pat
+          }
+
           # Parse alternate strategy variables
           if ($$(substituteAlternateVariables)) {
             foreach ($alternateVar in $(Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_TF_VAR_*)) {
@@ -435,7 +445,17 @@ jobs:
           }
 
           # List environment variables
-          Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+          Get-ChildItem -Path Env: `
+                        -Recurse `
+                        -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* `
+                        | ForEach-Object { 
+                            if ($_.Name -match 'SECRET|TOKEN|PAT') {
+                              $_.Value = '***'
+                            } 
+                            $_
+                          } `
+                        | Sort-Object -Property Name `
+                        | Format-Table -HideTableHeader
 
           # Convert uppercased Terraform environment variables to .auto.tfvars file
           foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
@@ -450,7 +470,13 @@ jobs:
             }
           } 
           Write-Host "Contents of ci.auto.tfvars:"
-          Get-Content ci.auto.tfvars | Sort-Object
+          Get-Content ci.auto.tfvars | Sort-Object `
+                                     | ForEach-Object { 
+                                         if ($_.Name -match 'SECRET|TOKEN|PAT') {
+                                           $_.Value = '***'
+                                         } 
+                                         $_
+                                       } 
         addSpnToEnvironment: true
         useGlobalConfig: true
         failOnStandardError: true
@@ -567,9 +593,7 @@ jobs:
           workingDirectory: '$(scriptDirectory)'
 
     - ${{ if ne(parameters.destroy, 'Never') }}:
-      - pwsh: |
-          ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
-                                  -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
+      - task: AzureCLI@2
         displayName: 'Tear down agent pools'
         ${{ if eq(parameters.destroy, 'Always') }}:
           condition: and(or(always(),canceled()),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
@@ -577,9 +601,16 @@ jobs:
           condition: and(not(eq(variables['provisioningResult.result'],'success')),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
         ${{ if eq(parameters.destroy, 'On success') }}:
           condition: and(eq(variables['provisioningResult.result'],'success'),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
-        workingDirectory: '$(scriptDirectory)'
-        env:
-          AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+        inputs:
+          azureSubscription: '$(subscriptionConnection)'
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            ./delete_agent_pool.ps1 -OrganizationUrl $(System.CollectionUri) `
+                                    -PoolName $(TF_VAR_aca_agent_pool_name), $(TF_VAR_aks_agent_pool_name)
+          useGlobalConfig: true
+          failOnStandardError: true
+          workingDirectory: '$(scriptDirectory)'
 
     - ${{ if ne(parameters.destroy, 'Never') }}:
       - task: AzureCLI@2

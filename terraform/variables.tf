@@ -115,7 +115,7 @@ variable deploy_network {
 
 variable devops_pat {
   description                  = "A Personal Access Token to access the Azure DevOps organization. Requires Agent Pools read & manage scope."
-  nullable                     = false
+  default                      = ""
 }
 variable devops_project {
   description                  = "The Azure DevOps project to authorize agent pools for. Requires 'Read & execute' permission on Build (queue a build) scope)"

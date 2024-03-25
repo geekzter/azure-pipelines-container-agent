@@ -127,7 +127,7 @@ try {
     }
 
     if ($Plan -or $Apply -or $Destroy) {
-        Login-Az -DisplayMessages
+        Login-AzDO -DisplayMessages
         $resourceGroup = (Get-TerraformOutput resource_group_name)
         if ($resourceGroup) {
             Invoke-Command -ScriptBlock {

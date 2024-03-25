@@ -296,8 +296,32 @@ jobs:
           $env:TF_VAR_resource_suffix = "$(terraform output -raw resource_suffix 2>$null)"
         }
 
+        # Generate AzDO token if no PAT is set
+        if (!$env:TF_VAR_devops_pat) {
+          az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 `
+                                      --output json `
+                                      | ConvertFrom-Json `
+                                      | Set-Variable bearerToken
+          $env:TF_VAR_devops_pat = $bearerToken.accessToken
+          $expiresOn = [DateTime]::Parse($bearerToken.expiresOn)
+          $warningMessage = "AzDO token expires on $expiresOn (in $(($expiresOn - [DateTime]::Now).TotalMinutes) minutes). Agent creation will fail after that."
+          Write-Warning $warningMessage
+          Write-Host "##vso[task.logissue type=warning]${warningMessage}"
+        }
+        Write-Host "##vso[task.setvariable variable=azdoToken;isOutput=true;issecret=true]${env:TF_VAR_devops_pat}"
+          
         # List environment variables
-        Get-ChildItem -Path Env: -Recurse -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* | Sort-Object -Property Name
+        Get-ChildItem -Path Env: `
+                      -Recurse `
+                      -Include ALTERNATE_*,ARM_*,AZURE_*,PIPELINE_DEMO_*,SYSTEM_*,TF_* `
+                      | ForEach-Object { 
+                          if ($_.Name -match 'SECRET|TOKEN|PAT') {
+                            $_.Value = '***'
+                          } 
+                          $_
+                        } `
+                      | Sort-Object -Property Name `
+                      | Format-Table -HideTableHeader
 
         # Convert uppercased Terraform environment variables to .auto.tfvars file
         foreach ($tfvar in $(Get-ChildItem -Path Env: -Recurse -Include TF_VAR_*)) {
@@ -312,7 +336,13 @@ jobs:
           }
         } 
         Write-Host "Contents of ci.auto.tfvars:"
-        Get-Content ci.auto.tfvars | Sort-Object    
+        Get-Content ci.auto.tfvars | Sort-Object `
+                                   | ForEach-Object { 
+                                       if ($_.Name -match 'SECRET|TOKEN|PAT') {
+                                         $_.Value = '***'
+                                       } 
+                                       $_
+                                     } 
       addSpnToEnvironment: true
       useGlobalConfig: true
       failOnStandardError: true
@@ -456,7 +486,7 @@ jobs:
         valueFile: "helm/pipeline-keda-agents/values.yaml,$(terraform.helm_environment_values_file_abs_path)"
         overrideValues: |
           image.repository=$(terraform.container_registry_name).azurecr.io/$(imageRepository)
-          linux.azureDevOps.accessToken=$(TF_VAR_devops_pat)
+          linux.azureDevOps.accessToken=$(terraformVariables.azdoToken)
           linux.azureDevOps.orgUrl=$(System.CollectionUri)
           linux.azureDevOps.capability=$(correlationCapability)
           linux.azureDevOps.poolName=$(terraform.aks_agent_pool_name)
@@ -478,7 +508,7 @@ jobs:
       displayName: 'Wait for Container App agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
-        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+        AZURE_DEVOPS_EXT_PAT: $(terraformVariables.azdoToken)
 
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - pwsh: |
@@ -489,7 +519,7 @@ jobs:
       displayName: 'Wait for Kubernetes agents to come online'
       workingDirectory: '$(scriptDirectory)'
       env:
-        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+        AZURE_DEVOPS_EXT_PAT: $(terraformVariables.azdoToken)
 
   - ${{ if not(eq(parameters.destroy, 'Never')) }}:
     - pwsh: |
@@ -705,7 +735,7 @@ jobs:
       condition: and(succeededOrFailed(),eq(coalesce(variables['TF_VAR_create_agent_pools'],'true'),'true'))
       workingDirectory: '$(scriptDirectory)'
       env:
-        AZURE_DEVOPS_EXT_PAT: $(TF_VAR_devops_pat)
+        AZURE_DEVOPS_EXT_PAT: $(terraformVariables.azdoToken)
 
     - task: AzureCLI@2
       name: cleanup

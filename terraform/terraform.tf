@@ -6,7 +6,7 @@ terraform {
     }
     azuredevops                = {
       source                   = "microsoft/azuredevops"
-      version                  = "~> 0.3"
+      version                  = "~> 1.0"
     }
     azurerm                    = "~> 3.39"
     local                      = "~> 2.3"
@@ -19,7 +19,6 @@ terraform {
 provider azapi {}
 provider azuredevops {
   org_service_url              = local.devops_url
-  personal_access_token        = var.devops_pat
 }
 provider azurerm {
   features {

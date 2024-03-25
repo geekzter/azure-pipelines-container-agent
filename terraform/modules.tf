@@ -1,5 +1,5 @@
 module azdo_agent_pools {
-  for_each                      = var.create_agent_pools ? toset(distinct([local.aca_agent_pool_name, local.aks_agent_pool_name])) : toset([])
+  for_each                     = var.create_agent_pools ? local.azdo_agent_pools : toset([])
   source                       = "./modules/agent-pool"
 
   authorize_queues             = var.authorize_agent_queues # Requires 'Read & execute' permission on Build (queue a build) scope
@@ -7,25 +7,15 @@ module azdo_agent_pools {
   create_queue_for_project     = var.devops_project
   pool_name                    = each.value
 }
-module aca_agent_pool_data {
+
+module azdo_agent_pool_data {
+  for_each                     = var.create_agent_pools ? toset([]) : local.azdo_agent_pools
   source                       = "./modules/agent-pool-data"
 
-  pool_name                    = local.aca_agent_pool_name
+  pool_name                    = each.value
 
-  depends_on                   = [ 
-    module.azdo_agent_pools 
-  ]
+  depends_on                   = [ module.azdo_agent_pools ]
 }
-module aks_agent_pool_data {
-  source                       = "./modules/agent-pool-data"
-
-  pool_name                    = local.aks_agent_pool_name
-
-  depends_on                   = [ 
-    module.azdo_agent_pools 
-  ]
-}
-
 module diagnostics_storage {
   source                       = "./modules/diagnostics-storage"
 
@@ -79,7 +69,7 @@ module container_app_agents {
   container_registry_id        = module.container_registry.container_registry_id
   container_image              = var.container_image
   devops_url                   = local.devops_url
-  devops_pat                   = var.devops_pat
+  devops_pat                   = local.azdo_token
   diagnostics_storage_share_key= module.diagnostics_storage.diagnostics_storage_key
   diagnostics_storage_share_name= module.diagnostics_storage.diagnostics_storage_name
   diagnostics_share_name       = module.diagnostics_storage.diagnostics_share_name
@@ -111,6 +101,7 @@ module container_app_agents {
   user_assigned_identity_id    = local.agent_identity_resource_id
 
   depends_on                   = [
+    module.azdo_agent_pools,
     module.container_registry,
     module.network
   ]
@@ -154,5 +145,8 @@ module aks_agents {
   user_assigned_identity_is_precreated=local.agent_identity_is_precreated
 
   count                        = var.deploy_aks ? 1 : 0
-  depends_on                   = [module.network]
+  depends_on                   = [
+    module.azdo_agent_pools,
+    module.network
+  ]
 }
