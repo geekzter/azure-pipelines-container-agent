@@ -14,11 +14,7 @@ param (
     [Parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [string]
-    $OrganizationUrl=($env:AZP_URL ?? $env:AZDO_ORG_SERVICE_URL),
-
-    [parameter(Mandatory=$false,HelpMessage="PAT token with read access on 'Agent Pools' scope")]
-    [string]
-    $Token
+    $OrganizationUrl=($env:AZP_URL ?? $env:AZDO_ORG_SERVICE_URL)
 ) 
 
 Write-Verbose $MyInvocation.line
@@ -35,7 +31,7 @@ if (!(az extension list --query "[?name=='azure-devops'].version" -o tsv)) {
     az extension add -n azure-devops -y
 }
 
-Login-AzDO -DisplayMessages:$false -OrganizationUrl $OrganizationUrl -Token ([ref]$Token)
+Login-AzDO -DisplayMessages:$false -OrganizationUrl $OrganizationUrl
 
 foreach ($pool in ($PoolName | Get-Unique)) {
     az pipelines pool list --pool-name "${pool}" --query "[].id" -o tsv | Set-Variable poolId
@@ -49,5 +45,5 @@ foreach ($pool in ($PoolName | Get-Unique)) {
         continue
     }
     
-    Remove-AgentPool -PoolId $poolId -Token $Token -OrganizationUrl $OrganizationUrl
+    Remove-AgentPool -PoolId $poolId -Token $env:AZURE_DEVOPS_EXT_PAT -OrganizationUrl $OrganizationUrl
 }
