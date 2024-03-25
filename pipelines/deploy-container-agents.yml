@@ -138,8 +138,6 @@ variables:
   value: 'aks-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
-- name: 'TF_VAR_create_agent_pools'
-  value: 'false'
 - name: 'TF_VAR_deploy_aks'
   value: ${{ lower(or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both'))) }}
 - name: 'TF_VAR_deploy_bastion'
@@ -175,7 +173,7 @@ variables:
 - group: 'build-container-agent-image' # shared with build-image.yml
   # should contain:
   # containerRegistry -> name of Container Registry Service Connection
-- group: 'pipeline-container-agents' # shared with terraform-ci.yml
+- group: 'pipeline-container-agents-cd' # shared with terraform-ci.yml
   # should contain:
   # subscriptionConnection -> name of Azure Registry Service Connection
   # TF_STATE_RESOURCE_GROUP_NAME, TF_STATE_STORAGE_ACCOUNT_NAME, TF_STATE_CONTAINER_NAME -> Terraform azurerm backend
