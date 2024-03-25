@@ -24,7 +24,7 @@ param (
     [Parameter(Mandatory=$false)]
     [ValidateNotNull()]
     [int]
-    $PoolId=1
+    $PoolId=1,
 
     [parameter(Mandatory=$false)]
     [int]
