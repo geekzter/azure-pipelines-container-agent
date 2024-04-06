@@ -29,10 +29,11 @@ jobs:
   - name: 'toolsImageFQName'
     value: $(containerRegistry).azurecr.io/pipelineagent/ubuntu-agent-tools:${{ parameters.imageTag }}
   pool:
-    vmImage: 'ubuntu-latest'
+    name: $[ coalesce(variables.pool,'Azure Pipelines') ]
+    vmImage: $[ coalesce(variables.vmImage,'ubuntu-latest') ]
   container:
     image: $(toolsImageFQName)
-    endpoint: containerEndpoint
+    endpoint: '$(containerRegistryConnection)'
   steps:
   - bash: |
       echo Hello from Ubuntu

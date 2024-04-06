@@ -153,7 +153,7 @@ jobs:
   ${{ if parameters.asContainerJob }}:
     container:
       image: $(toolsImageFQName)
-      endpoint: containerEndpoint
+      endpoint: '$(containerRegistryConnection)'
   steps:
   - pwsh: |
       $strategyHash = @{}
@@ -278,12 +278,12 @@ jobs:
   timeoutInMinutes: $[ variables['jobTimeOutMinutes'] ]
 
   pool:
-    name: '$(pool)'
-    vmImage: $(vmImage)
+    name: $[ coalesce(variables.pool,'Azure Pipelines') ]
+    vmImage: $[ coalesce(variables.vmImage,'ubuntu-latest') ]
   ${{ if parameters.asContainerJob }}:
     container:
       image: $(toolsImageFQName)
-      endpoint: containerEndpoint
+      endpoint: '$(containerRegistryConnection)'
 
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
