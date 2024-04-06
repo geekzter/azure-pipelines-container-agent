@@ -42,7 +42,7 @@ jobs:
     displayName: Build dev tools image
     inputs:
       command: build
-      containerRegistry: '$(containerRegistryConnection)'
+      containerRegistry: ericvanimages
       Dockerfile: 'images/ubuntu-dev-tools/Dockerfile'
       repository: $(devToolsImageName)
       tags: |
@@ -55,7 +55,7 @@ jobs:
     displayName: Push dev tools image
     inputs:
       command: push
-      containerRegistry: '$(containerRegistryConnection)'
+      containerRegistry: ericvanimages
       repository: $(devToolsImageName)
       tags: |
         $(imageTag)
@@ -68,7 +68,7 @@ jobs:
     inputs:
       arguments: '--build-arg BASE_IMAGE=$(devToolsImageFQName)'
       command: build
-      containerRegistry: '$(containerRegistryConnection)'
+      containerRegistry: ericvanimages
       Dockerfile: 'images/ubuntu-agent-tools/Dockerfile'
       repository: $(agentToolsImageName)
       tags: |
@@ -81,7 +81,7 @@ jobs:
     displayName: Push agent tools image
     inputs:
       command: push
-      containerRegistry: '$(containerRegistryConnection)'
+      containerRegistry: ericvanimages
       repository: $(agentToolsImageName)
       tags: |
         $(imageTag)
@@ -94,7 +94,7 @@ jobs:
     inputs:
       arguments: '--build-arg BASE_IMAGE=$(agentToolsImageFQName)'
       command: build
-      containerRegistry: '$(containerRegistryConnection)'
+      containerRegistry: ericvanimages
       Dockerfile: 'images/ubuntu-agent/Dockerfile'
       repository: $(agentImageName)
       tags: |
@@ -107,7 +107,7 @@ jobs:
     displayName: Push agent image
     inputs:
       command: push
-      containerRegistry: '$(containerRegistryConnection)'
+      containerRegistry: ericvanimages
       repository: $(agentImageName)
       tags: |
         $(imageTag)
