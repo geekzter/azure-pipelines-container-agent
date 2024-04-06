@@ -33,7 +33,7 @@ jobs:
     vmImage: $[ coalesce(variables.vmImage,'ubuntu-latest') ]
   container:
     image: $(toolsImageFQName)
-    endpoint: ericvanimages
+    endpoint: containerEndpoint
   steps:
   - bash: |
       echo Hello from Ubuntu
