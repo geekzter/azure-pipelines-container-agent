@@ -41,7 +41,7 @@ jobs:
     displayName: Build dev tools image
     inputs:
       command: build
-      containerRegistry: '$(containerRegistry)'
+      containerRegistry: '$(containerRegistryConnection)'
       Dockerfile: 'images/ubuntu-dev-tools/Dockerfile'
       repository: $(devToolsImageName)
       tags: |
@@ -54,7 +54,7 @@ jobs:
     displayName: Push dev tools image
     inputs:
       command: push
-      containerRegistry: '$(containerRegistry)'
+      containerRegistry: '$(containerRegistryConnection)'
       repository: $(devToolsImageName)
       tags: |
         $(imageTag)
@@ -67,7 +67,7 @@ jobs:
     inputs:
       arguments: '--build-arg BASE_IMAGE=$(devToolsImageFQName)'
       command: build
-      containerRegistry: '$(containerRegistry)'
+      containerRegistry: '$(containerRegistryConnection)'
       Dockerfile: 'images/ubuntu-agent-tools/Dockerfile'
       repository: $(agentToolsImageName)
       tags: |
@@ -80,7 +80,7 @@ jobs:
     displayName: Push agent tools image
     inputs:
       command: push
-      containerRegistry: '$(containerRegistry)'
+      containerRegistry: '$(containerRegistryConnection)'
       repository: $(agentToolsImageName)
       tags: |
         $(imageTag)
@@ -93,7 +93,7 @@ jobs:
     inputs:
       arguments: '--build-arg BASE_IMAGE=$(agentToolsImageFQName)'
       command: build
-      containerRegistry: '$(containerRegistry)'
+      containerRegistry: '$(containerRegistryConnection)'
       Dockerfile: 'images/ubuntu-agent/Dockerfile'
       repository: $(agentImageName)
       tags: |
@@ -106,7 +106,7 @@ jobs:
     displayName: Push agent image
     inputs:
       command: push
-      containerRegistry: '$(containerRegistry)'
+      containerRegistry: '$(containerRegistryConnection)'
       repository: $(agentImageName)
       tags: |
         $(imageTag)
