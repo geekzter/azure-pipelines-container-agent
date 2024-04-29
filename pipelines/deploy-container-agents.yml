@@ -6,6 +6,9 @@ parameters:
   default: ci
   values:
   - ci
+  - ci1
+  - ci2
+  - ci3
   - cd
   - cd1
   - cd2
@@ -571,7 +574,7 @@ jobs:
         # List installed modules
         Get-InstalledModule | Sort-Object -Property Name
       displayName: 'Display agent info'
-      
+
     - ${{ if not(eq(parameters.destroy, 'Never')) }}:
       - pwsh: |
           Write-Host "##vso[task.setvariable variable=result;isOutput=true]success"
