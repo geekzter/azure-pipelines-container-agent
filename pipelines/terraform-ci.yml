@@ -251,7 +251,8 @@ jobs:
       [int]$jobIndex = 0
       foreach ($job in $strategyHash.Keys) {
         $jobIndex++
-        $workspace = "${{ parameters.workspace }}${jobIndex}"
+        $workspaceSuffix = ([char]($jobIndex + 64)).ToString().ToLower() # Map index to letter
+        $workspace = "${{ parameters.workspace }}${workspaceSuffix}"
         $strategyHash[$job].resourceGroup = "$(TF_VAR_resource_prefix)-${workspace}-$(Build.BuildId)"
         $strategyHash[$job].TF_VAR_aca_agent_pool_name ??= "aca-container-agents-${workspace}-$(Build.BuildId)"
         $strategyHash[$job].TF_VAR_aks_agent_pool_name ??= "aks-container-agents-${workspace}-$(Build.BuildId)"
