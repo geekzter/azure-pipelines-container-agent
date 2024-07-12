@@ -28,7 +28,7 @@ RUN apt-get install -y -qq --no-install-recommends \
 # Microsoft packages
 RUN apt-get install -y azure-functions-core-tools \
                        dotnet-sdk-6.0 \
-                       dotnet-sdk-7.0
+                       dotnet-sdk-8.0
 
 RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,Microsoft.Graph,SqlServer -Scope AllUsers -Repository PSGallery -Force'
 
