@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-22.04
-# ARG KUBECTL_VERSION=v1.29
+# ARG KUBECTL_VERSION=v1.30
 ARG USER=vscode
 ARG TARGETARCH
 ENV DEBIAN_FRONTEND=noninteractive
@@ -22,9 +22,9 @@ RUN apt-get update && \
 RUN sudo add-apt-repository ppa:longsleep/golang-backports
 
 # Kubernetes repo
-RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | \
+RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | \
     gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
-    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | \
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | \
     tee /etc/apt/sources.list.d/kubernetes.list
 
 # Helm repo
