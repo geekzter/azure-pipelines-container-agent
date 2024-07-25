@@ -1,5 +1,5 @@
 resource azurerm_storage_account diagnostics {
-  name                         = "${substr(lower(replace(var.resource_group_name,"/a|e|i|o|u|y|-/","")),0,14)}${substr(var.suffix,-6,-1)}diag"
+  name                         = "${substr(lower(replace(replace(var.resource_group_name,terraform.workspace,""),"/a|e|i|o|u|y|-/","")),0,14)}${terraform.workspace}${substr(var.suffix,-6,-1)}diag"
   location                     = var.location
   resource_group_name          = var.resource_group_name
   account_kind                 = "StorageV2"
