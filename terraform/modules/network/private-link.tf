@@ -56,7 +56,7 @@ resource azurerm_private_endpoint diag_blob_storage {
   }
 
   tags                         = var.tags
-  count                        = var.gateway_type != "NoGateway" ? 1 : 0
+  count                        = var.gateway_type != "NoGateway" && var.diagnostics_storage_id != null ? 1 : 0
 }
 
 resource azurerm_private_endpoint file_share {
@@ -79,7 +79,7 @@ resource azurerm_private_endpoint file_share {
   }
 
   tags                         = var.tags
-  count                        = var.gateway_type != "NoGateway" ? 1 : 0
+  count                        = var.gateway_type != "NoGateway" && var.diagnostics_storage_id != null ? 1 : 0
 }
 
 # BUG: ACR private endpoint does not work ACA delegated subnet

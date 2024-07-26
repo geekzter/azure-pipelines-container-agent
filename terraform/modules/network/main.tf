@@ -1,8 +1,8 @@
 locals {
   container_registry_name      = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-1)
   container_registry_rg        = element(split("/",var.container_registry_id),length(split("/",var.container_registry_id))-5)
-  diagnostics_storage_name     = element(split("/",var.diagnostics_storage_id),length(split("/",var.diagnostics_storage_id))-1)
-  diagnostics_storage_rg       = element(split("/",var.diagnostics_storage_id),length(split("/",var.diagnostics_storage_id))-5)
+  diagnostics_storage_name     = var.diagnostics_storage_id != null ? element(split("/",var.diagnostics_storage_id),length(split("/",var.diagnostics_storage_id))-1) : null
+  diagnostics_storage_rg       = var.diagnostics_storage_id != null ? element(split("/",var.diagnostics_storage_id),length(split("/",var.diagnostics_storage_id))-5) : null
 }
 
 data azurerm_container_registry registry {
@@ -13,6 +13,8 @@ data azurerm_container_registry registry {
 data azurerm_storage_account diagnostics {
   name                         = local.diagnostics_storage_name
   resource_group_name          = local.diagnostics_storage_rg
+
+  count                        = var.diagnostics_storage_id != null ? 1 : 0
 }
 
 resource azurerm_virtual_network pipeline_network {
