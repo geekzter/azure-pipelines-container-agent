@@ -25,8 +25,6 @@ module diagnostics_storage {
   resource_group_name          = azurerm_resource_group.rg.name
   suffix                       = local.suffix
   tags                         = local.tags
-
-  count                        = var.create_files_share ? 1 : 0
 }
 
 module network {
@@ -36,7 +34,7 @@ module network {
   bastion_tags                 = var.bastion_tags
   container_registry_id        = module.container_registry.container_registry_id
   deploy_bastion               = var.deploy_bastion
-  diagnostics_storage_id       = var.create_files_share ? module.diagnostics_storage.0.diagnostics_storage_id : null
+  diagnostics_storage_id       = var.create_files_share ? module.diagnostics_storage.diagnostics_storage_id : null
   gateway_type                 = var.gateway_type
   location                     = azurerm_resource_group.rg.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_resource_id
@@ -72,9 +70,9 @@ module container_app_agents {
   container_image              = var.container_image
   devops_url                   = local.devops_url
   devops_pat                   = local.azdo_token
-  diagnostics_storage_share_key= var.create_files_share ? module.diagnostics_storage.0.diagnostics_storage_key : null
-  diagnostics_storage_share_name= var.create_files_share ? module.diagnostics_storage.0.diagnostics_storage_name : null
-  diagnostics_share_name       = var.create_files_share ? module.diagnostics_storage.0.diagnostics_share_name : null
+  diagnostics_storage_share_key= var.create_files_share ? module.diagnostics_storage.diagnostics_storage_key : null
+  diagnostics_storage_share_name= var.create_files_share ? module.diagnostics_storage.diagnostics_storage_name : null
+  diagnostics_share_name       = var.create_files_share ? module.diagnostics_storage.diagnostics_share_name : null
   environment_variables        = { for k, v in local.environment_variables : k => v if k != "PIPELINE_DEMO_JOB_CAPABILITY_AKS" }
   # gateway_id                   = var.deploy_network ? module.network.0.gateway_id : null # Requires upcoming Premium SKU
   gateway_id                   = null

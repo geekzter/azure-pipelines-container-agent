@@ -13,7 +13,7 @@ output azdo_agent_pools {
 }
 
 output agent_diagnostics_file_share_url {
-  value                        = var.create_files_share ? module.diagnostics_storage.0.diagnostics_share_url : null
+  value                        = module.diagnostics_storage.diagnostics_share_url
 }
 
 output agent_identity_client_id {
@@ -67,18 +67,18 @@ output container_registry_name {
 }
 
 output diagnostics_storage_account_name {
-  value                        = var.create_files_share ? module.diagnostics_storage.0.diagnostics_storage_name : null
+  value                        = module.diagnostics_storage.diagnostics_storage_name
 }
 output diagnostics_storage_key {
   sensitive                    = true
-  value                        = var.create_files_share ? module.diagnostics_storage.0.diagnostics_storage_key : null
+  value                        = module.diagnostics_storage.diagnostics_storage_key
 }
 output diagnostics_storage_sas {
   sensitive                    = true
-  value                        = var.create_files_share ? module.diagnostics_storage.0.diagnostics_storage_sas : null
+  value                        = module.diagnostics_storage.diagnostics_storage_sas
 }
 output diagnostics_share_url {
-  value                        = var.create_files_share ? module.diagnostics_storage.0.diagnostics_share_url : null
+  value                        = module.diagnostics_storage.diagnostics_share_url
 }
 output diagnostics_share_url_with_sas {
   sensitive                    = true
