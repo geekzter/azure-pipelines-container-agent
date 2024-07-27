@@ -429,50 +429,50 @@ jobs:
       failOnStandardError: true
       workingDirectory: '$(scriptDirectory)'      
 
-  # https://keda.sh/docs/deploy/#helm
-  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-    - task: HelmDeploy@0
-      displayName: "Add KEDA Helm repo"
-      retryCountOnTaskFailure: ${{ parameters.retryCount }}
-      continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(terraform.resource_group_name)'
-        kubernetesCluster: '$(terraform.aks_name)'
-        useClusterAdmin: true
-        command: 'repo'
-        arguments: 'add kedacore https://kedacore.github.io/charts'
+  # # https://keda.sh/docs/deploy/#helm
+  # - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+  #   - task: HelmDeploy@0
+  #     displayName: "Add KEDA Helm repo"
+  #     retryCountOnTaskFailure: ${{ parameters.retryCount }}
+  #     continueOnError: true # Treat failure as warning during destroy, we will clean up anyway
+  #     inputs:
+  #       connectionType: 'Azure Resource Manager'
+  #       azureSubscription: '$(subscriptionConnection)'
+  #       azureResourceGroup: '$(terraform.resource_group_name)'
+  #       kubernetesCluster: '$(terraform.aks_name)'
+  #       useClusterAdmin: true
+  #       command: 'repo'
+  #       arguments: 'add kedacore https://kedacore.github.io/charts'
 
-  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-    - task: HelmDeploy@0
-      displayName: "Update KEDA Helm repo"
-      retryCountOnTaskFailure: ${{ parameters.retryCount }}
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(terraform.resource_group_name)'
-        kubernetesCluster: '$(terraform.aks_name)'
-        useClusterAdmin: true
-        command: 'repo'
-        arguments: 'update'
+  # - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+  #   - task: HelmDeploy@0
+  #     displayName: "Update KEDA Helm repo"
+  #     retryCountOnTaskFailure: ${{ parameters.retryCount }}
+  #     inputs:
+  #       connectionType: 'Azure Resource Manager'
+  #       azureSubscription: '$(subscriptionConnection)'
+  #       azureResourceGroup: '$(terraform.resource_group_name)'
+  #       kubernetesCluster: '$(terraform.aks_name)'
+  #       useClusterAdmin: true
+  #       command: 'repo'
+  #       arguments: 'update'
 
-  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
-    - task: HelmDeploy@0
-      displayName: "Install KEDA Helm chart"
-      retryCountOnTaskFailure: ${{ parameters.retryCount }}
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscription: '$(subscriptionConnection)'
-        azureResourceGroup: '$(terraform.resource_group_name)'
-        kubernetesCluster: '$(terraform.aks_name)'
-        useClusterAdmin: true
-        namespace: 'keda'
-        command: 'upgrade'
-        chartType: 'Name'
-        chartName: 'kedacore/keda'
-        releaseName: 'keda'
-        arguments: '--create-namespace'
+  # - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+  #   - task: HelmDeploy@0
+  #     displayName: "Install KEDA Helm chart"
+  #     retryCountOnTaskFailure: ${{ parameters.retryCount }}
+  #     inputs:
+  #       connectionType: 'Azure Resource Manager'
+  #       azureSubscription: '$(subscriptionConnection)'
+  #       azureResourceGroup: '$(terraform.resource_group_name)'
+  #       kubernetesCluster: '$(terraform.aks_name)'
+  #       useClusterAdmin: true
+  #       namespace: 'keda'
+  #       command: 'upgrade'
+  #       chartType: 'Name'
+  #       chartName: 'kedacore/keda'
+  #       releaseName: 'keda'
+  #       arguments: '--create-namespace'
 
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0

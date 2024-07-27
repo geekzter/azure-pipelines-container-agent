@@ -128,7 +128,7 @@ variable devops_url {
 }
 
 variable enable_keda {
-  default                      = false
+  default                      = true
   type                         = bool
 }
 
