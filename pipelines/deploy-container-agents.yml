@@ -429,19 +429,20 @@ jobs:
       failOnStandardError: true
       workingDirectory: '$(scriptDirectory)'      
 
-  - task: AzureCLI@2
-    displayName: 'Wait for AKS'
-    retryCountOnTaskFailure: ${{ parameters.retryCount }}
-    inputs:
-      azureSubscription: '$(subscriptionConnection)'
-      scriptType: pscore
-      scriptLocation: inlineScript
-      inlineScript: |
-        az aks wait  -n $(terraform.aks_name) -g $(terraform.resource_group_name) --created
-        az aks wait  -n $(terraform.aks_name) -g $(terraform.resource_group_name) --updated
-      useGlobalConfig: true
-      failOnStandardError: true
-      workingDirectory: '$(scriptDirectory)'      
+  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+    - task: AzureCLI@2
+      displayName: 'Wait for AKS'
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          az aks wait  -n $(terraform.aks_name) -g $(terraform.resource_group_name) --created
+          az aks wait  -n $(terraform.aks_name) -g $(terraform.resource_group_name) --updated
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'      
 
   # # https://keda.sh/docs/deploy/#helm
   # - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
