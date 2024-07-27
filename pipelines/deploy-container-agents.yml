@@ -502,6 +502,8 @@ jobs:
           storage.accountKey=$(terraform.diagnostics_storage_key)
           storage.resourceGroupName=$(terraform.resource_group_name)
         waitForExecution: true
+      env:
+        HELM_CONFIG_HOME: $(Build.SourcesDirectory)/helm
 
   - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
     - task: AzureCLI@2
