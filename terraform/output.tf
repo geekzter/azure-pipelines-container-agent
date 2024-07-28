@@ -69,6 +69,9 @@ output container_registry_name {
 output diagnostics_storage_account_name {
   value                        = module.diagnostics_storage.diagnostics_storage_name
 }
+output diagnostics_storage_account_name_string {
+  value                        = module.diagnostics_storage.diagnostics_storage_name != null ? module.diagnostics_storage.diagnostics_storage_name : ""
+}
 output diagnostics_storage_key {
   sensitive                    = true
   value                        = module.diagnostics_storage.diagnostics_storage_key
