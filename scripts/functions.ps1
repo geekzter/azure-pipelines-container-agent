@@ -263,7 +263,7 @@ function Set-PipelineVariablesFromTerraform () {
     $json = terraform output -json | ConvertFrom-Json -AsHashtable
     foreach ($outputVariable in $json.keys) {
         $value = $json[$outputVariable].value
-        if ($value) {
+        # if ($value -ne $null) {
             if ($value -notmatch "`n") {
                 $sensitive = $json[$outputVariable].sensitive.ToString().ToLower()
                 if ($sensitive -notmatch 'true') {
@@ -275,7 +275,7 @@ function Set-PipelineVariablesFromTerraform () {
             } else {
                 Write-Verbose "Ignoring multi-line output variable '${outputVariable}'"
             }
-        }
+        # }
     }
 }
 
