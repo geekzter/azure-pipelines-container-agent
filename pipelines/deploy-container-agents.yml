@@ -520,7 +520,7 @@ jobs:
           linux.image.tag=$(imageTag)
           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
           linux.trigger.poolId=$(terraform.aks_agent_pool_id)
-          storage.accountName=$[ variables['terraform.diagnostics_storage_account_name'] ]
+          storage.accountName=$[ coalesce(variables['terraform.diagnostics_storage_account_name'],"") ]
           storage.accountKey=$(terraform.diagnostics_storage_key)
           storage.resourceGroupName=$(terraform.resource_group_name)
         waitForExecution: true
@@ -549,7 +549,7 @@ jobs:
           linux.image.tag=$(imageTag)
           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
           linux.trigger.poolId=$(terraform.aks_agent_pool_id)
-          storage.accountName=$[ variables['terraform.diagnostics_storage_account_name'] ]
+          storage.accountName=$[ coalesce(variables['terraform.diagnostics_storage_account_name'],"") ]
           storage.accountKey=$(terraform.diagnostics_storage_key)
           storage.resourceGroupName=$(terraform.resource_group_name)
         waitForExecution: true
