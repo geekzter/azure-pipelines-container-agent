@@ -47,9 +47,9 @@ spec:
         - name: docker-volume
           hostPath:
             path: /var/run/docker.sock
-        - name: azure
-          persistentVolumeClaim:
-            claimName: azure-files
+        # - name: azure
+        #   persistentVolumeClaim:
+        #     claimName: azure-files
   pollingInterval: 15
   successfulJobsHistoryLimit: 5
   failedJobsHistoryLimit: 5

@@ -45,7 +45,7 @@ spec:
         volumeMounts:
         - mountPath: /mnt/diag
           name: azure
-      volumes:
-      - name: azure
-        persistentVolumeClaim:
-          claimName: azure-files
+      # volumes:
+      # - name: azure
+      #   persistentVolumeClaim:
+      #     claimName: azure-files
