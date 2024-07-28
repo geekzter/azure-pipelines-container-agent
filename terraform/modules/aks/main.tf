@@ -5,12 +5,6 @@ locals {
 
 data azurerm_subscription primary {}
 
-data azurerm_subnet nodes_subnet {
-  name                         = element(split("/",var.node_subnet_id),length(split("/",var.node_subnet_id))-1)
-  virtual_network_name         = element(split("/",var.node_subnet_id),length(split("/",var.node_subnet_id))-3)
-  resource_group_name          = element(split("/",var.node_subnet_id),length(split("/",var.node_subnet_id))-7)
-}
-
 data azurerm_user_assigned_identity aks_identity {
   name                         = element(split("/",var.user_assigned_identity_id),length(split("/",var.user_assigned_identity_id))-1)
   resource_group_name          = element(split("/",var.user_assigned_identity_id),length(split("/",var.user_assigned_identity_id))-5)
