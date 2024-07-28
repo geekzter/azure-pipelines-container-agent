@@ -157,6 +157,10 @@ output subscription_guid {
   value                        = data.azurerm_subscription.default.subscription_id
 }
 
+output virtual_network_id {
+  value                        = var.deploy_network ? module.network.0.virtual_network_id : null
+}
+
 output workspace {
   value                        = terraform.workspace
 }
