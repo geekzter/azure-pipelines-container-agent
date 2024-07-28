@@ -143,18 +143,19 @@ resource azurerm_kubernetes_cluster aks {
 
   monitor_metrics {}
 
-  network_profile {
-    network_plugin             = var.network_plugin
-    network_policy             = var.network_policy
-    outbound_type              = var.network_outbound_type
-  }
+  # network_profile {
+  #   network_plugin             = var.network_plugin
+  #   network_policy             = var.network_policy
+  #   outbound_type              = var.network_outbound_type
+  # }
 
   oms_agent {
     log_analytics_workspace_id = var.log_analytics_workspace_id
   }
 
-  private_cluster_enabled      = var.private_cluster_enabled
-  private_dns_zone_id          = var.private_cluster_enabled ? "System" : null
+  # private_cluster_enabled      = var.private_cluster_enabled
+  # private_dns_zone_id          = var.private_cluster_enabled ? "System" : null
+
   #private_cluster_public_fqdn_enabled = true
 
   role_based_access_control_enabled = true
