@@ -429,7 +429,7 @@ jobs:
         $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
         Write-Host ""
-        ./deploy.ps1 -output
+        ./deploy.ps1 -output -debug
       addSpnToEnvironment: true
       useGlobalConfig: true
       failOnStandardError: true
