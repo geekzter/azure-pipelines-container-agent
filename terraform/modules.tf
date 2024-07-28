@@ -32,6 +32,7 @@ module network {
 
   address_space                = var.address_space
   bastion_tags                 = var.bastion_tags
+  configure_diagnostics_storage= var.create_files_share
   container_registry_id        = module.container_registry.container_registry_id
   deploy_bastion               = var.deploy_bastion
   diagnostics_storage_id       = var.create_files_share ? module.diagnostics_storage.diagnostics_storage_id : null

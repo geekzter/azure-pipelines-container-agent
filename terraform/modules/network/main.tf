@@ -14,7 +14,7 @@ data azurerm_storage_account diagnostics {
   name                         = local.diagnostics_storage_name
   resource_group_name          = local.diagnostics_storage_rg
 
-  count                        = var.diagnostics_storage_id != null ? 1 : 0
+  count                        = var.configure_diagnostics_storage ? 1 : 0
 }
 
 resource azurerm_virtual_network pipeline_network {
