@@ -105,6 +105,8 @@ variables:
   value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)-$(Build.BuildId)#$(TF_WORKSPACE)'
 - name: date
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
+- name: HELM_CONFIG_HOME
+  value: $(Build.SourcesDirectory)/helm
 - name: 'imageRepository'
   value: 'pipelineagent/ubuntu-agent'
 - ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
@@ -517,8 +519,6 @@ jobs:
           storage.accountKey=$(terraform.diagnostics_storage_key)
           storage.resourceGroupName=$(terraform.resource_group_name)
         waitForExecution: true
-      env:
-        HELM_CONFIG_HOME: $(Build.SourcesDirectory)/helm
 
   - ${{ if or(eq(parameters.containerEngine, 'Container App'),eq(parameters.containerEngine, 'Both')) }}:
     - task: AzureCLI@2
