@@ -31,8 +31,8 @@ linux:
     # targetPipelinesQueueLength: 1
 
 storage:
-  accountName: ''
-  accountKey: ''
+  accountName: ""
+  accountKey: ""
   shareName: "diagnostics"
 
 env:
