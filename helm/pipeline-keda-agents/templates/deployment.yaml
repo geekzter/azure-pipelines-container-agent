@@ -42,9 +42,9 @@ spec:
       {{- end }}
         - name: PIPELINE_DEMO_JOB_CAPABILITY_AKS
           value: "{{ .Values.linux.azureDevOps.capability }}"
-        volumeMounts:
-        - mountPath: /mnt/diag
-          name: azure
+        # volumeMounts:
+        # - mountPath: /mnt/diag
+        #   name: azure
       # volumes:
       # - name: azure
       #   persistentVolumeClaim:

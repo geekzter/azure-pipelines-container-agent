@@ -41,8 +41,8 @@ spec:
           volumeMounts:
           - mountPath: /var/run/docker.sock
             name: docker-volume
-          - mountPath: /mnt/diag
-            name: azure
+          # - mountPath: /mnt/diag
+          #   name: azure
         volumes:
         - name: docker-volume
           hostPath:
