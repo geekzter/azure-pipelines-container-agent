@@ -48,8 +48,8 @@ spec:
             name: azure
         {{- end }}
       volumes:
-        {{- if .Values.storage.accountName }}
-          - name: azure
-            persistentVolumeClaim:
-              claimName: azure-files
-        {{- end }}
+      {{- if .Values.storage.accountName }}
+        - name: azure
+          persistentVolumeClaim:
+            claimName: azure-files
+      {{- end }}
