@@ -500,8 +500,6 @@ jobs:
       displayName: "Deploy agent to AKS"
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
-        # arguments: '--debug --timeout 30m0s'
-        arguments: '--debug'
         azureSubscription: '$(subscriptionConnection)'
         azureResourceGroup: '$(terraform.resource_group_name)'
         kubernetesCluster: '$(terraform.aks_name)'

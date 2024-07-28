@@ -1,31 +1,33 @@
-# apiVersion: v1
-# kind: PersistentVolume
-# metadata:
-#   name: azure-files
-#   namespace: azdo
-# spec:
-#   capacity:
-#     storage: 5Gi
-#   accessModes:
-#     - ReadWriteMany
-#   persistentVolumeReclaimPolicy: Retain
-#   storageClassName: azure-files-csi
-#   csi:
-#     driver: file.csi.azure.com
-#     readOnly: false
-#     volumeHandle: diagnostics
-#     volumeAttributes:
-#       resourceGroup: "{{ .Values.storage.resourceGroupName }}"
-#       shareName: "{{ .Values.storage.shareName }}"
-#     nodeStageSecretRef:
-#       name: azure-files-secret
-#       namespace: azdo
-#   mountOptions:
-#     - dir_mode=0777
-#     - file_mode=0777
-#     - uid=0
-#     - gid=0
-#     - mfsymlinks
-#     - cache=strict
-#     - nosharesock
-#     - nobrl
+{{- if .Values.storage.accountName -}}
+  apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: azure-files
+    namespace: azdo
+  spec:
+    capacity:
+      storage: 5Gi
+    accessModes:
+      - ReadWriteMany
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: azure-files-csi
+    csi:
+      driver: file.csi.azure.com
+      readOnly: false
+      volumeHandle: diagnostics
+      volumeAttributes:
+        resourceGroup: "{{ .Values.storage.resourceGroupName }}"
+        shareName: "{{ .Values.storage.shareName }}"
+      nodeStageSecretRef:
+        name: azure-files-secret
+        namespace: azdo
+    mountOptions:
+      - dir_mode=0777
+      - file_mode=0777
+      - uid=0
+      - gid=0
+      - mfsymlinks
+      - cache=strict
+      - nosharesock
+      - nobrl
+{{- end }}
