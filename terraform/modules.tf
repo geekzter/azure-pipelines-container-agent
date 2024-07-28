@@ -125,8 +125,8 @@ module aks_agents {
   local_account_disabled       = var.kubernetes_local_account_disabled
   log_analytics_workspace_id   = local.log_analytics_workspace_resource_id
   network_outbound_type        = var.deploy_network ? (var.gateway_type == "Firewall" ? "userDefinedRouting" : (var.gateway_type == "NATGateway" ? "userAssignedNATGateway" : null)) : null
-  network_plugin               = var.deploy_network ? "azure" : "kubenet"
-  network_policy               = var.deploy_network ? "azure" : "calico"
+  network_plugin               = "azure"
+  network_policy               = "azure"
   node_size                    = var.kubernetes_node_size
   peer_network_id              = var.peer_network_id
   node_subnet_id               = var.deploy_network ? module.network.0.aks_node_pool_subnet_id : null

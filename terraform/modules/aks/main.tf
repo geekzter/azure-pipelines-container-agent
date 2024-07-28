@@ -143,11 +143,12 @@ resource azurerm_kubernetes_cluster aks {
 
   monitor_metrics {}
 
-  # network_profile {
-  #   network_plugin             = var.network_plugin
-  #   network_policy             = var.network_policy
-  #   outbound_type              = var.network_outbound_type
-  # }
+  network_profile {
+    network_data_plane         = var.network_plugin
+    network_plugin             = var.network_plugin
+    network_policy             = var.network_policy
+    outbound_type              = var.network_outbound_type
+  }
 
   oms_agent {
     log_analytics_workspace_id = var.log_analytics_workspace_id
