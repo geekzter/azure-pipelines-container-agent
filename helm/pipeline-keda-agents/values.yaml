@@ -35,5 +35,4 @@ storage:
   accountKey: ''
   shareName: "diagnostics"
 
-env:
-  values: {}
+env: []
