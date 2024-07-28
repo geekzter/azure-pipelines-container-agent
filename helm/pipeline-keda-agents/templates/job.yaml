@@ -49,11 +49,11 @@ spec:
         - name: docker-volume
           hostPath:
             path: /var/run/docker.sock
-        {{- if .Values.storage.accountName }}
-          - name: azure
-            persistentVolumeClaim:
-              claimName: azure-files
-        {{- end }}
+      {{- if .Values.storage.accountName }}
+        - name: azure
+          persistentVolumeClaim:
+            claimName: azure-files
+      {{- end }}
   pollingInterval: 15
   successfulJobsHistoryLimit: 5
   failedJobsHistoryLimit: 5
