@@ -143,6 +143,8 @@ variables:
   value: 'aca-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_aks_agent_pool_name'
   value: 'aks-container-agents-${{ parameters.workspace }}'
+# - name: 'TF_VAR_aks_private_cluster_enabled'
+#   value: ${{ lower(eq(parameters.networkType, 'Firewall')) }}
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_create_agent_pools'
