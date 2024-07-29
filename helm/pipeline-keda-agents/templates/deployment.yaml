@@ -43,9 +43,13 @@ spec:
         - name: PIPELINE_DEMO_JOB_CAPABILITY_AKS
           value: "{{ .Values.linux.azureDevOps.capability }}"
         volumeMounts:
-        - mountPath: /mnt/diag
-          name: azure
+        {{- if .Values.storage.accountName }}
+          - mountPath: /mnt/diag
+            name: azure
+        {{- end }}
       volumes:
-      - name: azure
-        persistentVolumeClaim:
-          claimName: azure-files
+      {{- if .Values.storage.accountName }}
+        - name: azure
+          persistentVolumeClaim:
+            claimName: azure-files
+      {{- end }}

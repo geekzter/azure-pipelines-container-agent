@@ -1,3 +1,4 @@
+{{- if .Values.storage.accountName -}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -29,3 +30,4 @@ spec:
     - cache=strict
     - nosharesock
     - nobrl
+{{- end }}

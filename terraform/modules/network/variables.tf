@@ -3,6 +3,9 @@ variable bastion_tags {
   description                  = "A map of the tags to use for the bastion resources that are deployed"
   type                         = map
 } 
+variable configure_diagnostics_storage {
+  type                         = bool
+}
 variable container_registry_id {}
 variable deploy_bastion {
   type                         = bool

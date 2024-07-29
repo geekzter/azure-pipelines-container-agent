@@ -69,6 +69,9 @@ output container_registry_name {
 output diagnostics_storage_account_name {
   value                        = module.diagnostics_storage.diagnostics_storage_name
 }
+output diagnostics_storage_account_name_string {
+  value                        = module.diagnostics_storage.diagnostics_storage_name != null ? module.diagnostics_storage.diagnostics_storage_name : ""
+}
 output diagnostics_storage_key {
   sensitive                    = true
   value                        = module.diagnostics_storage.diagnostics_storage_key
@@ -78,7 +81,7 @@ output diagnostics_storage_sas {
   value                        = module.diagnostics_storage.diagnostics_storage_sas
 }
 output diagnostics_share_url {
-  value                        = var.create_files_share ? module.diagnostics_storage.diagnostics_share_url : null
+  value                        = module.diagnostics_storage.diagnostics_share_url
 }
 output diagnostics_share_url_with_sas {
   sensitive                    = true
@@ -155,6 +158,10 @@ output subscription_id {
 }
 output subscription_guid {
   value                        = data.azurerm_subscription.default.subscription_id
+}
+
+output virtual_network_id {
+  value                        = var.deploy_network ? module.network.0.virtual_network_id : null
 }
 
 output workspace {

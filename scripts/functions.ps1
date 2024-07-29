@@ -263,15 +263,15 @@ function Set-PipelineVariablesFromTerraform () {
     $json = terraform output -json | ConvertFrom-Json -AsHashtable
     foreach ($outputVariable in $json.keys) {
         $value = $json[$outputVariable].value
-        if ($value) {
-            if ($value -notmatch "`n") {
-                $sensitive = $json[$outputVariable].sensitive.ToString().ToLower()
-                # Write variable output in the format a Pipeline can understand
-                "##vso[task.setvariable variable={0};isOutput=true;issecret={2}]{1}" -f $outputVariable, $value, $sensitive  | Write-Host
-                Write-Host "##vso[task.setvariable variable=${outputVariable};isOutput=true;issecret=]${value}"
-            } else {
-                Write-Verbose "Ignoring multi-line output variable '${outputVariable}'"
+        if ($value -notmatch "`n") {
+            $sensitive = $json[$outputVariable].sensitive.ToString().ToLower()
+            if ($sensitive -notmatch 'true') {
+                Write-Debug "${outputVariable}=${value}"
             }
+            # Write variable output in the format a Pipeline can understand
+            "##vso[task.setvariable variable={0};isOutput=true;issecret={2}]{1}" -f $outputVariable, $value, $sensitive | Write-Host
+        } else {
+            Write-Verbose "Ignoring multi-line output variable '${outputVariable}'"
         }
     }
 }

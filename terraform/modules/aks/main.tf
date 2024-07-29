@@ -5,12 +5,6 @@ locals {
 
 data azurerm_subscription primary {}
 
-data azurerm_subnet nodes_subnet {
-  name                         = element(split("/",var.node_subnet_id),length(split("/",var.node_subnet_id))-1)
-  virtual_network_name         = element(split("/",var.node_subnet_id),length(split("/",var.node_subnet_id))-3)
-  resource_group_name          = element(split("/",var.node_subnet_id),length(split("/",var.node_subnet_id))-7)
-}
-
 data azurerm_user_assigned_identity aks_identity {
   name                         = element(split("/",var.user_assigned_identity_id),length(split("/",var.user_assigned_identity_id))-1)
   resource_group_name          = element(split("/",var.user_assigned_identity_id),length(split("/",var.user_assigned_identity_id))-5)
@@ -95,16 +89,6 @@ data azurerm_kubernetes_service_versions current {
   include_preview              = false
 }
 
-# resource azurerm_resource_provider_registration keda {
-#   name                         = "Microsoft.ContainerService"
-#   feature {
-#     name                       = "AKS-KedaPreview"
-#     registered                 = true
-#   }
-
-#   count                        = var.enable_keda ? 1 : 0
-# }
-
 resource azurerm_kubernetes_cluster aks {
   name                         = "${local.resource_group_name}-k8s"
   location                     = var.location
@@ -169,8 +153,9 @@ resource azurerm_kubernetes_cluster aks {
     log_analytics_workspace_id = var.log_analytics_workspace_id
   }
 
-  private_cluster_enabled      = var.private_cluster_enabled
-  private_dns_zone_id          = var.private_cluster_enabled ? "System" : null
+  # private_cluster_enabled      = var.private_cluster_enabled
+  # private_dns_zone_id          = var.private_cluster_enabled ? "System" : null
+
   #private_cluster_public_fqdn_enabled = true
 
   role_based_access_control_enabled = true

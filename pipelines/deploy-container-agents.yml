@@ -105,6 +105,8 @@ variables:
   value: '$(System.CollectionUri)$(System.TeamProject)#$(Build.DefinitionName)-$(Build.BuildId)#$(TF_WORKSPACE)'
 - name: date
   value: $[format('{0:yyyyMMdd}', pipeline.startTime)]
+- name: HELM_CONFIG_HOME
+  value: $(Build.SourcesDirectory)/helm
 - name: 'imageRepository'
   value: 'pipelineagent/ubuntu-agent'
 - ${{ if and(parameters.buildImage,or(eq(parameters.destroy, 'Always'),eq(parameters.destroy, 'On success'),ne(variables['Build.Reason'], 'Manual'))) }}:
@@ -139,6 +141,8 @@ variables:
   value: 'aca-container-agents-${{ parameters.workspace }}'
 - name: 'TF_VAR_aks_agent_pool_name'
   value: 'aks-container-agents-${{ parameters.workspace }}'
+# - name: 'TF_VAR_aks_private_cluster_enabled'
+#   value: ${{ lower(eq(parameters.networkType, 'Firewall')) }}
 - name: 'TF_VAR_configure_access_control'
   value: 'false' # Assume Azure Service Connection identity is not in Azure Owner role
 - name: 'TF_VAR_create_agent_pools'
@@ -411,7 +415,6 @@ jobs:
       failOnStandardError: true
       workingDirectory: '$(scriptDirectory)'      
 
-  # https://keda.sh/docs/deploy/#helm
   - task: AzureCLI@2
     displayName: 'Terraform output'
     name: terraform
@@ -424,11 +427,26 @@ jobs:
         $(identityScriptDirectory)/set_terraform_azurerm_vars.ps1
 
         Write-Host ""
-        ./deploy.ps1 -output
+        ./deploy.ps1 -output -debug
       addSpnToEnvironment: true
       useGlobalConfig: true
       failOnStandardError: true
       workingDirectory: '$(scriptDirectory)'      
+
+  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
+    - task: AzureCLI@2
+      displayName: 'Wait for AKS'
+      retryCountOnTaskFailure: ${{ parameters.retryCount }}
+      inputs:
+        azureSubscription: '$(subscriptionConnection)'
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          az aks wait  -n $(terraform.aks_name) -g $(terraform.resource_group_name) --created
+          az aks wait  -n $(terraform.aks_name) -g $(terraform.resource_group_name) --updated
+        useGlobalConfig: true
+        failOnStandardError: true
+        workingDirectory: '$(scriptDirectory)'      
 
   # https://keda.sh/docs/deploy/#helm
   - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
@@ -475,11 +493,11 @@ jobs:
         releaseName: 'keda'
         arguments: '--create-namespace'
 
-  - ${{ if or(eq(parameters.containerEngine, 'Kubernetes'),eq(parameters.containerEngine, 'Both')) }}:
     - task: HelmDeploy@0
       displayName: "Deploy agent to AKS"
       retryCountOnTaskFailure: ${{ parameters.retryCount }}
       inputs:
+        arguments: '--debug'
         azureSubscription: '$(subscriptionConnection)'
         azureResourceGroup: '$(terraform.resource_group_name)'
         kubernetesCluster: '$(terraform.aks_name)'
@@ -499,7 +517,7 @@ jobs:
           linux.image.tag=$(imageTag)
           linux.podPrefix=aks-$(TF_WORKSPACE)-$(TF_VAR_resource_suffix)
           linux.trigger.poolId=$(terraform.aks_agent_pool_id)
-          storage.accountName=$(terraform.diagnostics_storage_account_name)
+          storage.accountName=$(terraform.diagnostics_storage_account_name_string)
           storage.accountKey=$(terraform.diagnostics_storage_key)
           storage.resourceGroupName=$(terraform.resource_group_name)
         waitForExecution: true

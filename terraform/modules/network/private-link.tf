@@ -28,7 +28,7 @@ resource azurerm_subnet private_endpoint_subnet {
   virtual_network_name         = azurerm_virtual_network.pipeline_network.name
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
   address_prefixes             = [cidrsubnet(azurerm_virtual_network.pipeline_network.address_space[0],4,1)]
-  private_endpoint_network_policies_enabled = true
+  private_endpoint_network_policies = "Enabled"
 
   depends_on                   = [
     azurerm_network_security_group.default
@@ -56,7 +56,7 @@ resource azurerm_private_endpoint diag_blob_storage {
   }
 
   tags                         = var.tags
-  count                        = var.gateway_type != "NoGateway" ? 1 : 0
+  count                        = var.gateway_type != "NoGateway" && var.configure_diagnostics_storage ? 1 : 0
 }
 
 resource azurerm_private_endpoint file_share {
@@ -79,7 +79,7 @@ resource azurerm_private_endpoint file_share {
   }
 
   tags                         = var.tags
-  count                        = var.gateway_type != "NoGateway" ? 1 : 0
+  count                        = var.gateway_type != "NoGateway" && var.configure_diagnostics_storage ? 1 : 0
 }
 
 # BUG: ACR private endpoint does not work ACA delegated subnet

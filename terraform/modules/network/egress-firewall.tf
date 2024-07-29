@@ -574,7 +574,6 @@ resource azurerm_monitor_diagnostic_setting firewall_ip_logs {
   name                         = "${azurerm_public_ip.gateway.0.name}-logs"
   target_resource_id           = azurerm_public_ip.gateway.0.id
   log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
-  storage_account_id           = var.diagnostics_storage_id
 
   enabled_log {
     category                   = "DDoSProtectionNotifications"
@@ -599,7 +598,6 @@ resource azurerm_monitor_diagnostic_setting firewall_logs {
   name                         = "${azurerm_firewall.gateway.0.name}-logs"
   target_resource_id           = azurerm_firewall.gateway.0.id
   log_analytics_workspace_id   = var.log_analytics_workspace_resource_id
-  storage_account_id           = var.diagnostics_storage_id
 
   enabled_log {
     category                   = "AzureFirewallDnsProxy"
