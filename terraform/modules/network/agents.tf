@@ -1,6 +1,6 @@
 locals {
-  container_app_address_prefixes = [cidrsubnet(azurerm_virtual_network.pipeline_network.address_space[0],1,1)]  
-  aks_address_prefixes         = [cidrsubnet(azurerm_virtual_network.pipeline_network.address_space[0],2,1)]  
+  container_app_address_prefixes = [cidrsubnet(tolist(azurerm_virtual_network.pipeline_network.address_space)[0],1,1)]  
+  aks_address_prefixes         = [cidrsubnet(tolist(azurerm_virtual_network.pipeline_network.address_space)[0],2,1)]  
   agent_prefixes               = concat(local.container_app_address_prefixes,local.aks_address_prefixes)
 }
 

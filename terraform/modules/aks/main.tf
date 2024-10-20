@@ -99,27 +99,26 @@ resource azurerm_kubernetes_cluster aks {
   # Triggers resource to be recreated
   kubernetes_version           = local.kubernetes_version
 
-  automatic_channel_upgrade    = "stable"
+  automatic_upgrade_channel    = "stable"
 
   dynamic azure_active_directory_role_based_access_control {
     for_each = range(var.configure_access_control ? 1 : 0) 
     content {
       admin_group_object_ids   = var.admin_object_ids
       azure_rbac_enabled       = true
-      managed                  = true
     }
   }  
 
   azure_policy_enabled         = true
 
   default_node_pool {
-    enable_auto_scaling        = true
-    enable_host_encryption     = false # Requires 'Microsoft.Compute/EncryptionAtHost' feature
-    enable_node_public_ip      = var.enable_node_public_ip
+    auto_scaling_enabled       = true
+    host_encryption_enabled    = false # Requires 'Microsoft.Compute/EncryptionAtHost' feature
     min_count                  = var.node_min_count
     max_count                  = var.node_max_count
     name                       = "default"
     node_count                 = var.node_min_count
+    node_public_ip_enabled     = var.enable_node_public_ip
     tags                       = var.tags
     # https://docs.microsoft.com/en-us/azure/virtual-machines/disk-encryption#supported-vm-sizes
     vm_size                    = var.node_size
