@@ -80,7 +80,7 @@ variable create_agent_pools {
 
 variable create_files_share {
   description                  = "Deploys files share (e.g. for agent diagnostics)"
-  default                      = true
+  default                      = false
   type                         = bool
 }
 
