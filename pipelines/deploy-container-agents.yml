@@ -235,7 +235,7 @@ jobs:
   ${{ if parameters.asContainerJob }}:
     container:
       image: $(toolsImageFQName)
-      endpoint: containerEndpoint
+      endpoint: ${{ coalesce(variables.containerEndpoint,'containerEndpoint') }}
 
   steps:
   - checkout: self
@@ -676,7 +676,7 @@ jobs:
     # ${{ if parameters.asContainerJob }}:
     #   container:
     #     image: $(toolsImageFQName)
-    #     endpoint: containerEndpoint
+    #     endpoint: ${{ coalesce(variables.containerEndpoint,'containerEndpoint') }}
 
     variables:
       terraformVersion: $[ coalesce(dependencies.provision.outputs['terraformConfig.version'],'latest') ]

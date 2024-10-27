@@ -153,7 +153,7 @@ jobs:
   ${{ if parameters.asContainerJob }}:
     container:
       image: $(toolsImageFQName)
-      endpoint: containerEndpoint
+      endpoint: ${{ coalesce(variables.containerEndpoint,'containerEndpoint') }}
   steps:
   - pwsh: |
       $strategyHash = @{}
@@ -284,7 +284,7 @@ jobs:
   ${{ if parameters.asContainerJob }}:
     container:
       image: $(toolsImageFQName)
-      endpoint: containerEndpoint
+      endpoint: ${{ coalesce(variables.containerEndpoint,'containerEndpoint') }}
 
   strategy:
     matrix: $[ dependencies.createStrategy.outputs['pwsh.strategy'] ]
