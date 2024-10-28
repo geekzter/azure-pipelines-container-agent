@@ -35,15 +35,17 @@ jobs:
     image: $(toolsImageFQName)
     endpoint: ${{ coalesce(variables.containerEndpoint,'containerEndpoint') }}
   steps:
+  - pwsh: |
+      Write-Host "Using Container endpoint '${{ coalesce(variables.containerEndpoint,'containerEndpoint') }}'"
+    displayName: 'Service Connection info'
   - bash: |
-      echo Hello from Ubuntu
       lsb_release -d
-    displayName: 'bash: Ubuntu info'
+    displayName: 'Ubuntu info'
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
       $PSVersionTable.OS
       Get-InstalledModule | Sort-Object -Property Name
-    displayName: 'pwsh: PowerShell info'
+    displayName: 'PowerShell info'
   - task: AzureCLI@2
     inputs:
       azureSubscription: '${{ parameters.azureServiceConnection }}'
