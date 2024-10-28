@@ -37,7 +37,8 @@ jobs:
     # endpoint: $(containerEndpoint)
   steps:
   - pwsh: |
-      Write-Host "Using Container endpoint '${{ coalesce(variables["containerEndpoint"],'containerEndpoint') }}'"
+      Write-Host "Using Container endpoint '${{ coalesce(variables['containerEndpoint'],'containerEndpoint') }}'"
+      Write-Host "variables[`'containerEndpoint`']: '$[ variables['containerEndpoint'] ]$'"
       Write-Host "containerEndpoint: '$(containerEndpoint)'"
     displayName: 'Service Connection info'
   - bash: |
