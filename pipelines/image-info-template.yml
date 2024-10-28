@@ -37,6 +37,7 @@ jobs:
   steps:
   - pwsh: |
       Write-Host "Using Container endpoint '${{ coalesce(variables.containerEndpoint,'containerEndpoint') }}'"
+      Write-Host "containerEndpoint: '$(containerEndpoint)'"
     displayName: 'Service Connection info'
   - bash: |
       lsb_release -d
