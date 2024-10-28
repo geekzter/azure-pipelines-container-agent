@@ -18,6 +18,10 @@ parameters:
   displayName: Azure Service Connection
   type: string
   default: my-azure-subscription
+- name: containerEndpoint
+  displayName: Docker Service Connection
+  type: string
+  default: containerEndpoint
 
 jobs:
 - job: ${{ parameters.name }}
@@ -33,11 +37,10 @@ jobs:
     vmImage: $[ coalesce(variables.vmImage,'ubuntu-latest') ]
   container:
     image: $(toolsImageFQName)
-    # endpoint: ${{ coalesce(variables.containerEndpoint,'containerEndpoint') }}
-    endpoint: $(containerEndpoint)
+    endpoint: ${{ parameters.containerEndpoint }}
   steps:
   - pwsh: |
-      Write-Host "Using Container endpoint '${{ coalesce(variables['containerEndpoint'],'containerEndpoint') }}'"
+      Write-Host "Using Container endpoint '${{ parameters.containerEndpoint }}'"
       Write-Host "variables[`'containerEndpoint`']: '$[ variables['containerEndpoint'] ]$'"
       Write-Host "containerEndpoint: '$(containerEndpoint)'"
     displayName: 'Service Connection info'
