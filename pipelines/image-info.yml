@@ -1,4 +1,13 @@
 name: $(Date:yyyyMMdd)$(Rev:.r)-$(Build.DefinitionVersion)-$(SourceBranchName)-$(Build.BuildId)
+parameters:
+- name: azureServiceConnection
+  displayName: Azure Service Connection
+  type: string
+  default: my-azure-subscription
+- name: containerEndpoint
+  displayName: Docker Service Connection
+  type: string
+  default: containerEndpoint
 pr: none
 schedules:
 - cron: '0 0 * * *'
@@ -14,3 +23,5 @@ jobs:
 - template: image-info-template.yml
   parameters:
     name: test
+    azureServiceConnection: ${{ parameters.azureServiceConnection }}
+    containerEndpoint: ${{ parameters.containerEndpoint }}
