@@ -142,8 +142,6 @@ variables:
   value: '$(Build.BuildId)'
 - name: 'toolsImageFQName'
   value: $(containerRegistry).azurecr.io/pipelineagent/ubuntu-agent-tools:latest
-- name: 'vmImage'
-  value: 'ubuntu-latest'
 
 jobs:
 - job: createStrategy
