@@ -56,7 +56,7 @@ jobs:
       cat /etc/os-release
       add-apt-repository ppa:deadsnakes/ppa
       apt update
-      apt -y install python${{ parameters.pythonVersion }}
+      apt -y install python3.11
       # echo Azure Function Core Tools $(func --version)
       python --version
     displayName: 'bash: Root stuff'
