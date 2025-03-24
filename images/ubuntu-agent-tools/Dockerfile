@@ -34,3 +34,5 @@ RUN pwsh -NoProfile -NonInteractive -Command 'Install-Module -Name Az,Microsoft.
 
 # Can be 'linux-x64', 'linux-arm64', 'linux-arm', 'rhel.6-x64'.
 ENV TARGETARCH=linux-x64
+
+USER root
