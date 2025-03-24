@@ -39,6 +39,27 @@ jobs:
       echo Hello from Ubuntu
       lsb_release -d
     displayName: 'bash: Ubuntu info'
+  - bash: |
+      apt-get install -y -qq --no-install-recommends \
+        apt-transport-https \
+        apt-utils \
+        ca-certificates \
+        curl \
+        git \
+        iputils-ping \
+        jq \
+        lsb-release \
+        software-properties-common \
+        wget
+      apt -y install unzip lsb-release
+      # lsb_release -a
+      cat /etc/os-release
+      add-apt-repository ppa:deadsnakes/ppa
+      apt update
+      apt -y install python${{ parameters.pythonVersion }}
+      # echo Azure Function Core Tools $(func --version)
+      python --version
+    displayName: 'bash: Root stuff'
   - pwsh: |
       Write-Host "`$PSVersionTable.OS"
       $PSVersionTable.OS
