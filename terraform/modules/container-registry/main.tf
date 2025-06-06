@@ -26,7 +26,7 @@ resource azurerm_monitor_diagnostic_setting image_registry {
     category                   = "ContainerRegistryLoginEvents"
   }
 
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 

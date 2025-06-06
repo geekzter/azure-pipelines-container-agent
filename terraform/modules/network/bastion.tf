@@ -185,7 +185,7 @@ resource azurerm_monitor_diagnostic_setting bastion_ip {
     category                   = "DDoSMitigationReports"
   }  
 
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 
@@ -224,7 +224,7 @@ resource azurerm_monitor_diagnostic_setting bastion {
     category                   = "BastionAuditLogs"
   }
 
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 

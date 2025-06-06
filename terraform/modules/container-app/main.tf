@@ -95,7 +95,7 @@ resource azurerm_monitor_diagnostic_setting agent_container_environment {
   enabled_log {
     category_group             = "allLogs"
   }
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 }
