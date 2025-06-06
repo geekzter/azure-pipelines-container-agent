@@ -135,11 +135,11 @@ try {
                 Write-Debug "az aks list -g $resourceGroup --subscription $env:ARM_SUBSCRIPTION_ID --query `"[?provisioningState=='Succeeded'&&properties.powerState.code!='Running'].name`""
                 $aks = $(az aks list -g $resourceGroup --subscription $env:ARM_SUBSCRIPTION_ID --query "[?provisioningState=='Succeeded'&&properties.powerState.code!='Running'].name" -o tsv)
                 if ($aks) {
-                    az aks show -n $aks -g $resourceGroup --query powerState -o tsv | Set-Variable powerState
+                    az aks show -n $aks -g $resourceGroup --query powerState --subscription $env:ARM_SUBSCRIPTION_ID -o tsv | Set-Variable powerState
                     if ($powerState -ieq 'Running') {
-                        Write-Host "AKS $(aks) nodes are already running."
+                        Write-Host "AKS ${aks} nodes are already running."
                     } else {
-                        Write-Host "AKS $(aks) nodes are not running. Starting..."
+                        Write-Host "AKS ${aks} nodes are not running. Starting..."
                         Write-Debug "az aks start -n $aks -g $resourceGroup"
                         az aks start -n $aks -g $resourceGroup --subscription $env:ARM_SUBSCRIPTION_ID --query "[].name" -o tsv
                         Write-Host "Started AKS '${aks}' in resource group '${resourceGroup}'"

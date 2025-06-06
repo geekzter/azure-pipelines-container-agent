@@ -90,7 +90,7 @@ if ($aks.powerState.code -iin "Running", "Starting") {
 }
 "AKS '${AksName}' is in provisioning state '{0}' and power state '{1}'" -f $aks.provisioningState, $aks.powerState.code | Write-Debug
 
-az aks show -n $AksName -g $ResourceGroupName --query powerState -o tsv | Set-Variable powerState
+az aks show -n $AksName -g $ResourceGroupName --query powerState --subscription $SubscriptionId -o tsv | Set-Variable powerState
 if ($powerState -ieq 'Running') {
     Write-Host "AKS $(AksName) nodes are already running."
 } else {
