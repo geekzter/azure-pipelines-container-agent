@@ -91,7 +91,7 @@ jobs:
           if ($aks) {
             if ($${{ and(parameters.startAKSNodes,eq(parameters.containerEngine, 'Kubernetes')) }}) {
               az aks show -n $aks.name -g $aks.resourceGroup --query powerState -o tsv | Set-Variable powerState
-              if ($powerState -eq 'Running') {
+              if ($powerState -ieq 'Running') {
                 Write-Host "AKS $(agentPool) nodes are already running."
               } else {
                 Write-Host "AKS $(agentPool) nodes are not running. Starting..."
