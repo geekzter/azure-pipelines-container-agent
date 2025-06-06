@@ -68,7 +68,7 @@ resource azurerm_subnet_nat_gateway_association bastion_subnet {
     azurerm_nat_gateway_public_ip_association.egress,
   ]
 
-  count                        = var.gateway_type == "NATGateway" ? 1 : 0
+  count                        = var.deploy_bastion && var.gateway_type == "NATGateway" ? 1 : 0
 }
 
 resource azurerm_subnet_nat_gateway_association container_apps_environment {
