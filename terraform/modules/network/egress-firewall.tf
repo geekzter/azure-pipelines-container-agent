@@ -3,6 +3,7 @@ resource azurerm_subnet gateway {
   virtual_network_name         = azurerm_virtual_network.pipeline_network.name
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
   address_prefixes             = [cidrsubnet(tolist(azurerm_virtual_network.pipeline_network.address_space)[0],4,0)]
+  default_outbound_access_enabled = false
 
   count                        = var.gateway_type == "Firewall" ? 1 : 0
 }
@@ -587,7 +588,7 @@ resource azurerm_monitor_diagnostic_setting firewall_ip_logs {
     category                   = "DDoSMitigationReports"
   }
 
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 
@@ -611,7 +612,7 @@ resource azurerm_monitor_diagnostic_setting firewall_logs {
     category                   = "AzureFirewallNetworkRule"
   }
   
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 

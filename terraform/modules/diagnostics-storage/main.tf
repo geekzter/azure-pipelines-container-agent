@@ -19,7 +19,7 @@ resource azurerm_monitor_diagnostic_setting diagnostics {
   log_analytics_workspace_id   = azurerm_log_analytics_workspace.monitor.0.id
   target_resource_id           = azurerm_storage_account.diagnostics.0.id
 
-  metric {
+  enabled_metric {
     category                   = "Transaction"
   }
 
@@ -94,7 +94,7 @@ resource azurerm_monitor_diagnostic_setting monitor {
   enabled_log {
     category                   = "Audit"
   }
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
   count                        = var.create_log_analytics_workspace && var.create_files_share ? 1 : 0

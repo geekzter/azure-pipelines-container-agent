@@ -43,7 +43,7 @@ resource azurerm_monitor_diagnostic_setting aks {
     category                   = "guard"
   }
 
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 } 
@@ -53,7 +53,7 @@ resource azurerm_monitor_diagnostic_setting scale_set {
   target_resource_id           = data.azurerm_resources.scale_sets.resources[0].id
   log_analytics_workspace_id   = var.log_analytics_workspace_id
 
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 

@@ -9,6 +9,7 @@ resource azurerm_subnet aks_node_pool {
   virtual_network_name         = azurerm_virtual_network.pipeline_network.name
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
   address_prefixes             = local.aks_address_prefixes
+  default_outbound_access_enabled = false
   depends_on                   = [
     azurerm_network_security_rule.inbound_agent_rdp,
     azurerm_network_security_rule.inbound_agent_ssh,
@@ -20,6 +21,7 @@ resource azurerm_subnet container_apps_environment {
   virtual_network_name         = azurerm_virtual_network.pipeline_network.name
   resource_group_name          = azurerm_virtual_network.pipeline_network.resource_group_name
   address_prefixes             = local.container_app_address_prefixes
+  default_outbound_access_enabled = false
 
   delegation {
     name                       = "delegation"

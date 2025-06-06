@@ -20,7 +20,6 @@ resource azurerm_public_ip nat_egress {
 
   count                        = var.gateway_type == "NATGateway" ? 1 : 0
 }
-
 resource azurerm_monitor_diagnostic_setting nat_egress {
   name                         = "${azurerm_public_ip.nat_egress.0.name}-logs"
   target_resource_id           = azurerm_public_ip.nat_egress.0.id
@@ -36,7 +35,7 @@ resource azurerm_monitor_diagnostic_setting nat_egress {
     category                   = "DDoSMitigationReports"
   }  
 
-  metric {
+  enabled_metric {
     category                   = "AllMetrics"
   }
 
@@ -61,8 +60,30 @@ resource azurerm_subnet_nat_gateway_association aks_node_pool {
   count                        = var.gateway_type == "NATGateway" ? 1 : 0
 }
 
+resource azurerm_subnet_nat_gateway_association bastion_subnet {
+  subnet_id                    = azurerm_subnet.bastion_subnet.0.id
+  nat_gateway_id               = azurerm_nat_gateway.egress.0.id
+
+  depends_on                   = [
+    azurerm_nat_gateway_public_ip_association.egress,
+  ]
+
+  count                        = var.deploy_bastion && var.gateway_type == "NATGateway" ? 1 : 0
+}
+
 resource azurerm_subnet_nat_gateway_association container_apps_environment {
   subnet_id                    = azurerm_subnet.container_apps_environment.id
+  nat_gateway_id               = azurerm_nat_gateway.egress.0.id
+
+  depends_on                   = [
+    azurerm_nat_gateway_public_ip_association.egress,
+  ]
+
+  count                        = var.gateway_type == "NATGateway" ? 1 : 0
+}
+
+resource azurerm_subnet_nat_gateway_association private_endpoint_subnet {
+  subnet_id                    = azurerm_subnet.private_endpoint_subnet.0.id
   nat_gateway_id               = azurerm_nat_gateway.egress.0.id
 
   depends_on                   = [
