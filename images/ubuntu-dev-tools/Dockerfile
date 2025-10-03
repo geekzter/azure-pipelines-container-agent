@@ -11,6 +11,7 @@ RUN apt-get update && \
     ca-certificates \
     curl \
     git \
+    gpg \
     iputils-ping \
     jq \
     lsb-release \
@@ -28,8 +29,11 @@ RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | \
     tee /etc/apt/sources.list.d/kubernetes.list
 
 # Helm repo
-RUN curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null \
-    echo "deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+RUN curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | \
+    gpg --dearmor | \
+    tee /usr/share/keyrings/helm.gpg > /dev/null \
+    echo "deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main" | \
+    tee /etc/apt/sources.list.d/helm-stable-debian.list
 
 # Hashicorp repo
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | \
