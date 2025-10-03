@@ -11,6 +11,7 @@ RUN apt-get update && \
     ca-certificates \
     curl \
     git \
+    gpg \
     iputils-ping \
     jq \
     lsb-release \
@@ -28,10 +29,10 @@ RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | \
     tee /etc/apt/sources.list.d/kubernetes.list
 
 # Helm repo
-RUN curl https://baltocdn.com/helm/signing.asc | \
+RUN curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | \
     gpg --dearmor | \
     tee /usr/share/keyrings/helm.gpg > /dev/null && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | \
+    echo "deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main" | \
     tee /etc/apt/sources.list.d/helm-stable-debian.list
 
 # Hashicorp repo
@@ -67,7 +68,7 @@ RUN apt-get update && \
     && curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
 # PowerShell, do not rely on apt as no arm64 package is available
-ARG PS_VERSION=7.3.12
+ARG PS_VERSION=7.4.12
 RUN PS_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) PS_ARCH='x64';; \
