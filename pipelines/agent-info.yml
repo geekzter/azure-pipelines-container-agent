@@ -132,8 +132,8 @@ jobs:
       az -v
     displayName: 'Azure CLI info'
   - pwsh: |
-      Write-Host "`$PSVersionTable.OS"
-      $PSVersionTable.OS
+      Write-Host "`$PSVersionTable"
+      $PSVersionTable
       Get-InstalledModule | Sort-Object -Property Name
     displayName: 'PowerShell info'
   - pwsh: |
