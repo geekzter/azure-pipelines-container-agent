@@ -78,6 +78,7 @@ resource azurerm_public_ip gateway {
   location                     = var.location
   resource_group_name          = var.resource_group_name
   allocation_method            = "Static"
+  ip_tags                      = var.ip_tags
   sku                          = "Standard"
 
   tags                         = var.tags

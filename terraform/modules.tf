@@ -37,6 +37,7 @@ module network {
   deploy_bastion               = var.deploy_bastion
   diagnostics_storage_id       = var.create_files_share ? module.diagnostics_storage.diagnostics_storage_id : null
   gateway_type                 = var.gateway_type
+  ip_tags                      = var.ip_tags
   location                     = azurerm_resource_group.rg.location
   log_analytics_workspace_resource_id = local.log_analytics_workspace_resource_id
   peer_network_has_gateway     = var.peer_network_has_gateway
