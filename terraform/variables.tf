@@ -138,6 +138,13 @@ variable environment_variables {
   nullable                     = false
 } 
 
+variable ip_tags {
+  description                  = "A map of the ip_tags to use for public ip addresses"
+  type                         = map
+
+  default                      = {}  
+} 
+
 variable gateway_type {
   type                         = string
   default                      = "NoGateway"

@@ -18,6 +18,9 @@ variable gateway_type {
     error_message              = "The gateway_type must be 'Firewall', 'NATGateway' or 'NoGateway'"
   }
 }
+variable ip_tags {
+  type                         = map
+}
 variable location {}
 variable log_analytics_workspace_resource_id {}
 variable peer_network_id {}
