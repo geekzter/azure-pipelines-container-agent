@@ -98,6 +98,7 @@ resource azurerm_kubernetes_cluster aks {
 
   # Triggers resource to be recreated
   kubernetes_version           = local.kubernetes_version
+  oidc_issuer_enabled          = true  # Cannot be disabled once enabled
 
   automatic_upgrade_channel    = "stable"
 
